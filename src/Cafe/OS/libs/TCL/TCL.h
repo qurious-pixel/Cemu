@@ -1,4 +1,0 @@
-namespace TCL
-{
-	void Initialize();
-}

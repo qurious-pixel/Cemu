@@ -1,5 +1,0 @@
-
-namespace zlib
-{
-	void load();
-}
