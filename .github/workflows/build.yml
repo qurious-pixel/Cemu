@@ -11,8 +11,6 @@ on:
   push:
     paths-ignore:
       - "*.md"
-    branches:
-      - main
   workflow_call:
     inputs:
       deploymode:
@@ -30,10 +28,17 @@ jobs:
       install_vulkan_folder: "$GITHUB_WORKSPACE/vulkan_sdk"
       install_vulkan_version: "1.3.216.0"
     steps:
-    - name: "Checkout repo"
+    - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
-        submodules: "recursive"
+        repository: cemu-project/Cemu
+        ref: main
+        submodules: recursive
+    - name: Checkout AppImage Repo
+      uses: actions/checkout@v3
+      with:
+          clean: false
+          path: ci
         
     - name: Setup release mode parameters (for deploy)
       if: ${{ inputs.deploymode == 'release' }}
