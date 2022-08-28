@@ -14,7 +14,6 @@ on:
   workflow_call:
     inputs:
       deploymode:
-        default: 'release'
         required: false
         type: string
 
@@ -51,18 +50,18 @@ jobs:
           build
 
     - name: Setup release mode parameters (for deploy)
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       run: |
         echo "BUILD_MODE=release" >> $GITHUB_ENV
         echo "BUILD_FLAGS=-DPUBLIC_RELEASE=ON" >> $GITHUB_ENV
         echo "Build mode is release"
 
-    - name: Setup debug mode parameters (for continous build)
-      if: ${{ inputs.deploymode != 'release' }}
-      run: |
-        echo "BUILD_MODE=debug" >> $GITHUB_ENV
-        echo "BUILD_FLAGS=" >> $GITHUB_ENV
-        echo "Build mode is debug"
+    #- name: Setup debug mode parameters (for continous build)
+    #  if: ${{ inputs.deploymode != 'release' }}
+    #  run: |
+    #    echo "BUILD_MODE=debug" >> $GITHUB_ENV
+    #    echo "BUILD_FLAGS=" >> $GITHUB_ENV
+    #    echo "Build mode is debug"
         
     - name: "Install system dependencies"
       run: |
