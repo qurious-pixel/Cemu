@@ -13,7 +13,7 @@ on:
       - "*.md"
   workflow_call:
     inputs:
-      deploymode:
+      deploymode: release
         required: false
         type: string
 
@@ -95,8 +95,7 @@ jobs:
         export VULKAN_SDK="${{ env.install_vulkan_folder }}/${{ env.install_vulkan_version }}/x86_64"
         mkdir -p build
         cd build
-        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -G Ninja -DPUBLIC_RELEASE=ON
-        
+        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -G Ninja
     - name: "Build Cemu"
       run: |
         cd build
