@@ -44,7 +44,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: |
-          ${{ env.CACHEDIR }}
+          ~/.ccache
         key: build-${{github.run_id}}
         restore-keys: |
           build
