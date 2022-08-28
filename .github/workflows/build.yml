@@ -57,7 +57,7 @@ jobs:
     - name: "Install system dependencies"
       run: |
         sudo apt update -qq
-        sudo apt install -y ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm
+        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm
         wget https://sdk.lunarg.com/sdk/download/${{ env.install_vulkan_version }}/linux/vulkansdk-linux-x86_64-${{ env.install_vulkan_version }}.tar.gz -q -O vulkansdk.tar.gz
         mkdir -p "${{ env.install_vulkan_folder }}"
         tar -xf vulkansdk.tar.gz --directory ${{ env.install_vulkan_folder }}
@@ -86,7 +86,7 @@ jobs:
         export VULKAN_SDK="${{ env.install_vulkan_folder }}/${{ env.install_vulkan_version }}/x86_64"
         mkdir -p build
         cd build
-        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -G Ninja -DPUBLIC_RELEASE=ON
+        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -G Ninja -DPUBLIC_RELEASE=ON
         
     - name: "Build Cemu"
       run: |
