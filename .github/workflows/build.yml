@@ -13,7 +13,8 @@ on:
       - "*.md"
   workflow_call:
     inputs:
-      deploymode: release
+      deploymode:
+        default: 'release'
         required: false
         type: string
 
