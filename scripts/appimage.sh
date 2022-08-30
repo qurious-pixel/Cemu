@@ -28,6 +28,8 @@ export UPD_INFO="gh-releases-zsync|qurious-pixel|Cemu|ci|Cemu.AppImage.zsync"
   -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/Cemu	  \
   --plugin gtk
 
+ln -sr AppDir/usr/lib/x86_64-linux-gnu/gdk-pixbuf-2.0/2.10.0/loaders/libpixbufloader-png.so AppDir/usr/lib/libpixbufloader-png.so
+
 ./appimagetool-x86_64.AppImage "$GITHUB_WORKSPACE"/AppDir "Cemu.AppImage" -u "gh-releases-zsync|qurious-pixel|Cemu|ci|Cemu.AppImage.zsync"
 
 mkdir -p "$GITHUB_WORKSPACE"/artifacts/ 
