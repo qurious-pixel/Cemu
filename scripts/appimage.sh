@@ -8,14 +8,14 @@ curl -sSfLO "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gt
 chmod a+x linuxdeploy-plugin-gtk.sh
  
 mkdir -p AppDir/usr/
-cp .ci/{cemu.desktop,cemu.png} AppDir/
+cp ci/scripts/{cemu.desktop,cemu.png} AppDir/
 
 mkdir -p AppDir/usr/share/applications 
 mkdir -p AppDir/usr/share/icons/hicolor/scalable/apps
 mkdir -p AppDir/usr/lib
 
 cp -r bin AppDir/usr/
-cp .ci/cemu.sh AppDir/usr/bin/
+cp ci/scripts/cemu.sh AppDir/usr/bin/
 
 chmod +x AppDir/usr/bin/{Cemu,cemu.sh}
 chmod +x AppDir/AppRun
@@ -25,7 +25,7 @@ export UPD_INFO="gh-releases-zsync|qurious-pixel|Cemu|ci|Cemu.AppImage.zsync"
   --appdir="$GITHUB_WORKSPACE"/AppDir/          \
   -d "$GITHUB_WORKSPACE"/AppDir/cemu.desktop    \
   -i "$GITHUB_WORKSPACE"/AppDir/cemu.png        \
-  -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/Cemu	\
+  -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/Cemu	  \
   --plugin gtk
 
 ./appimagetool-x86_64.AppImage "$GITHUB_WORKSPACE"/AppDir "Cemu.AppImage" -u "gh-releases-zsync|qurious-pixel|Cemu|ci|Cemu.AppImage.zsync"
