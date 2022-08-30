@@ -101,12 +101,16 @@ jobs:
         cd build
         ninja
         
+    - name: "Build AppImage"
+      run: |
+        chmod +x ci/scripts/appimage.sh && ci/scripts/appimage.sh
+        
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-linux-x64
-        path: ./bin/Cemu
+        path: artifacts
         
         
   #build-windows:
