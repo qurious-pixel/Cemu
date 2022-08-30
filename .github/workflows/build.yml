@@ -31,8 +31,8 @@ jobs:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
-        repository: cemu-project/Cemu # tomlally/Cemu # 
-        ref: main # gcc # 
+        repository: Tatsh/Cemu # cemu-project/Cemu # tomlally/Cemu # 
+        ref: xdg # main # gcc # 
         submodules: recursive
     - name: Checkout AppImage Repo
       uses: actions/checkout@v3
@@ -95,7 +95,7 @@ jobs:
         export VULKAN_SDK="${{ env.install_vulkan_folder }}/${{ env.install_vulkan_version }}/x86_64"
         mkdir -p build
         cd build
-        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DCMAKE_C_COMPILER=/usr/bin/gcc-11 -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER=/usr/bin/g++-11 -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -G Ninja
+        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DSYSTEM_DATA_PATH=~/.config/cemu -DCMAKE_C_COMPILER=/usr/bin/gcc-11 -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER=/usr/bin/g++-11 -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -G Ninja
     - name: "Build Cemu"
       run: |
         cd build
