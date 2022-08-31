@@ -1,5 +1,9 @@
 #!/bin/bash
-  
+
+if [ -z "${GITHUB_WORKSPACE}" ]; then
+    export GITHUB_WORKSPACE="."
+fi
+
 curl -sSfLO "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
 chmod a+x linuxdeploy*.AppImage
 curl -sSfLO "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage" 
