@@ -31,8 +31,8 @@ jobs:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
-        repository: cemu-project/Cemu # tomlally/Cemu # Tatsh/Cemu # 
-        ref: main # gcc # xdg # 
+        repository: Tatsh/Cemu # cemu-project/Cemu # tomlally/Cemu # 
+        ref: xdg # main # gcc # 
         submodules: recursive
     - name: Checkout AppImage Repo
       uses: actions/checkout@v3
