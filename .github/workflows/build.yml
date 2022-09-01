@@ -31,8 +31,8 @@ jobs:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
-        repository: Tatsh/Cemu # cemu-project/Cemu # tomlally/Cemu # 
-        ref: xdg # main # gcc # 
+        repository: cemu-project/Cemu # tomlally/Cemu # Tatsh/Cemu # 
+        ref: main # gcc # xdg # 
         submodules: recursive
     - name: Checkout AppImage Repo
       uses: actions/checkout@v3
@@ -66,10 +66,29 @@ jobs:
     - name: "Install system dependencies"
       run: |
         sudo apt update -qq
-        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm gcc-11 g++-11 libpng-dev libpulse-dev
+        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm gcc-11 g++-11 libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5
         wget https://sdk.lunarg.com/sdk/download/${{ env.install_vulkan_version }}/linux/vulkansdk-linux-x86_64-${{ env.install_vulkan_version }}.tar.gz -q -O vulkansdk.tar.gz
         mkdir -p "${{ env.install_vulkan_folder }}"
         tar -xf vulkansdk.tar.gz --directory ${{ env.install_vulkan_folder }}
+
+    - name: "Install wxWidgets"
+      run: |
+        WXVER=3.2.0
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e wxWidgets-${WXVER} ]]; then
+          curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${WXVER}/wxWidgets-${WXVER}.tar.bz2
+          tar xf wxWidgets-${WXVER}.tar.bz2
+          cd wxWidgets-${WXVER}
+          mkdir build-gtk3 && cd build-gtk3
+          cmake ..
+          make && cd ../../
+          rm wxWidgets-${WXVER}.tar.bz2
+        fi
+        sudo make -C wxWidgets-${WXVER}/build-gtk3 install
+
+    - name: "Linux Fixes"
+      run: |
+        sed -i '37,40d' vcpkg.json
 
     - name: "Bootstrap vcpkg"
       run: |
