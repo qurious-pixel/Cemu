@@ -35,11 +35,6 @@ jobs:
         repository: Tatsh/Cemu # cemu-project/Cemu # tomlally/Cemu # 
         ref: xdg # main # gcc # 
         submodules: recursive
-    - name: Checkout AppImage Repo
-      uses: actions/checkout@v3
-      with:
-          clean: false
-          path: ci
 
     - name: cache
       uses: actions/cache@v3
@@ -144,11 +139,16 @@ jobs:
         repository: Tatsh/Cemu # cemu-project/Cemu # tomlally/Cemu # 
         ref: xdg # main # gcc # 
         submodules: false
-
+    - name: Checkout AppImage Repo
+      uses: actions/checkout@v3
+      with:
+          clean: false
+          path: ci
+          
     - uses: actions/download-artifact@v3
       with:
         name: cemu-bin-linux-x64
-        path: cemu-bin-linux-x64
+        path: bin
           
     - name: "Temp Fixes"
       run: |
