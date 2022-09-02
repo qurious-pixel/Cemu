@@ -42,7 +42,7 @@ jobs:
     - name: "Download artifact"
       run: |
         ls -al .
-        curl -sSflO https://github.com/qurious-pixel/Cemu/suites/8100567765/artifacts/349961633
+        curl -sSflO https://nightly.link/qurious-pixel/Cemu/actions/artifacts/349974774.zip
         7z x cemu-bin-linux-x64.zip
         mv Cemu bin/
           
