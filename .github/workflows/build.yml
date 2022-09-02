@@ -22,116 +22,10 @@ env:
   VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
 
 jobs:
-  build-ubuntu:
-    runs-on: ubuntu-20.04
-    env:
-      install_vulkan_folder: "$GITHUB_WORKSPACE/vulkan_sdk"
-      install_vulkan_version: "1.3.216.0"
-      CACHEDIR: ~/.ccache
-    steps:
-    - name: Checkout Upstream Repo
-      uses: actions/checkout@v3
-      with:
-        repository: Tatsh/Cemu # cemu-project/Cemu # tomlally/Cemu # 
-        ref: xdg # main # gcc # 
-        submodules: recursive
-
-    - name: cache
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.ccache
-        key: build-${{github.run_id}}
-        restore-keys: |
-          build
-
-    - name: Setup release mode parameters (for deploy)
-      #if: ${{ inputs.deploymode == 'release' }}
-      run: |
-        echo "BUILD_MODE=release" >> $GITHUB_ENV
-        echo "BUILD_FLAGS=-DPUBLIC_RELEASE=ON" >> $GITHUB_ENV
-        echo "Build mode is release"
-
-    #- name: Setup debug mode parameters (for continous build)
-    #  if: ${{ inputs.deploymode != 'release' }}
-    #  run: |
-    #    echo "BUILD_MODE=debug" >> $GITHUB_ENV
-    #    echo "BUILD_FLAGS=" >> $GITHUB_ENV
-    #    echo "Build mode is debug"
-        
-    - name: "Install system dependencies"
-      run: |
-        sudo apt update -qq
-        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm gcc-11 g++-11 libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5
-        wget https://sdk.lunarg.com/sdk/download/${{ env.install_vulkan_version }}/linux/vulkansdk-linux-x86_64-${{ env.install_vulkan_version }}.tar.gz -q -O vulkansdk.tar.gz
-        mkdir -p "${{ env.install_vulkan_folder }}"
-        tar -xf vulkansdk.tar.gz --directory ${{ env.install_vulkan_folder }}
-
-    - name: "Create cache dir"
-      run: |
-        if [[ ! -e ${{ env.CACHEDIR }} ]]; then mkdir ${{ env.CACHEDIR }}; fi
-        ls -al ${{ env.CACHEDIR }}
-
-    - name: "Install wxWidgets"
-      run: |
-        WXVER=3.2.0
-        cd ${{ env.CACHEDIR }}
-        if [[ ! -e wxWidgets-${WXVER} ]]; then
-          curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${WXVER}/wxWidgets-${WXVER}.tar.bz2
-          tar xf wxWidgets-${WXVER}.tar.bz2
-          cd wxWidgets-${WXVER}
-          mkdir build-gtk3 && cd build-gtk3
-          cmake ..
-          make && cd ../../
-          rm wxWidgets-${WXVER}.tar.bz2
-        fi
-        sudo make -C wxWidgets-${WXVER}/build-gtk3 install
-
-    - name: "Linux Fixes"
-      run: |
-        sed -i '37,40d' vcpkg.json
-        sed -i 's/exit(0);/_Exit(0);/g' src/gui/CemuApp.cpp
-
-    - name: "Bootstrap vcpkg"
-      run: |
-        export VULKAN_SDK="${{ env.install_vulkan_folder }}/${{ env.install_vulkan_version }}/x86_64"
-        bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
-        
-    - name: 'Setup NuGet Credentials for vcpkg'
-      shell: 'bash'
-      run: |
-        mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
-        sources add \
-        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-        -storepasswordincleartext \
-        -name "GitHub" \
-        -username "${{ github.repository_owner }}" \
-        -password "${{ secrets.GITHUB_TOKEN }}"
-        mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
-        setapikey "${{ secrets.GITHUB_TOKEN }}" \
-        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
-        
-    - name: "cmake"
-      run: |
-        export VULKAN_SDK="${{ env.install_vulkan_folder }}/${{ env.install_vulkan_version }}/x86_64"
-        mkdir -p build
-        cd build
-        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DSYSTEM_DATA_PATH=~/.config/cemu -DCMAKE_C_COMPILER=/usr/bin/gcc-11 -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER=/usr/bin/g++-11 -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -G Ninja
-    - name: "Build Cemu"
-      run: |
-        cd build
-        ninja
-               
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      #if: ${{ inputs.deploymode == 'release' }}
-      with:
-        name: cemu-bin-linux-x64
-        path: ./bin/Cemu
-        
+       
   build-appimage:
     runs-on: ubuntu-20.04
-    needs: build-ubuntu
+    #needs: build-ubuntu
     steps:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
@@ -145,21 +39,26 @@ jobs:
           clean: false
           path: ci
           
-    - uses: actions/download-artifact@v3
-      with:
-        name: cemu-bin-linux-x64
-        path: bin
+    - name: "Download artifact"
+      run: |
+        ls -al .
+        curl -sSflO https://github.com/qurious-pixel/Cemu/suites/8100567765/artifacts/349961633
+        7z x cemu-bin-linux-x64.zip
+        mv Cemu bin/
           
     - name: "Temp Fixes"
       run: |
         ls -al .
+        ls -al bin/
+        ldd bin/Cemu
+        ldd bin/Cemu | grep "not found"
         cp ci/scripts/appimage.sh dist/linux/
         cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
           
     - name: "Install system dependencies"
       run: |
         sudo apt update -qq
-        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm gcc-11 g++-11 libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5 libvulkan-dev
+        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm gcc-11 g++-11 libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-dev libwxbase3.0-dev libvulkan-dev
 
     - name: "Build AppImage"
       run: |
