@@ -95,6 +95,7 @@ jobs:
     - name: "Linux Fixes"
       run: |
         sed -i '37,40d' vcpkg.json
+        sed -i 's/exit(0);/_Exit(0);/g' src/gui/CemuApp.cpp
 
     - name: "Bootstrap vcpkg"
       run: |
