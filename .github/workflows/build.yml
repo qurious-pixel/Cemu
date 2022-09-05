@@ -78,14 +78,14 @@ jobs:
         
     - name: "Install system dependencies"
       run: |
-        sudo bash -c 'echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main" >> /etc/apt/sources.list'
-        wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add - 
         sudo apt update -qq
         sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev nasm ${{ matrix.deb }} libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5
         wget https://sdk.lunarg.com/sdk/download/${{ env.install_vulkan_version }}/linux/vulkansdk-linux-x86_64-${{ env.install_vulkan_version }}.tar.gz -q -O vulkansdk.tar.gz
         mkdir -p "${{ env.install_vulkan_folder }}"
         tar -xf vulkansdk.tar.gz --directory ${{ env.install_vulkan_folder }}
-
+        #sudo bash -c 'echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main" >> /etc/apt/sources.list'
+        #wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add - 
+        
     - name: "Create cache dir"
       run: |
         if [[ ! -e ${{ env.CACHEDIR }} ]]; then mkdir ${{ env.CACHEDIR }}; fi
