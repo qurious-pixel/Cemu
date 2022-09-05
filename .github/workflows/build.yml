@@ -26,14 +26,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [g++-11, clang++-12]
+        compiler: [g++-11, clang++-14]
         include:
            - compiler: g++-11
              cc: gcc-11
              deb: gcc-11 g++-11
-           - compiler: clang++-12
-             cc: clang-12
-             deb: clang-12
+           - compiler: clang++-14
+             cc: clang-14
+             deb: clang-14
     name: Build Ubuntu ${{ matrix.compiler }}
     runs-on: ubuntu-20.04
     env:
