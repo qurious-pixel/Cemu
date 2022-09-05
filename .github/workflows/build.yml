@@ -140,6 +140,7 @@ jobs:
       run: |
         cd build
         ninja
+        mv bin/Cemu_* bin/Cemu
         
     - name: "Build AppImage"
       run: |
