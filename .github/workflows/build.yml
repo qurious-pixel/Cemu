@@ -60,7 +60,7 @@ jobs:
           ~/.ccache
         key: build-${{github.run_id}}
         restore-keys: |
-          #build
+          build
 
     - name: Setup release mode parameters (for deploy)
       #if: ${{ inputs.deploymode == 'release' }}
@@ -83,8 +83,6 @@ jobs:
         wget https://sdk.lunarg.com/sdk/download/${{ env.install_vulkan_version }}/linux/vulkansdk-linux-x86_64-${{ env.install_vulkan_version }}.tar.gz -q -O vulkansdk.tar.gz
         mkdir -p "${{ env.install_vulkan_folder }}"
         tar -xf vulkansdk.tar.gz --directory ${{ env.install_vulkan_folder }}
-        #sudo bash -c 'echo "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main" >> /etc/apt/sources.list'
-        #wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|sudo apt-key add - 
         
     - name: "Create cache dir"
       run: |
@@ -110,7 +108,7 @@ jobs:
       run: |
         sed -i '37,40d' vcpkg.json
         sed -i 's/exit(0);/_Exit(0);/g' src/gui/CemuApp.cpp
-        sed '/3.21.1)/ a\find_program(CCACHE_FOUND ccache)\nif(CCACHE_FOUND)\n\tset_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)\nendif(CCACHE_FOUND)' CMakeLists.txt
+        sed -i '/3.21.1)/ a\find_program(CCACHE_FOUND ccache)\nif(CCACHE_FOUND)\n\tset_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)\nendif(CCACHE_FOUND)' CMakeLists.txt
 
     - name: "Bootstrap vcpkg"
       run: |
