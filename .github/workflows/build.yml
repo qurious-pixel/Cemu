@@ -26,14 +26,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [g++-11, clang++-12]
+        compiler: [g++-11] #, clang++-12]
         include:
            - compiler: g++-11
              cc: gcc-11
              deb: gcc-11 g++-11
-           - compiler: clang++-12
-             cc: clang-12
-             deb: clang-12
+           #- compiler: clang++-12
+           #  cc: clang-12
+           #  deb: clang-12
     name: Build Ubuntu ${{ matrix.compiler }}
     runs-on: ubuntu-20.04
     env:
@@ -44,8 +44,8 @@ jobs:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
-        repository: Tatsh/Cemu # cemu-project/Cemu # tomlally/Cemu # 
-        ref: xdg # main # gcc # 
+        repository: goeiecool9999/Cemu # Tatsh/Cemu # cemu-project/Cemu # tomlally/Cemu # 
+        ref: separate-filestream # xdg # main # gcc # 
         submodules: recursive
     - name: Checkout AppImage Repo
       uses: actions/checkout@v3
