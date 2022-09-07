@@ -26,14 +26,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [g++-11] #, clang++-12]
+        compiler: [clang++-12] #[g++-11, clang++-12]
         include:
-           - compiler: g++-11
-             cc: gcc-11
-             deb: gcc-11 g++-11
-           #- compiler: clang++-12
-           #  cc: clang-12
-           #  deb: clang-12
+           #- compiler: g++-11
+           #  cc: gcc-11
+           #  deb: gcc-11 g++-11
+           - compiler: clang++-12
+             cc: clang-12
+             deb: clang-12
     name: Build Ubuntu ${{ matrix.compiler }}
     runs-on: ubuntu-20.04
     env:
@@ -107,8 +107,9 @@ jobs:
     - name: "Linux Fixes"
       run: |
         sed -i '37,40d' vcpkg.json
-        #sed -i 's/exit(0);/_Exit(0);/g' src/gui/CemuApp.cpp
-        #sed -i '/3.21.1)/ a\find_program(CCACHE_FOUND ccache)\nif(CCACHE_FOUND)\n\tset_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)\nendif(CCACHE_FOUND)' CMakeLists.txt
+        sed -i 's/exit(0);/_Exit(0);/g' src/gui/CemuApp.cpp
+        sed -i '/3.21.1)/ a\find_program(CCACHE_FOUND ccache)\nif(CCACHE_FOUND)\n\tset_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)\nendif(CCACHE_FOUND)' CMakeLists.txt
+        sed -i '/xrc)/ a\\tinclude(${wxWidgets_USE_FILE})' CMakeLists.txt
         curl -sSfL https://raw.githubusercontent.com/OpenRhythm/OpenRhythm/master/cmake/FindCubeb.cmake -o cmake/FindCubeb.cmake
         
     - name: "Bootstrap vcpkg"
