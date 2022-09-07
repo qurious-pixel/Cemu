@@ -110,7 +110,7 @@ jobs:
         sed -i 's/exit(0);/_Exit(0);/g' src/gui/CemuApp.cpp
         sed -i '/3.21.1)/ a\find_program(CCACHE_FOUND ccache)\nif(CCACHE_FOUND)\n\tset_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)\nendif(CCACHE_FOUND)' CMakeLists.txt
         sed -i '/xrc)/ a\\tinclude(${wxWidgets_USE_FILE})' CMakeLists.txt
-        curl -sSfL https://raw.githubusercontent.com/OpenRhythm/OpenRhythm/master/cmake/FindCubeb.cmake -o cmake/FindCubeb.cmake
+        curl -sSfL https://raw.githubusercontent.com/OpenRhythm/OpenRhythm/master/cmake/FindCubeb.cmake -o cmake/Findcubeb.cmake
         
     - name: "Bootstrap vcpkg"
       run: |
