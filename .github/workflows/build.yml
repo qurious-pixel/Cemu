@@ -107,8 +107,8 @@ jobs:
     - name: "Linux Fixes"
       run: |
         sed -i '37,40d' vcpkg.json
-        sed -i 's/exit(0);/_Exit(0);/g' src/gui/CemuApp.cpp
-        sed -i '/3.21.1)/ a\find_program(CCACHE_FOUND ccache)\nif(CCACHE_FOUND)\n\tset_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)\nendif(CCACHE_FOUND)' CMakeLists.txt
+        #sed -i 's/exit(0);/_Exit(0);/g' src/gui/CemuApp.cpp
+        #sed -i '/3.21.1)/ a\find_program(CCACHE_FOUND ccache)\nif(CCACHE_FOUND)\n\tset_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)\nendif(CCACHE_FOUND)' CMakeLists.txt
         curl -sSfL https://raw.githubusercontent.com/OpenRhythm/OpenRhythm/master/cmake/FindCubeb.cmake -o cmake/FindCubeb.cmake
         
     - name: "Bootstrap vcpkg"
@@ -135,7 +135,7 @@ jobs:
         export VULKAN_SDK="${{ env.install_vulkan_folder }}/${{ env.install_vulkan_version }}/x86_64"
         mkdir -p build
         cd build
-        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DENABLE_CUBEB=ON -DSYSTEM_DATA_PATH=~/.config/cemu -DCMAKE_C_COMPILER=${{ matrix.cc }} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -G Ninja
+        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DENABLE_CUBEB=ON -DSYSTEM_DATA_PATH=~/.config/cemu -DCMAKE_C_COMPILER=${{ matrix.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} -G Ninja
         ccache -s
         
     - name: "Build Cemu"
