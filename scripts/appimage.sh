@@ -14,6 +14,11 @@ chmod a+x linuxdeploy-plugin-gtk.sh
 mkdir -p AppDir/usr/
 cp dist/linux/{info.cemu.Cemu.desktop,info.cemu.Cemu.png} AppDir/
 
+if [[ -e dist/linux/info.cemu.Cemu.metainfo.xml ]]; then
+	mkdir -p "$GITHUB_WORKSPACE"/AppDir/usr/share/metainfo
+	cp dist/linux/info.cemu.Cemu.metainfo.xml "$GITHUB_WORKSPACE"/AppDir/usr/share/metainfo/
+fi
+
 mkdir -p AppDir/usr/share/applications 
 mkdir -p AppDir/usr/share/icons/hicolor/scalable/apps
 mkdir -p AppDir/usr/lib
