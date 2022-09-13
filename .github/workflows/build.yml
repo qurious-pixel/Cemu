@@ -94,6 +94,7 @@ jobs:
           rm wxWidgets-${WXVER}.tar.bz2
         fi
         sudo make -C wxWidgets-${WXVER}/build-gtk3 install
+        ln -sr /usr/local/lib/libwx_gtk3u* /usr/lib/
 
     - name: "Linux Fixes"
       run: |
