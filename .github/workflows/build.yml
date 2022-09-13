@@ -136,8 +136,10 @@ jobs:
       run: |
         cd build
         ninja
-        mv bin/Cemu_* bin/Cemu
         ccache -s
+        ls -al bin/
+        mv bin/Cemu_release bin/Cemu
+
         
     - name: "Build AppImage"
       run: |
