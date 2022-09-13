@@ -143,6 +143,7 @@ jobs:
         
     - name: "Build AppImage"
       run: |
+        cp ci/Cemu/scripts/cemu.png dist/linux/info.cemu.Cemu.png
         chmod +x ci/scripts/appimage.sh && ci/scripts/appimage.sh
         
     - name: Upload artifact
