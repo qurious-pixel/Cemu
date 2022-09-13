@@ -138,7 +138,7 @@ jobs:
         ninja
         ccache -s
         ls -al ../bin/
-        mv ../bin/Cemu_release ../bin/Cemu
+        mv ../bin/Cemu_release ../bin/cemu
 
         
     - name: "Build AppImage"
