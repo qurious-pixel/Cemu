@@ -34,7 +34,7 @@ target_link_libraries(CemuCafe PRIVATE
 	imgui::imgui
 	OpenSSL::Crypto
 	OpenSSL::SSL
-	PNG::PNG
+	libpng${CMAKE_STATIC_LIBRARY_SUFFIX}
 	pugixml::pugixml
 	ZArchive::zarchive
 	ZLIB::ZLIB
