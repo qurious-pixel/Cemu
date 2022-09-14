@@ -90,6 +90,7 @@ jobs:
     - name: "Linux Fixes"
       run: |
         echo "Linux Fixes"
+        sed -i 's/PNG::PNG/libpng${CMAKE_STATIC_LIBRARY_SUFFIX}/g' CMakeLists.txt
         #sed -i 's/LIBPNG=sys/LIBPNG=builtin/g' dependencies/vcpkg_overlay_ports/wxwidgets/portfile.cmake
         #sed -i '37,40d' vcpkg.json
         #sed -i 's/exit(0);/_Exit(0);/g' src/gui/CemuApp.cpp
