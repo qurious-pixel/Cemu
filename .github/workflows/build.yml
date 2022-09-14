@@ -85,12 +85,14 @@ jobs:
           make && cd ../../
           rm wxWidgets-${WXVER}.tar.bz2
         fi
-        sudo make -C wxWidgets-${WXVER}/build-gtk3 install
+        #sudo make -C wxWidgets-${WXVER}/build-gtk3 install
 
     - name: "Linux Fixes"
       run: |
-        sed -i '37,40d' vcpkg.json
-        sed -i 's/exit(0);/_Exit(0);/g' src/gui/CemuApp.cpp
+        echo "Linux Fixes"
+        sed -i 's/LIBPNG=sys/LIBPNG=builtin/g' dependencies/vcpkg_overlay_ports/wxwidgets/portfile.cmake
+        #sed -i '37,40d' vcpkg.json
+        #sed -i 's/exit(0);/_Exit(0);/g' src/gui/CemuApp.cpp
 
     - name: "Bootstrap vcpkg"
       run: |
@@ -121,13 +123,14 @@ jobs:
       run: |
         cd build
         ninja
+        mv ../bin/Cemu_release ../bin/cemu
                
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-linux-x64
-        path: ./bin/Cemu
+        path: ./bin/cemu
         
   build-appimage:
     runs-on: ubuntu-20.04
