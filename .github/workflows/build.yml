@@ -72,25 +72,25 @@ jobs:
         if [[ ! -e ${{ env.CACHEDIR }} ]]; then mkdir ${{ env.CACHEDIR }}; fi
         ls -al ${{ env.CACHEDIR }}
 
-    - name: "Install wxWidgets"
-      run: |
-        WXVER=3.2.0
-        cd ${{ env.CACHEDIR }}
-        if [[ ! -e wxWidgets-${WXVER} ]]; then
-          curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${WXVER}/wxWidgets-${WXVER}.tar.bz2
-          tar xf wxWidgets-${WXVER}.tar.bz2
-          cd wxWidgets-${WXVER}
-          mkdir build-gtk3 && cd build-gtk3
-          cmake ..
-          make && cd ../../
-          rm wxWidgets-${WXVER}.tar.bz2
-        fi
-        #sudo make -C wxWidgets-${WXVER}/build-gtk3 install
+    #- name: "Install wxWidgets"
+    #  run: |
+    #    WXVER=3.2.0
+    #    cd ${{ env.CACHEDIR }}
+    #    if [[ ! -e wxWidgets-${WXVER} ]]; then
+    #      curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${WXVER}/wxWidgets-${WXVER}.tar.bz2
+    #      tar xf wxWidgets-${WXVER}.tar.bz2
+    #      cd wxWidgets-${WXVER}
+    #      mkdir build-gtk3 && cd build-gtk3
+    #      cmake ..
+    #      make && cd ../../
+    #      rm wxWidgets-${WXVER}.tar.bz2
+    #    fi
+    #    sudo make -C wxWidgets-${WXVER}/build-gtk3 install
 
     - name: "Linux Fixes"
       run: |
         echo "Linux Fixes"
-        sed -i 's/LIBPNG=sys/LIBPNG=builtin/g' dependencies/vcpkg_overlay_ports/wxwidgets/portfile.cmake
+        #sed -i 's/LIBPNG=sys/LIBPNG=builtin/g' dependencies/vcpkg_overlay_ports/wxwidgets/portfile.cmake
         #sed -i '37,40d' vcpkg.json
         #sed -i 's/exit(0);/_Exit(0);/g' src/gui/CemuApp.cpp
 
