@@ -12,6 +12,12 @@ endif()
 
 set_property(TARGET CemuCafe PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
+if (WIN32)
+	list(APPEND PNG PNG::PNG)
+else()
+	list(APPEND PNG libpng.a)
+endif()
+
 target_include_directories(CemuCafe PUBLIC "../")
 
 target_link_libraries(CemuCafe PRIVATE
@@ -34,7 +40,7 @@ target_link_libraries(CemuCafe PRIVATE
 	imgui::imgui
 	OpenSSL::Crypto
 	OpenSSL::SSL
-	libpng16${CMAKE_STATIC_LIBRARY_SUFFIX}
+	${PNG}
 	pugixml::pugixml
 	ZArchive::zarchive
 	ZLIB::ZLIB
