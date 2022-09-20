@@ -17,11 +17,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [g++-11] # [g++-11, clang++-12] # 
+        compiler: [g++-10] # [g++-11, clang++-12] # 
         include:
-           - compiler: g++-11
-             cc: gcc-11
-             deb: gcc-11 g++-11
+           - compiler: g++-10
+             cc: gcc-10
+             deb: gcc-10 g++-10
            #- compiler: clang++-12
            #  cc: clang-12
            #  deb: clang-12
@@ -35,8 +35,8 @@ jobs:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
-        repository: Shoegzer/Cemu # cemu-project/Cemu # tomlally/Cemu # Tatsh/Cemu # 
-        ref: ui_changes # main # gcc # xdg # 
+        repository: cemu-project/Cemu # tomlally/Cemu # Tatsh/Cemu # Shoegzer/Cemu # 
+        ref: main # gcc # xdg # ui_changes # 
         submodules: recursive
     - name: Checkout AppImage Repo
       uses: actions/checkout@v3
@@ -82,7 +82,7 @@ jobs:
 
     - name: "Install wxWidgets"
       run: |
-        WXVER=3.2.0
+        WXVER=3.2.1
         cd ${{ env.CACHEDIR }}
         if [[ ! -e wxWidgets-${WXVER} ]]; then
           curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${WXVER}/wxWidgets-${WXVER}.tar.bz2
