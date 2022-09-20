@@ -26,9 +26,6 @@ mkdir -p AppDir/usr/lib
 cp -r bin AppDir/usr/
 #cp .ci/cemu.sh AppDir/usr/bin/
 
-chmod +x AppDir/usr/bin/cemu
-chmod +x AppDir/AppRun
-
 mkdir -p AppDir/usr/optional/{libstdc++,libgcc_s}
 cp --dereference /usr/lib/x86_64-linux-gnu/libstdc++.so.6 AppDir/usr/optional/libstdc++/libstdc++.so.6
 cp --dereference /lib/x86_64-linux-gnu/libgcc_s.so.1 AppDir/usr/optional/libgcc_s/libgcc_s.so.1
