@@ -17,11 +17,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        compiler: [g++-10] # [g++-11, clang++-12] # 
+        compiler: [g++-11] # [g++-11, clang++-12] # 
         include:
-           - compiler: g++-10
-             cc: gcc-10
-             deb: gcc-10 g++-10
+           - compiler: g++-11
+             cc: gcc-11
+             deb: gcc-11 g++-11
            #- compiler: clang++-12
            #  cc: clang-12
            #  deb: clang-12
@@ -133,26 +133,26 @@ jobs:
         ccache -s
         #export VULKAN_SDK="${{ env.install_vulkan_folder }}/${{ env.install_vulkan_version }}/x86_64"
         
-    - name: "Build Cemu"
-      run: |
-        cd build
-        ninja
-        ccache -s
-        ls -al ../bin/
-        mv ../bin/Cemu_release ../bin/cemu
+    #- name: "Build Cemu"
+    #  run: |
+    #    cd build
+    #    ninja
+    #    ccache -s
+    #    ls -al ../bin/
+    #    mv ../bin/Cemu_release ../bin/cemu
 
         
-    - name: "Build AppImage"
-      run: |
-        cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
-        chmod +x ci/scripts/appimage.sh && ci/scripts/appimage.sh
+    #- name: "Build AppImage"
+    #  run: |
+    #    cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
+    #    chmod +x ci/scripts/appimage.sh && ci/scripts/appimage.sh
         
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      #if: ${{ inputs.deploymode == 'release' }}
-      with:
-        name: cemu-bin-linux-x64-${{ matrix.compiler }}
-        path: artifacts
+    #- name: Upload artifact
+    #  uses: actions/upload-artifact@v3
+    #  #if: ${{ inputs.deploymode == 'release' }}
+    #  with:
+    #    name: cemu-bin-linux-x64-${{ matrix.compiler }}
+    #    path: artifacts
         
         
   #build-windows:
