@@ -99,6 +99,7 @@ jobs:
     - name: "Linux Fixes"
       run: |
         echo "Linux Fixes"
+        git apply ci/scripts/xdg.patch
         sed -i '37,40d' vcpkg.json
         #sed -i 's/exit(0);/_Exit(0);/g' src/gui/CemuApp.cpp
         sed -i '/3.21.1)/ a\find_program(CCACHE_FOUND ccache)\nif(CCACHE_FOUND)\n\tset_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)\nendif(CCACHE_FOUND)' CMakeLists.txt
