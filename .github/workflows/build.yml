@@ -16,32 +16,39 @@ jobs:
   build-macos:
     runs-on: macos-12
     steps:
-    - name: "Checkout repo"
+    - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
-        submodules: "recursive"
+        repository: cemu-project/Cemu # tomlally/Cemu # Tatsh/Cemu # Shoegzer/Cemu # 
+        ref: main # gcc # xdg # ui_changes # 
+        submodules: recursive
+    - name: Checkout AppImage Repo
+      uses: actions/checkout@v3
+      with:
+          clean: false
+          path: ci
     - name: Setup release mode parameters (for deploy)
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       run: |
         echo "BUILD_MODE=release" >> $GITHUB_ENV
         echo "BUILD_FLAGS=-DPUBLIC_RELEASE=ON" >> $GITHUB_ENV
         echo "Build mode is release"
-    - name: Setup debug mode parameters (for continous build)
-      if: ${{ inputs.deploymode != 'release' }}
-      run: |
-        echo "BUILD_MODE=debug" >> $GITHUB_ENV
-        echo "BUILD_FLAGS=" >> $GITHUB_ENV
-        echo "Build mode is debug"
+    #- name: Setup debug mode parameters (for continous build)
+    #  if: ${{ inputs.deploymode != 'release' }}
+    #  run: |
+    #    echo "BUILD_MODE=debug" >> $GITHUB_ENV
+    #    echo "BUILD_FLAGS=" >> $GITHUB_ENV
+    #    echo "Build mode is debug"
         
-    - name: Setup version for experimental
-      if: ${{ inputs.experimentalversion != '' }}
-      run: |
-        echo "[INFO] Experimental version ${{ inputs.experimentalversion }}"
-        echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEXPERIMENTAL_VERSION=${{ inputs.experimentalversion }}" >> $GITHUB_ENV
+    #- name: Setup version for experimental
+    #  if: ${{ inputs.experimentalversion != '' }}
+    #  run: |
+    #    echo "[INFO] Experimental version ${{ inputs.experimentalversion }}"
+    #    echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEXPERIMENTAL_VERSION=${{ inputs.experimentalversion }}" >> $GITHUB_ENV
         
     - name: "Install system dependencies"
       run: |
-        brew install llvm@14 ninja nasm molten-vk
+        brew install llvm@14 ninja nasm molten-vk dylibbuilder
     - name: "Bootstrap vcpkg"
       run: |
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
@@ -70,12 +77,12 @@ jobs:
       run: |
         cmake --build build
     - name: Prepare artifact
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       run: mv bin/Cemu_release bin/Cemu
               
     - name: Upload artifact
       uses: actions/upload-artifact@v3
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-macos-x64
         path: ./bin/Cemu
