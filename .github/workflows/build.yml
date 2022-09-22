@@ -48,7 +48,7 @@ jobs:
         
     - name: "Install system dependencies"
       run: |
-        brew install llvm@14 ninja nasm molten-vk dylibbuilder
+        brew install llvm@14 ninja nasm molten-vk dylibbundler
     - name: "Bootstrap vcpkg"
       run: |
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
