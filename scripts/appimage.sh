@@ -6,7 +6,7 @@ fi
   
 curl -sSfLO "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
 chmod a+x linuxdeploy*.AppImage
-curl -sSfL "https://github.com/probonopd/go-appimage/releases/download/continuous/mkappimage-722-x86_64.AppImage" -o mkappimage.AppImage
+curl -sSfL "https://github.com/probonopd/go-appimage/releases/download/continuous/mkappimage-724-x86_64.AppImage" -o mkappimage.AppImage
 chmod a+x mkappimage.AppImage
 curl -sSfLO "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh"
 chmod a+x linuxdeploy-plugin-gtk.sh
