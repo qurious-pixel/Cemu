@@ -1,0 +1,13 @@
+diff --git a/src/config/ActiveSettings.cpp b/src/config/ActiveSettings.cpp
+index c7ff4fe..4de6835 100644
+--- a/src/config/ActiveSettings.cpp
++++ b/src/config/ActiveSettings.cpp
+@@ -15,7 +15,7 @@ extern bool alwaysDisplayDRC;
+ void ActiveSettings::LoadOnce()
+ {
+ 	s_full_path = boost::dll::program_location().generic_wstring();
+-	s_path = s_full_path.parent_path();
++	s_path = std::getenv("XDG_DATA_HOME");
+ 	s_filename = s_full_path.filename();
+ 
+ 	g_config.SetFilename(GetPath("settings.xml").generic_wstring());
