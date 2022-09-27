@@ -1,7 +1,7 @@
 name: Build Cemu
 
 on:
-  push:
+  #push:
   workflow_call:
     inputs:
       deploymode:
@@ -79,10 +79,14 @@ jobs:
     - name: Prepare artifact
       #if: ${{ inputs.deploymode == 'release' }}
       run: mv bin/Cemu_release bin/Cemu
-              
+
+    - name: "Build Mac Bundle"
+      run: |
+        chmod +x ci/scripts/mac-bundle.sh && mac-bundle.sh
+        
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-macos-x64
-        path: ./bin/Cemu
+        path: cemu.app
