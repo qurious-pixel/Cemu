@@ -29,6 +29,7 @@ cp -r bin AppDir/usr/
 mkdir -p AppDir/usr/optional/{libstdc++,libgcc_s}
 cp --dereference /usr/lib/x86_64-linux-gnu/libstdc++.so.6 AppDir/usr/optional/libstdc++/libstdc++.so.6
 cp --dereference /lib/x86_64-linux-gnu/libgcc_s.so.1 AppDir/usr/optional/libgcc_s/libgcc_s.so.1
+cp /usr/lib/x86_64-linux-gnu/libsepol.so.1 AppDir/usr/lib/
 curl -sSfL https://github.com/RPCS3/AppImageKit-checkrt/releases/download/continuous2/exec-x86_64.so -o ./AppDir/usr/optional/exec.so
 curl -sSfL https://github.com/RPCS3/AppImageKit-checkrt/releases/download/continuous2/AppRun-patched-x86_64 -o ./AppDir/AppRun
 chmod +x AppDir/usr/optional/exec.so
@@ -38,8 +39,8 @@ chmod +x AppDir/AppRun
 export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
 ./linuxdeploy-x86_64.AppImage                   		\
   --appdir="$GITHUB_WORKSPACE"/AppDir/          		\
-  -d "$GITHUB_WORKSPACE"/AppDir/info.cemu.Cemu.desktop  \
-  -i "$GITHUB_WORKSPACE"/AppDir/info.cemu.Cemu.png      \
+  -d "$GITHUB_WORKSPACE"/AppDir/info.cemu.Cemu.desktop  	\
+  -i "$GITHUB_WORKSPACE"/AppDir/info.cemu.Cemu.png      	\
   -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/cemu			\
   --plugin gtk
 
