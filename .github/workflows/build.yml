@@ -32,13 +32,6 @@ jobs:
           clean: false
           path: ci
           
-    - name: "Download artifact"
-      run: |
-        curl -sSfL https://nightly.link/qurious-pixel/Cemu/actions/artifacts/349974774.zip -o cemu-bin-linux-x64.zip
-        ls -al .
-        7z x cemu-bin-linux-x64.zip
-        mv Cemu bin/
-          
     - name: "Install system dependencies"
       env:
         INST: yum install -y --setopt=skip_missing_names_on_install=False
@@ -63,7 +56,11 @@ jobs:
         cp ci/scripts/appimage.sh dist/linux/
         cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
 
-    - name: "Build AppImage"
+    - name: "Place Holder"
+      run: |
+        echo "Place Holder"
+        
+    - name: "Build Cemu"
       run: |
         cmake -S . -B build \
         -DCMAKE_BUILD_TYPE=release \
