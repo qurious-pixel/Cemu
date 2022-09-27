@@ -87,7 +87,7 @@ jobs:
       
     - name: "Build Mac Bundle"
       run: |
-        chmod +x ci/scripts/mac-bundle.sh && mac-bundle.sh
+        chmod +x ci/scripts/mac-bundle.sh && ci/scripts/mac-bundle.sh
         
     - name: Upload artifact
       uses: actions/upload-artifact@v3
