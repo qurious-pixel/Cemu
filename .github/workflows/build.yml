@@ -1,7 +1,7 @@
 name: Build Cemu
 
 on:
-  #push:
+  push:
   workflow_call:
     inputs:
       deploymode:
@@ -80,6 +80,11 @@ jobs:
       #if: ${{ inputs.deploymode == 'release' }}
       run: mv bin/Cemu_release bin/Cemu
 
+    - name: "Prepare dist folder"
+      run: |
+        mkdir -p dist/mac
+        cp ci/scripts/{Info.plist,cemu.png} dist/mac
+      
     - name: "Build Mac Bundle"
       run: |
         chmod +x ci/scripts/mac-bundle.sh && mac-bundle.sh
