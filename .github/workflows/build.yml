@@ -153,8 +153,9 @@ jobs:
       #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-linux-x64-${{ matrix.compiler }}
-        path: artifacts
-        
+        path: |
+          artifacts
+          bin/cemu
         
   #build-windows:
   #  runs-on: windows-2022
