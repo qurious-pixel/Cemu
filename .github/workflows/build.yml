@@ -59,6 +59,8 @@ jobs:
     - name: "Place Holder"
       run: |
         echo "Place Holder"
+        mkdir build
+        ls -al
         
     - name: "Build Cemu"
       run: |
