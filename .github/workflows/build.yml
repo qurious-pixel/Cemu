@@ -1,13 +1,6 @@
 name: Build Cemu
 
 on:
-  pull_request_target:
-    paths-ignore:
-      - "*.md"
-    types:
-      - opened
-      - synchronize
-      - reopened
   push:
     paths-ignore:
       - "*.md"
@@ -24,14 +17,14 @@ env:
 jobs:
        
   build-appimage:
-    runs-on: ubuntu-20.04
-    #needs: build-ubuntu
+    runs-on: ubuntu-latest
+    container: centos:7
     steps:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
-        repository: Tatsh/Cemu # cemu-project/Cemu # tomlally/Cemu # 
-        ref: xdg # main # gcc # 
+        repository: cemu-project/Cemu 
+        ref: main
         submodules: false
     - name: Checkout AppImage Repo
       uses: actions/checkout@v3
@@ -47,18 +40,37 @@ jobs:
         mv Cemu bin/
           
     - name: "Install system dependencies"
+      env:
+        INST: yum install -y --setopt=skip_missing_names_on_install=False
+        CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
+        CPP: /opt/rh/devtoolset-11/root/usr/bin/cpp
+        CXX: /opt/rh/devtoolset-11/root/usr/bin/g++
+        PATH: /opt/rh/devtoolset-11/root/usr/bin:/usr/bin:$PATH
+        LD_LIBRARY_PATH: /opt/rh/devtoolset-11/root/usr/lib64:/opt/rh/devtoolset-11/root/usr/lib:/opt/rh/devtoolset-11/root/usr/lib64/dyninst:/opt/rh/devtoolset-11/root/usr/lib/dyninst:/opt/rh/devtoolset-11/root/usr/lib64:/opt/rh/devtoolset-11/root/usr/lib:$LD_LIBRARY_PATH
       run: |
-        sudo apt update -qq
-        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm gcc-11 g++-11 libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-dev libwxbase3.0-dev libwxgtk3.0-gtk3-dev libvulkan-dev
+        echo $PATH
+        $INST https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm centos-release-scl
+        $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
+        libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
+        libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
+        pulseaudio-libs-devel libcurl-devel
 
     - name: "Temp Fixes"
       run: |
-        ls -al .
-        ls -al bin/
-        ldd bin/Cemu
-        ldd bin/Cemu | grep "not found"
+        echo "Linux Fixes"
+        git apply ci/scripts/xdg.patch
+        sed -i '37,40d' vcpkg.json
         cp ci/scripts/appimage.sh dist/linux/
         cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
+
+    - name: "Build AppImage"
+      run: |
+        cmake -S . -B build \
+        -DCMAKE_BUILD_TYPE=release \
+        -DCMAKE_C_COMPILER=${CC} \
+        -DCMAKE_CXX_COMPILER=${CXX} \
+        -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
+        cmake --build build &&\
 
     - name: "Build AppImage"
       run: |
