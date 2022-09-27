@@ -19,6 +19,13 @@ jobs:
   build-appimage:
     runs-on: ubuntu-latest
     container: centos:7
+    env:
+      INST: yum install -y --setopt=skip_missing_names_on_install=False
+      CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
+      CPP: /opt/rh/devtoolset-11/root/usr/bin/cpp
+      CXX: /opt/rh/devtoolset-11/root/usr/bin/g++
+      PATH: /opt/rh/devtoolset-11/root/usr/bin:/usr/bin:$PATH
+      LD_LIBRARY_PATH: /opt/rh/devtoolset-11/root/usr/lib64:/opt/rh/devtoolset-11/root/usr/lib:/opt/rh/devtoolset-11/root/usr/lib64/dyninst:/opt/rh/devtoolset-11/root/usr/lib/dyninst:/opt/rh/devtoolset-11/root/usr/lib64:/opt/rh/devtoolset-11/root/usr/lib:$LD_LIBRARY_PATH      
     steps:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
@@ -33,13 +40,6 @@ jobs:
           path: ci
           
     - name: "Install system dependencies"
-      env:
-        INST: yum install -y --setopt=skip_missing_names_on_install=False
-        CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
-        CPP: /opt/rh/devtoolset-11/root/usr/bin/cpp
-        CXX: /opt/rh/devtoolset-11/root/usr/bin/g++
-        PATH: /opt/rh/devtoolset-11/root/usr/bin:/usr/bin:$PATH
-        LD_LIBRARY_PATH: /opt/rh/devtoolset-11/root/usr/lib64:/opt/rh/devtoolset-11/root/usr/lib:/opt/rh/devtoolset-11/root/usr/lib64/dyninst:/opt/rh/devtoolset-11/root/usr/lib/dyninst:/opt/rh/devtoolset-11/root/usr/lib64:/opt/rh/devtoolset-11/root/usr/lib:$LD_LIBRARY_PATH
       run: |
         echo $PATH
         $INST https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm centos-release-scl
