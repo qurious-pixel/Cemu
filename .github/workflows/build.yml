@@ -46,7 +46,7 @@ jobs:
         $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
         libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
         libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
-        pulseaudio-libs-devel libcurl-devel
+        pulseaudio-libs-devel libcurl-devel git
 
     - name: "Temp Fixes"
       run: |
