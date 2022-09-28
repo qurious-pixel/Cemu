@@ -64,9 +64,7 @@ jobs:
       run: |
         pwd
         git init
-        git fetch && git pull
-        ls -al .
-        git submodule update --init --recursive
+        git pull -v --recurse-submodules
         ls -al dependencies/
         ls -al dependencies/vcpkg/
         
