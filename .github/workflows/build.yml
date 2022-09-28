@@ -60,9 +60,9 @@ jobs:
     - name: Checkout submodules
       run: |
         pwd
-        ls -al
         git init
         git submodule update --init --recursive
+        ls -al dependencies/vcpkg/
         
     - name: "Build Cemu"
       run: |
