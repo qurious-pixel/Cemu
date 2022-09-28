@@ -47,7 +47,7 @@ jobs:
         make configure
         ./configure --prefix=/usr
         make -j$(nproc)
-        sudo make install
+        make install
 
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
