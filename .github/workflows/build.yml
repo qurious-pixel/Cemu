@@ -94,4 +94,4 @@ jobs:
       #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-macos-x64
-        path: cemu.app
+        path: ./*.app
