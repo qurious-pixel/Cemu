@@ -21,7 +21,7 @@ jobs:
     container: centos:7
     defaults:
       run:
-         working-directory: /    
+         working-directory: /__w/Cemu/Cemu
     env:
       INST: yum install -y --setopt=skip_missing_names_on_install=False
       CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
@@ -44,18 +44,19 @@ jobs:
         
     - name: "Install system dependencies"
       run: |
-        $INST epel-release centos-release-scl
-        $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
-        libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
-        libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
-        pulseaudio-libs-devel libcurl-devel git nasm
+        $INST git python36 python36-pip
+        #$INST epel-release centos-release-scl
+        #$INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
+        #libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
+        #libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
+        #pulseaudio-libs-devel libcurl-devel git nasm
         python3 -m pip install --upgrade pip wheel
         python3 -m pip install cmake
 
     - name: "Temp Fixes"
       run: |
         echo "Linux Fixes"
-        ls -al /
+        ls -al /home/runner/work/
         pwd
         ls -al .
         git apply ci/scripts/xdg.patch
