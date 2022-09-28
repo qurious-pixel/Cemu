@@ -101,12 +101,12 @@ jobs:
     #  run: |
     #    chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
         
-    #- name: Upload artifact
-    #  uses: actions/upload-artifact@v3
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
     #  #if: ${{ inputs.deploymode == 'release' }}
-    #  with:
-    #    name: cemu-appimage-x64
-    #    path: artifacts
+      with:
+        name: cemu-appimage-x64
+        path: bin
         
   #build-windows:
   #  runs-on: windows-2022
