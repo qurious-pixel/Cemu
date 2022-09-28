@@ -32,13 +32,17 @@ jobs:
       with:
         repository: cemu-project/Cemu 
         ref: main
-        submodules: true
+        submodules: false
     - name: Checkout AppImage Repo
       uses: actions/checkout@v3
       with:
           clean: false
           path: ci
-          
+
+    - name: Checkout submodules
+      run: |
+        git submodule update --init --recursive
+        
     - name: "Install system dependencies"
       run: |
         $INST epel-release centos-release-scl
