@@ -18,7 +18,7 @@ jobs:
        
   build-appimage:
     runs-on: ubuntu-latest
-    container: centos:7
+    container: centos:8
     defaults:
       run:
          working-directory: /__w/Cemu/Cemu
@@ -36,62 +36,64 @@ jobs:
         $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
         libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
         libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
-        pulseaudio-libs-devel libcurl-devel nasm
+        pulseaudio-libs-devel libcurl-devel nasm git
+        cmake --version
+        git --version
         python3 -m pip install --upgrade pip wheel
         python3 -m pip install cmake
-    - name: "Install Git"
-      run: |
-        yum remove -y git
-        curl -L https://github.com/git/git/tarball/e9d7761bb94f20acc98824275e317fa82436c25d |\
-        tar -xzC . --strip-components=1
-        make configure
-        ./configure --prefix=/usr
-        make -j$(nproc)
-        make install
+    #- name: "Install Git"
+    #  run: |
+    #    yum remove -y git
+    #    curl -L https://github.com/git/git/tarball/e9d7761bb94f20acc98824275e317fa82436c25d |\
+    #    tar -xzC . --strip-components=1
+    #    make configure
+    #    ./configure --prefix=/usr
+    #    make -j$(nproc)
+    #    make install
 
-    - name: Checkout Upstream Repo
-      uses: actions/checkout@v3
-      with:
-        repository: cemu-project/Cemu 
-        ref: main
-        submodules: true
-    - name: Checkout AppImage Repo
-      uses: actions/checkout@v3
-      with:
-          clean: false
-          path: ci
+    #- name: Checkout Upstream Repo
+    #  uses: actions/checkout@v3
+    #  with:
+    #    repository: cemu-project/Cemu 
+    #    ref: main
+    #    submodules: true
+    #- name: Checkout AppImage Repo
+    #  uses: actions/checkout@v3
+    #  with:
+    #      clean: false
+    #      path: ci
           
-    - name: "Temp Fixes"
-      run: |
-        echo "Linux Fixes"
-        git apply ci/scripts/xdg.patch
-        sed -i '37,40d' vcpkg.json
-        cp ci/scripts/appimage.sh dist/linux/
-        cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
+    #- name: "Temp Fixes"
+    #  run: |
+    #    echo "Linux Fixes"
+    #    git apply ci/scripts/xdg.patch
+    #    sed -i '37,40d' vcpkg.json
+    #    cp ci/scripts/appimage.sh dist/linux/
+    #    cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
 
-    - name: Checkout submodules
-      run: |
-        pwd
-        ls -al
-        ls -al dependencies/
-        ls -al dependencies/vcpkg/
+    #- name: Checkout submodules
+    #  run: |
+    #    pwd
+    #    ls -al
+    #    ls -al dependencies/
+    #    ls -al dependencies/vcpkg/
         
-    - name: "Build Cemu"
-      run: |
-        mkdir build && cd build
-        cmake .. -DCMAKE_BUILD_TYPE=release -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
-        cd build && ninja
+    #- name: "Build Cemu"
+    #  run: |
+    #    mkdir build && cd build
+    #    cmake .. -DCMAKE_BUILD_TYPE=release -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
+    #    cd build && ninja
 
-    - name: "Build AppImage"
-      run: |
-        chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
+    #- name: "Build AppImage"
+    #  run: |
+    #    chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
         
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      #if: ${{ inputs.deploymode == 'release' }}
-      with:
-        name: cemu-appimage-x64
-        path: artifacts
+    #- name: Upload artifact
+    #  uses: actions/upload-artifact@v3
+    #  #if: ${{ inputs.deploymode == 'release' }}
+    #  with:
+    #    name: cemu-appimage-x64
+    #    path: artifacts
         
   #build-windows:
   #  runs-on: windows-2022
