@@ -65,7 +65,7 @@ jobs:
       run: |
         pwd
         git init
-        git fetch
+        git fetch && git pull
         ls -al .
         git submodule foreach 'git submodule init && git submodule update'
         ls -al dependencies/
