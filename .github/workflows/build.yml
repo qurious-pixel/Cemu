@@ -23,7 +23,7 @@ jobs:
       run:
          working-directory: /__w/Cemu/Cemu
     env:
-      INST: yum install -y # --setopt=skip_missing_names_on_install=False
+      INST: yum install -y --setopt=skip_missing_names_on_install=False
       CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
       CPP: /opt/rh/devtoolset-11/root/usr/bin/cpp
       CXX: /opt/rh/devtoolset-11/root/usr/bin/g++
@@ -32,7 +32,9 @@ jobs:
     steps:
     - name: "Install system dependencies"
       run: |
-        $INST https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm centos-release-scl
+        sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+        sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+        $INST epel-release centos-release-scl
         $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
         libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
         libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
