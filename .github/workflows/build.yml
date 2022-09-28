@@ -64,7 +64,7 @@ jobs:
       run: |
         pwd
         git init
-        git submodule update --progress
+        git submodule update --init -f
         git submodule status
         git add * && git stash
         git pull -v https://github.com/cemu-project/Cemu.git --recurse-submodules
