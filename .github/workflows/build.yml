@@ -59,6 +59,7 @@ jobs:
 
     - name: Checkout submodules
       run: |
+        cd ${{github.workspace}}
         git submodule update --init --recursive
         
     - name: "Build Cemu"
