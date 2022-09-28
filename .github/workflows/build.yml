@@ -19,6 +19,9 @@ jobs:
   build-appimage:
     runs-on: ubuntu-latest
     container: centos:7
+    defaults:
+      run:
+         working-directory: /    
     env:
       INST: yum install -y --setopt=skip_missing_names_on_install=False
       CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
@@ -60,6 +63,8 @@ jobs:
     - name: Checkout submodules
       run: |
         pwd
+        ls -al 
+        ls -al /work/Cemu/Cemu
         git init
         git submodule update --init --recursive
         ls -al dependencies/vcpkg/
