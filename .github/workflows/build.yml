@@ -55,6 +55,9 @@ jobs:
     - name: "Temp Fixes"
       run: |
         echo "Linux Fixes"
+        ls -al /
+        pwd
+        ls -al .
         git apply ci/scripts/xdg.patch
         sed -i '37,40d' vcpkg.json
         cp ci/scripts/appimage.sh dist/linux/
