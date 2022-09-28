@@ -56,9 +56,6 @@ jobs:
     - name: "Temp Fixes"
       run: |
         echo "Linux Fixes"
-        ls -al /__w/Cemu/Cemu
-        pwd
-        ls -al .
         git apply ci/scripts/xdg.patch
         sed -i '37,40d' vcpkg.json
         cp ci/scripts/appimage.sh dist/linux/
@@ -67,10 +64,10 @@ jobs:
     - name: Checkout submodules
       run: |
         pwd
-        ls -al 
-        ls -al /__w/Cemu/Cemu
-        git init
-        git submodule update --init --recursive
+        #git init
+        ls -al .
+        git submodule foreach 'git submodule init && git submodule update'
+        ls -al dependencies/
         ls -al dependencies/vcpkg/
         
     - name: "Build Cemu"
