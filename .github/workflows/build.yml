@@ -23,7 +23,7 @@ jobs:
       run:
          working-directory: /__w/Cemu/Cemu
     env:
-      INST: yum install -y --setopt=skip_missing_names_on_install=False
+      INST: yum install -y # --setopt=skip_missing_names_on_install=False
       CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
       CPP: /opt/rh/devtoolset-11/root/usr/bin/cpp
       CXX: /opt/rh/devtoolset-11/root/usr/bin/g++
