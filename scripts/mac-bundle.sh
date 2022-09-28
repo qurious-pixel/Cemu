@@ -30,4 +30,5 @@ cp dist/mac/Info.plist $APPBUNDLECONTENTS/
 #cp dist/mac/PkgInfo $APPBUNDLECONTENTS/
 cp dist/mac/$APPNAME.icns $APPBUNDLEICON/
 cp bin/$APPNAME $APPBUNDLEEXE/$APPNAME
+otool -L bin/$APPNAME
 otool -l bin/$APPNAME | grep -A 2 LC_RPATH  | tail -n 1 | awk '{print $2}' | dylibbundler -od -b -x  $APPBUNDLEEXE/$APPNAME -d $APPBUNDLECONTENTS/libs
