@@ -36,9 +36,18 @@ jobs:
         $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
         libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
         libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
-        pulseaudio-libs-devel libcurl-devel git nasm
+        pulseaudio-libs-devel libcurl-devel nasm
         python3 -m pip install --upgrade pip wheel
         python3 -m pip install cmake
+    - name: "Install Git"
+      run: |
+        yum remove -y git
+        curl -L https://github.com/git/git/tarball/e9d7761bb94f20acc98824275e317fa82436c25d |\
+        tar -xzC . --strip-components=1
+        make configure
+        ./configure --prefix=/usr
+        make -j$(nproc)
+        sudo make install
 
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
