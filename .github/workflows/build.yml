@@ -44,12 +44,11 @@ jobs:
         
     - name: "Install system dependencies"
       run: |
-        $INST git python36 python36-pip
-        #$INST epel-release centos-release-scl
-        #$INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
-        #libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
-        #libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
-        #pulseaudio-libs-devel libcurl-devel git nasm
+        $INST epel-release centos-release-scl
+        $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
+        libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
+        libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
+        pulseaudio-libs-devel libcurl-devel git nasm
         python3 -m pip install --upgrade pip wheel
         python3 -m pip install cmake
 
