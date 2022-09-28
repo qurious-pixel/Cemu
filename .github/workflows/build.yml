@@ -56,7 +56,7 @@ jobs:
     - name: "Temp Fixes"
       run: |
         echo "Linux Fixes"
-        ls -al /home/runner/work/
+        ls -al /__w/Cemu/Cemu
         pwd
         ls -al .
         git apply ci/scripts/xdg.patch
@@ -68,7 +68,7 @@ jobs:
       run: |
         pwd
         ls -al 
-        ls -al /work/Cemu/Cemu
+        ls -al /__w/Cemu/Cemu
         git init
         git submodule update --init --recursive
         ls -al dependencies/vcpkg/
