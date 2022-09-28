@@ -93,7 +93,7 @@ jobs:
     - name: "Build Cemu"
       run: |
         cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
-        #cmake --build build
+        cmake --build build
         #mkdir build && cd build
 
 
