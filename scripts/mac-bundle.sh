@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -x 
+
 APPNAME=cemu
 APPBUNDLE=$APPNAME.app
 APPBUNDLECONTENTS=$APPBUNDLE/Contents
