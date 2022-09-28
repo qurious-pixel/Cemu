@@ -32,8 +32,7 @@ jobs:
     steps:
     - name: "Install system dependencies"
       run: |
-        sed -i 's/$releasever/8/g' /etc/yum.repos.d/epel*.repo
-        $INST epel-release centos-release-scl
+        $INST https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm centos-release-scl
         $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
         libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
         libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
