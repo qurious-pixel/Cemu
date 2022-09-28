@@ -38,10 +38,6 @@ jobs:
       with:
           clean: false
           path: ci
-
-    - name: Checkout submodules
-      run: |
-        git submodule update --init --recursive
         
     - name: "Install system dependencies"
       run: |
@@ -61,10 +57,9 @@ jobs:
         cp ci/scripts/appimage.sh dist/linux/
         cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
 
-    - name: "Place Holder"
+    - name: Checkout submodules
       run: |
-        echo "Place Holder"
-        ls -al
+        git submodule update --init --recursive
         
     - name: "Build Cemu"
       run: |
