@@ -64,7 +64,9 @@ jobs:
       run: |
         pwd
         git init
-        git pull -v --recurse-submodules
+        git pull -v https://github.com/cemu-project/Cemu.git --recurse-submodules
+        git submodule update
+        git submodule status
         ls -al dependencies/
         ls -al dependencies/vcpkg/
         
