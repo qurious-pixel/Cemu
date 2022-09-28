@@ -18,14 +18,14 @@ sips -z 256 256   dist/mac/$APPNAME.png --out dist/mac/$APPNAME.iconset/icon_256
 sips -z 512 512   dist/mac/$APPNAME.png --out dist/mac/$APPNAME.iconset/icon_256x256@2x.png
 sips -z 512 512   dist/mac/$APPNAME.png --out dist/mac/$APPNAME.iconset/icon_512x512.png
 cp dist/mac/$APPNAME.png dist/mac/$APPNAME.iconset/icon_512x512@2x.png
-iconutil -c icns -o macosx/$APPNAME.icns dist/mac/$APPNAME.iconset
+iconutil -c icns -o dist/mac/$APPNAME.icns dist/mac/$APPNAME.iconset
 	
 mkdir $APPBUNDLE
 mkdir $APPBUNDLE/Contents
 mkdir $APPBUNDLE/Contents/MacOS
 mkdir $APPBUNDLE/Contents/Resources
 cp dist/mac/Info.plist $APPBUNDLECONTENTS/
-cp dist/mac/PkgInfo $APPBUNDLECONTENTS/
+#cp dist/mac/PkgInfo $APPBUNDLECONTENTS/
 cp dist/mac/$APPNAME.icns $APPBUNDLEICON/
 cp bin/$APPNAME $APPBUNDLEEXE/$APPNAME
 otool -l bin/$APPNAME | grep -A 2 LC_RPATH  | tail -n 1 | awk '{print $2}' | dylibbundler -od -b -x  $APPBUNDLEEXE/$APPNAME -d $APPBUNDLECONTENTS/libs
