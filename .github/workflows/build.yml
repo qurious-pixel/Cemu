@@ -165,7 +165,7 @@ jobs:
           rm libzip-${LIBZIPVER}.tar.gz
         fi
         make -C libzip-${LIBZIPVER}/build install
-        
+
     - name: "Install fmt"
       run: |
         FMTVER=9.1.0
@@ -173,12 +173,12 @@ jobs:
         if [[ ! -e fmt-${FMTVER} ]]; then
           curl -sSfL https://github.com/fmtlib/fmt/archive/refs/tags/${FMTVER}.tar.gz -o fmt-${FMTVER}
           tar xf fmt-${FMTVER}
-         cd fmt-${FMTVER}
-         mkdir -p build && cd build
-         cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
-         ninja && cd ../../
-       fi
-       ninja -C fmt-${FMTVER}/build install       
+          cd fmt-${FMTVER}
+          mkdir -p build && cd build
+          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
+          ninja && cd ../../
+        fi
+        ninja -C fmt-${FMTVER}/build install       
 
     #-name: "Install wxWidgets"
     #  run: |
