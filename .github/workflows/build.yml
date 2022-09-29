@@ -23,33 +23,12 @@ jobs:
       PATH: /opt/rh/devtoolset-11/root/usr/bin:/usr/local/bin:/usr/bin:$PATH
       LD_LIBRARY_PATH: /opt/rh/devtoolset-11/root/usr/lib64:/opt/rh/devtoolset-11/root/usr/lib:/opt/rh/devtoolset-11/root/usr/lib64/dyninst:/opt/rh/devtoolset-11/root/usr/lib/dyninst:/opt/rh/devtoolset-11/root/usr/lib64:/opt/rh/devtoolset-11/root/usr/lib:$LD_LIBRARY_PATH      
     steps:
-    - name: "Install system dependencies"
-      run: |
-        rpmkeys --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
-        su -c 'curl https://download.mono-project.com/repo/centos7-stable.repo | tee /etc/yum.repos.d/mono-centos7-stable.repo'
-        $INST epel-release centos-release-scl
-        $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
-        libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
-        libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
-        pulseaudio-libs-devel libcurl-devel nasm mono-devel
-        python3 -m pip install --upgrade pip wheel
-        python3 -m pip install cmake
-    - name: "Install Git"
-      run: |
-        yum remove -y git
-        curl -L https://github.com/git/git/tarball/e9d7761bb94f20acc98824275e317fa82436c25d |\
-        tar -xzC . --strip-components=1
-        make configure
-        ./configure --prefix=/usr
-        make -j$(nproc)
-        make install
-
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
         repository: cemu-project/Cemu 
         ref: main
-        submodules: true
+        submodules: false
     - name: Checkout AppImage Repo
       uses: actions/checkout@v3
       with:
@@ -64,6 +43,27 @@ jobs:
         restore-keys: |
           build
           
+    - name: "Install system dependencies"
+      run: |
+        rpmkeys --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
+        su -c 'curl https://download.mono-project.com/repo/centos7-stable.repo | tee /etc/yum.repos.d/mono-centos7-stable.repo'
+        $INST epel-release centos-release-scl
+        $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
+        libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
+        libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
+        pulseaudio-libs-devel libcurl-devel nasm mono-devel git
+        python3 -m pip install --upgrade pip wheel
+        python3 -m pip install cmake
+    #- name: "Install Git"
+    #  run: |
+    #    yum remove -y git
+    #    curl -L https://github.com/git/git/tarball/e9d7761bb94f20acc98824275e317fa82436c25d |\
+    #    tar -xzC . --strip-components=1
+    #    make configure
+    #    ./configure --prefix=/usr
+    #    make -j$(nproc)
+    #    make install
+
     - name: "Temp Fixes"
       run: |
         echo "Linux Fixes"
