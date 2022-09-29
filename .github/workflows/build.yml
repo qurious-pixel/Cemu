@@ -193,7 +193,7 @@ jobs:
           make && cd ../
           rm SDL2-${SDL2VER}.tar.gz
         fi  
-        sudo make -C SDL2-${SDL2VER} install
+        make -C SDL2-${SDL2VER} install
         sdl2-config --version
         
     - name: "Install wxWidgets"
