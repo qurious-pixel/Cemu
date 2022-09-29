@@ -23,6 +23,7 @@ jobs:
       run:
          working-directory: /__w/Cemu/Cemu
     env:
+      CACHEDIR: /__w/Cemu/Cemu/dependencies/sources
       INST: yum install -y --setopt=skip_missing_names_on_install=False
       CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
       CPP: /opt/rh/devtoolset-11/root/usr/bin/cpp
@@ -71,42 +72,145 @@ jobs:
         cp ci/scripts/appimage.sh dist/linux/
         cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
 
-    - name: Build Cubeb
+    - name: Setup Cache Path
       run: |
-        git clone https://github.com/mozilla/cubeb /cubeb
-        cd /cubeb
-        git checkout 4783607ecc09e9493677a9c4e3db95f78d87409a
-        git submodule update --init --recursive
-        cmake -B ./build . 
-        cmake --build ./build
-        cd ./build
-        make install
+        if [[ ! -e ${{ env.CACHEDIR }} ]]; then 
+          mkdir -p ${{ env.CACHEDIR }}
+        fi
+        ls ${{ env.CACHEDIR }}
+
+    #- name: Build Cubeb
+    #  run: |
+    #    cd ${{ env.CACHEDIR }}
+    #    git clone https://github.com/mozilla/cubeb
+    #    cd cubeb
+    #    git checkout 4783607ecc09e9493677a9c4e3db95f78d87409a
+    #    git submodule update --init --recursive
+    #    cmake -B ./build . 
+    #    cmake --build ./build
+    #    cd ./build
+    #    make install
     
     - name: Build Nasm
       run: |
-        curl -L https://www.nasm.us/pub/nasm/releasebuilds/2.15.05/nasm-2.15.05.tar.gz |\
-        tar -xzC . --strip-components=1
-        ./configure --prefix=/usr
-        make -j$(nproc)
-        make install
+        NASMVER=2.15.05
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e nasm-${NASMVER} ]]; then
+          curl -sSfLO https://www.nasm.us/pub/nasm/releasebuilds/${NASMVER}/nasm-${NASMVER}.tar.gz
+          tar xf nasm-${NASMVER}.tar.gz
+          cd nasm-${NASMVER}
+          ./configure --prefix=/usr
+          make -j$(nproc) && cd ../
+        fi
+        make -C nasm-${NASMVER} install
 
-    - name: "Build Cemu"
+    - name: "Install wxWidgets"
       run: |
-        cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
-        cmake --build build
-        #mkdir build && cd build
+        WXVER=3.2.1
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e wxWidgets-${WXVER} ]]; then
+          curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${WXVER}/wxWidgets-${WXVER}.tar.bz2
+          tar xf wxWidgets-${WXVER}.tar.bz2
+          cd wxWidgets-${WXVER}
+          mkdir build-gtk3 && cd build-gtk3
+          cmake ..
+          make && cd ../../
+          rm wxWidgets-${WXVER}.tar.bz2
+        fi
+        make -C wxWidgets-${WXVER}/build-gtk3 install
+        ln -sr /usr/local/lib/libwx_* /usr/lib/
+
+    - name: "Install ZSTD"
+      run: |
+        ZSTDVER=1.5.2
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e zstd-${ZSTDVER} ]]; then
+          curl -sSfLO https://github.com/facebook/zstd/releases/download/v${ZSTDVER}/zstd-${ZSTDVER}.tar.gz
+          tar xf zstd-${ZSTDVER}.tar.gz
+          cd zstd-${ZSTDVER}/build/cmake
+          mkdir builddir && cd builddir
+          cmake ..
+          make && cd ${{ env.CACHEDIR }}
+        fi
+        make -C zstd-${ZSTDVER} install
+
+    - name: "Install imgui"
+      run: |
+        IMGUIVER=1.88
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e imgui-${IMGUIVER} ]]; then
+          curl -sSfL https://codeload.github.com/ocornut/imgui/tar.gz/v${IMGUIVER} -o imgui-${IMGUIVER}
+          tar xf imgui-${IMGUIVER}
+          cd imgui-${IMGUIVER}
+          curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/CMakeLists.txt
+          curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/imgui-config.cmake.in
+          cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON -S. -B cmake-build-shared
+          cmake --build cmake-build-shared
+          cd ../
+        fi
+        make -C imgui-${IMGUIVER}/cmake-build-shared install
+
+    - name: "Install glslang"
+      run: |
+        GLSLANGVER=11.11.0
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e glslang-${GLSLANGVER} ]]; then
+          curl -sSfL https://github.com/KhronosGroup/glslang/archive/refs/tags/${GLSLANGVER}.tar.gz -o glslang-${GLSLANGVER}
+          tar xf glslang-${GLSLANGVER}
+          cd glslang-${GLSLANGVER}
+          mkdir -p build && cd build
+          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
+          ninja && cd ../../
+        fi
+        ninja -C glslang-${GLSLANGVER}/build install
+        glslangValidator --version
+
+    - name: "Install Libzip"
+      run: |
+        LIBZIPVER=1.7.3
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e libzip-${LIBZIPVER} ]]; then
+          curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
+          tar -xf libzip-${LIBZIPVER}.tar.gz
+          cd libzip-${LIBZIPVER}
+          mkdir build && cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+          make && cd ../../
+          rm libzip-${LIBZIPVER}.tar.gz
+        fi
+        make -C libzip-${LIBZIPVER}/build install
+        
+    - name: "Install fmt"
+      run: |
+        FMTVER=9.1.0
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e fmt-${FMTVER} ]]; then
+          curl -sSfL https://github.com/fmtlib/fmt/archive/refs/tags/${FMTVER}.tar.gz -o fmt-${FMTVER}
+          tar xf fmt-${FMTVER}
+          cd fmt-${FMTVER}
+          mkdir -p build && cd build
+          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
+          ninja && cd ../../
+        fi
+        ninja -C fmt-${FMTVER}/build install       
+
+    #- name: "Build Cemu"
+    #  run: |
+    #    cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
+    #    cmake --build build
+    #    #mkdir build && cd build
 
 
     #- name: "Build AppImage"
     #  run: |
     #    chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
         
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
+    #- name: Upload artifact
+    #  uses: actions/upload-artifact@v3
     #  #if: ${{ inputs.deploymode == 'release' }}
-      with:
-        name: cemu-appimage-x64
-        path: bin
+    #  with:
+    #    name: cemu-appimage-x64
+    #    path: bin
         
   #build-windows:
   #  runs-on: windows-2022
