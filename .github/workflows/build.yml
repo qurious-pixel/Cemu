@@ -105,19 +105,19 @@ jobs:
         fi
         make -C nasm-${NASMVER} install
 
-    #- name: "Install ZSTD"
-    #  run: |
-    #    ZSTDVER=1.5.2
-    #    cd ${{ env.CACHEDIR }}
-    #    if [[ ! -e zstd-${ZSTDVER} ]]; then
-    #      curl -sSfLO https://github.com/facebook/zstd/releases/download/v${ZSTDVER}/zstd-${ZSTDVER}.tar.gz
-    #      tar xf zstd-${ZSTDVER}.tar.gz
-    #      cd zstd-${ZSTDVER}/build/cmake
-    #      mkdir builddir && cd builddir
-    #      cmake ..
-    #      make && cd ${{ env.CACHEDIR }}
-    #    fi
-    #    make -C zstd-${ZSTDVER} install
+    - name: "Install ZSTD"
+      run: |
+        ZSTDVER=1.5.2
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e zstd-${ZSTDVER} ]]; then
+          curl -sSfLO https://github.com/facebook/zstd/releases/download/v${ZSTDVER}/zstd-${ZSTDVER}.tar.gz
+          tar xf zstd-${ZSTDVER}.tar.gz
+          cd zstd-${ZSTDVER}/build/cmake
+          mkdir builddir && cd builddir
+          cmake ..
+          make && cd ${{ env.CACHEDIR }}
+        fi
+        make -C zstd-${ZSTDVER} install
 
     #- name: "Install imgui"
     #  run: |
@@ -150,20 +150,20 @@ jobs:
     #    ninja -C glslang-${GLSLANGVER}/build install
     #    glslangValidator --version
 
-    #- name: "Install Libzip"
-    #  run: |
-    #    LIBZIPVER=1.7.3
-    #    cd ${{ env.CACHEDIR }}
-    #    if [[ ! -e libzip-${LIBZIPVER} ]]; then
-    #      curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
-    #      tar -xf libzip-${LIBZIPVER}.tar.gz
-    #      cd libzip-${LIBZIPVER}
-    #      mkdir build && cd build
-    #      cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-    #      make && cd ../../
-    #      rm libzip-${LIBZIPVER}.tar.gz
-    #    fi
-    #    make -C libzip-${LIBZIPVER}/build install
+    - name: "Install Libzip"
+      run: |
+        LIBZIPVER=1.7.3
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e libzip-${LIBZIPVER} ]]; then
+          curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
+          tar -xf libzip-${LIBZIPVER}.tar.gz
+          cd libzip-${LIBZIPVER}
+          mkdir build && cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+          make && cd ../../
+          rm libzip-${LIBZIPVER}.tar.gz
+        fi
+        make -C libzip-${LIBZIPVER}/build install
         
     #- name: "Install fmt"
     #  run: |
