@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     container: centos:7
     env:
-      CACHEDIR: /__w/Cemu/Cemu/deps
+      CACHEDIR: /__w/Cemu/Cemu/ci/deps
       INST: yum install -y --setopt=skip_missing_names_on_install=False
       CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
       CPP: /opt/rh/devtoolset-11/root/usr/bin/cpp
@@ -48,12 +48,12 @@ jobs:
         rpmkeys --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
         su -c 'curl https://download.mono-project.com/repo/centos7-stable.repo | tee /etc/yum.repos.d/mono-centos7-stable.repo'
         $INST epel-release centos-release-scl
-        $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
-        libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
-        libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
-        pulseaudio-libs-devel libcurl-devel nasm mono-devel git
-        python3 -m pip install --upgrade pip wheel
-        python3 -m pip install cmake
+        #$INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
+        #libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
+        #libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
+        #pulseaudio-libs-devel libcurl-devel nasm mono-devel git
+        #python3 -m pip install --upgrade pip wheel
+        #python3 -m pip install cmake
     #- name: "Install Git"
     #  run: |
     #    yum remove -y git
@@ -78,6 +78,8 @@ jobs:
           mkdir -p ${{ env.CACHEDIR }}
         fi
         ls -al ${{ env.CACHEDIR }}
+        cd ${{ env.CACHEDIR }}
+        ls > $(mktemp -d -p .)/list.txt 
 
     #- name: Build Cubeb
     #  run: |
@@ -91,33 +93,33 @@ jobs:
     #    cd ./build
     #    make install
     
-    - name: Build Nasm
-      run: |
-        NASMVER=2.15.05
-        cd ${{ env.CACHEDIR }}
-        if [[ ! -e nasm-${NASMVER} ]]; then
-          curl -sSfLO https://www.nasm.us/pub/nasm/releasebuilds/${NASMVER}/nasm-${NASMVER}.tar.gz
-          tar xf nasm-${NASMVER}.tar.gz
-          cd nasm-${NASMVER}
-          ./configure --prefix=/usr
-          make -j$(nproc) && cd ../
-          rm nasm-${NASMVER}.tar.gz
-        fi
-        make -C nasm-${NASMVER} install
+    #- name: Build Nasm
+    #  run: |
+    #    NASMVER=2.15.05
+    #    cd ${{ env.CACHEDIR }}
+    #    if [[ ! -e nasm-${NASMVER} ]]; then
+    #      curl -sSfLO https://www.nasm.us/pub/nasm/releasebuilds/${NASMVER}/nasm-${NASMVER}.tar.gz
+    #      tar xf nasm-${NASMVER}.tar.gz
+    #      cd nasm-${NASMVER}
+    #      ./configure --prefix=/usr
+    #      make -j$(nproc) && cd ../
+    #      rm nasm-${NASMVER}.tar.gz
+    #    fi
+    #    make -C nasm-${NASMVER} install
 
-    - name: "Install ZSTD"
-      run: |
-        ZSTDVER=1.5.2
-        cd ${{ env.CACHEDIR }}
-        if [[ ! -e zstd-${ZSTDVER} ]]; then
-          curl -sSfLO https://github.com/facebook/zstd/releases/download/v${ZSTDVER}/zstd-${ZSTDVER}.tar.gz
-          tar xf zstd-${ZSTDVER}.tar.gz
-          cd zstd-${ZSTDVER}/build/cmake
-          mkdir builddir && cd builddir
-          cmake ..
-          make && cd ${{ env.CACHEDIR }}
-        fi
-        make -C zstd-${ZSTDVER} install
+    #- name: "Install ZSTD"
+    #  run: |
+    #    ZSTDVER=1.5.2
+    #    cd ${{ env.CACHEDIR }}
+    #    if [[ ! -e zstd-${ZSTDVER} ]]; then
+    #      curl -sSfLO https://github.com/facebook/zstd/releases/download/v${ZSTDVER}/zstd-${ZSTDVER}.tar.gz
+    #      tar xf zstd-${ZSTDVER}.tar.gz
+    #      cd zstd-${ZSTDVER}/build/cmake
+    #      mkdir builddir && cd builddir
+    #      cmake ..
+    #      make && cd ${{ env.CACHEDIR }}
+    #    fi
+    #    make -C zstd-${ZSTDVER} install
 
     #- name: "Install imgui"
     #  run: |
@@ -150,20 +152,20 @@ jobs:
     #    ninja -C glslang-${GLSLANGVER}/build install
     #    glslangValidator --version
 
-    - name: "Install Libzip"
-      run: |
-        LIBZIPVER=1.7.3
-        cd ${{ env.CACHEDIR }}
-        if [[ ! -e libzip-${LIBZIPVER} ]]; then
-          curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
-          tar -xf libzip-${LIBZIPVER}.tar.gz
-          cd libzip-${LIBZIPVER}
-          mkdir build && cd build
-          cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-          make && cd ../../
-          rm libzip-${LIBZIPVER}.tar.gz
-        fi
-        make -C libzip-${LIBZIPVER}/build install
+    #- name: "Install Libzip"
+    #  run: |
+    #    LIBZIPVER=1.7.3
+    #    cd ${{ env.CACHEDIR }}
+    #    if [[ ! -e libzip-${LIBZIPVER} ]]; then
+    #      curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
+    #      tar -xf libzip-${LIBZIPVER}.tar.gz
+    #      cd libzip-${LIBZIPVER}
+    #      mkdir build && cd build
+    #      cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+    #      make && cd ../../
+    #      rm libzip-${LIBZIPVER}.tar.gz
+    #    fi
+    #    make -C libzip-${LIBZIPVER}/build install
         
     #- name: "Install fmt"
     #  run: |
