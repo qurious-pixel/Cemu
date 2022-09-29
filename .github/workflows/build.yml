@@ -128,36 +128,36 @@ jobs:
         fi
         make -C zstd-${ZSTDVER} install
 
-    #- name: "Install imgui"
-    #  run: |
-    #    IMGUIVER=1.88
-    #    cd ${{ env.CACHEDIR }}
-    #    if [[ ! -e imgui-${IMGUIVER} ]]; then
-    #      curl -sSfL https://codeload.github.com/ocornut/imgui/tar.gz/v${IMGUIVER} -o imgui-${IMGUIVER}
-    #      tar xf imgui-${IMGUIVER}
-    #      cd imgui-${IMGUIVER}
-    #      curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/CMakeLists.txt
-    #      curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/imgui-config.cmake.in
-    #      cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON -S. -B cmake-build-shared
-    #      cmake --build cmake-build-shared
-    #      cd ../
-    #    fi
-    #    make -C imgui-${IMGUIVER}/cmake-build-shared install
+    - name: "Install imgui"
+      run: |
+        IMGUIVER=1.88
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e imgui-${IMGUIVER} ]]; then
+          curl -sSfL https://codeload.github.com/ocornut/imgui/tar.gz/v${IMGUIVER} -o imgui-${IMGUIVER}
+          tar xf imgui-${IMGUIVER}
+          cd imgui-${IMGUIVER}
+          curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/CMakeLists.txt
+          curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/imgui-config.cmake.in
+          cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON -S. -B cmake-build-shared
+          cmake --build cmake-build-shared
+          cd ../
+        fi
+        make -C imgui-${IMGUIVER}/cmake-build-shared install
 
-    #- name: "Install glslang"
-    #  run: |
-    #    GLSLANGVER=11.11.0
-    #    cd ${{ env.CACHEDIR }}
-    #    if [[ ! -e glslang-${GLSLANGVER} ]]; then
-    #      curl -sSfL https://github.com/KhronosGroup/glslang/archive/refs/tags/${GLSLANGVER}.tar.gz -o glslang-${GLSLANGVER}
-    #      tar xf glslang-${GLSLANGVER}
-    #      cd glslang-${GLSLANGVER}
-    #      mkdir -p build && cd build
-    #      cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
-    #      ninja && cd ../../
-    #    fi
-    #    ninja -C glslang-${GLSLANGVER}/build install
-    #    glslangValidator --version
+    - name: "Install glslang"
+      run: |
+        GLSLANGVER=11.11.0
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e glslang-${GLSLANGVER} ]]; then
+          curl -sSfL https://github.com/KhronosGroup/glslang/archive/refs/tags/${GLSLANGVER}.tar.gz -o glslang-${GLSLANGVER}
+          tar xf glslang-${GLSLANGVER}
+          cd glslang-${GLSLANGVER}
+          mkdir -p build && cd build
+          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
+          ninja && cd ../../
+        fi
+        ninja -C glslang-${GLSLANGVER}/build install
+        glslangValidator --version
 
     - name: "Install Libzip"
       run: |
@@ -174,19 +174,19 @@ jobs:
         fi
         make -C libzip-${LIBZIPVER}/build install
         
-    #- name: "Install fmt"
-    #  run: |
-    #    FMTVER=9.1.0
-    #    cd ${{ env.CACHEDIR }}
-    #    if [[ ! -e fmt-${FMTVER} ]]; then
-    #      curl -sSfL https://github.com/fmtlib/fmt/archive/refs/tags/${FMTVER}.tar.gz -o fmt-${FMTVER}
-    #      tar xf fmt-${FMTVER}
-    #      cd fmt-${FMTVER}
-    #      mkdir -p build && cd build
-    #      cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
-    #      ninja && cd ../../
-    #    fi
-    #    ninja -C fmt-${FMTVER}/build install       
+    - name: "Install fmt"
+      run: |
+        FMTVER=9.1.0
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e fmt-${FMTVER} ]]; then
+          curl -sSfL https://github.com/fmtlib/fmt/archive/refs/tags/${FMTVER}.tar.gz -o fmt-${FMTVER}
+          tar xf fmt-${FMTVER}
+          cd fmt-${FMTVER}
+          mkdir -p build && cd build
+          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
+          ninja && cd ../../
+        fi
+        ninja -C fmt-${FMTVER}/build install       
 
     #- name: "Install wxWidgets"
     #  run: |
