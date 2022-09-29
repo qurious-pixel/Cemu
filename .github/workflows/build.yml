@@ -67,10 +67,10 @@ jobs:
     - name: "Temp Fixes"
       run: |
         echo "Linux Fixes"
-        git apply ci/scripts/xdg.patch
-        #sed -i '37,40d' vcpkg.json
-        cp ci/scripts/appimage.sh dist/linux/
-        cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
+        #git apply ci/scripts/xdg.patch
+        ##sed -i '37,40d' vcpkg.json
+        #cp ci/scripts/appimage.sh dist/linux/
+        #cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
          
     - name: Setup Cache Path
       run: |
