@@ -180,7 +180,7 @@ jobs:
         fi
         ninja -C fmt-${FMTVER}/build install       
 
-    -name: "Install wxWidgets"
+    - name: "Install wxWidgets"
       run: |
         WXVER=3.2.1
         cd ${{ env.CACHEDIR }}
