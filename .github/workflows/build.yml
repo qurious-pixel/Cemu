@@ -48,12 +48,12 @@ jobs:
         rpmkeys --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
         su -c 'curl https://download.mono-project.com/repo/centos7-stable.repo | tee /etc/yum.repos.d/mono-centos7-stable.repo'
         $INST epel-release centos-release-scl
-        #$INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
-        #libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
-        #libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
-        #pulseaudio-libs-devel libcurl-devel nasm mono-devel git
-        #python3 -m pip install --upgrade pip wheel
-        #python3 -m pip install cmake
+        $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
+        libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
+        libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
+        pulseaudio-libs-devel libcurl-devel nasm mono-devel git
+        python3 -m pip install --upgrade pip wheel
+        python3 -m pip install cmake
     #- name: "Install Git"
     #  run: |
     #    yum remove -y git
@@ -67,10 +67,10 @@ jobs:
     - name: "Temp Fixes"
       run: |
         echo "Linux Fixes"
-        #git apply ci/scripts/xdg.patch
-        ##sed -i '37,40d' vcpkg.json
-        #cp ci/scripts/appimage.sh dist/linux/
-        #cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
+        git apply ci/scripts/xdg.patch
+        #sed -i '37,40d' vcpkg.json
+        cp ci/scripts/appimage.sh dist/linux/
+        cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
          
     - name: Setup Cache Path
       run: |
@@ -78,8 +78,6 @@ jobs:
           mkdir -p ${{ env.CACHEDIR }}
         fi
         ls -al ${{ env.CACHEDIR }}
-        cd ${{ env.CACHEDIR }}
-        ls > $(mktemp -d -p .)/list.txt 
 
     #- name: Build Cubeb
     #  run: |
@@ -93,19 +91,19 @@ jobs:
     #    cd ./build
     #    make install
     
-    #- name: Build Nasm
-    #  run: |
-    #    NASMVER=2.15.05
-    #    cd ${{ env.CACHEDIR }}
-    #    if [[ ! -e nasm-${NASMVER} ]]; then
-    #      curl -sSfLO https://www.nasm.us/pub/nasm/releasebuilds/${NASMVER}/nasm-${NASMVER}.tar.gz
-    #      tar xf nasm-${NASMVER}.tar.gz
-    #      cd nasm-${NASMVER}
-    #      ./configure --prefix=/usr
-    #      make -j$(nproc) && cd ../
-    #      rm nasm-${NASMVER}.tar.gz
-    #    fi
-    #    make -C nasm-${NASMVER} install
+    - name: Build Nasm
+      run: |
+        NASMVER=2.15.05
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e nasm-${NASMVER} ]]; then
+          curl -sSfLO https://www.nasm.us/pub/nasm/releasebuilds/${NASMVER}/nasm-${NASMVER}.tar.gz
+          tar xf nasm-${NASMVER}.tar.gz
+          cd nasm-${NASMVER}
+          ./configure --prefix=/usr
+          make -j$(nproc) && cd ../
+          rm nasm-${NASMVER}.tar.gz
+        fi
+        make -C nasm-${NASMVER} install
 
     #- name: "Install ZSTD"
     #  run: |
