@@ -10,18 +10,10 @@ on:
         required: false
         type: string
 
-env:
-  VCPKG_ROOT: "${{github.workspace}}/dependencies/vcpkg"
-  VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
-
-jobs:
-       
+jobs:    
   build-appimage:
     runs-on: ubuntu-latest
     container: centos:7
-    defaults:
-      run:
-         working-directory: /__w/Cemu/Cemu
     env:
       CACHEDIR: /__w/Cemu/Cemu/dependencies/sources
       INST: yum install -y --setopt=skip_missing_names_on_install=False
@@ -63,15 +55,6 @@ jobs:
       with:
           clean: false
           path: ci
-          
-    - name: "Temp Fixes"
-      run: |
-        echo "Linux Fixes"
-        git apply ci/scripts/xdg.patch
-        #sed -i '37,40d' vcpkg.json
-        cp ci/scripts/appimage.sh dist/linux/
-        cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
-
     - name: cache
       uses: actions/cache@v3
       with:
@@ -81,6 +64,14 @@ jobs:
         restore-keys: |
           build
           
+    - name: "Temp Fixes"
+      run: |
+        echo "Linux Fixes"
+        git apply ci/scripts/xdg.patch
+        #sed -i '37,40d' vcpkg.json
+        cp ci/scripts/appimage.sh dist/linux/
+        cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
+         
     - name: Setup Cache Path
       run: |
         if [[ ! -e ${{ env.CACHEDIR }} ]]; then 
@@ -128,81 +119,81 @@ jobs:
         fi
         make -C zstd-${ZSTDVER} install
 
-    - name: "Install imgui"
-      run: |
-        IMGUIVER=1.88
-        cd ${{ env.CACHEDIR }}
-        if [[ ! -e imgui-${IMGUIVER} ]]; then
-          curl -sSfL https://codeload.github.com/ocornut/imgui/tar.gz/v${IMGUIVER} -o imgui-${IMGUIVER}
-          tar xf imgui-${IMGUIVER}
-          cd imgui-${IMGUIVER}
-          curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/CMakeLists.txt
-          curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/imgui-config.cmake.in
-          cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON -S. -B cmake-build-shared
-          cmake --build cmake-build-shared
-          cd ../
-        fi
-        make -C imgui-${IMGUIVER}/cmake-build-shared install
+    #- name: "Install imgui"
+    #  run: |
+    #    IMGUIVER=1.88
+    #    cd ${{ env.CACHEDIR }}
+    #    if [[ ! -e imgui-${IMGUIVER} ]]; then
+    #      curl -sSfL https://codeload.github.com/ocornut/imgui/tar.gz/v${IMGUIVER} -o imgui-${IMGUIVER}
+    #      tar xf imgui-${IMGUIVER}
+    #      cd imgui-${IMGUIVER}
+    #      curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/CMakeLists.txt
+    #      curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/imgui-config.cmake.in
+    #      cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON -S. -B cmake-build-shared
+    #      cmake --build cmake-build-shared
+    #      cd ../
+    #    fi
+    #    make -C imgui-${IMGUIVER}/cmake-build-shared install
 
-    - name: "Install glslang"
-      run: |
-        GLSLANGVER=11.11.0
-        cd ${{ env.CACHEDIR }}
-        if [[ ! -e glslang-${GLSLANGVER} ]]; then
-          curl -sSfL https://github.com/KhronosGroup/glslang/archive/refs/tags/${GLSLANGVER}.tar.gz -o glslang-${GLSLANGVER}
-          tar xf glslang-${GLSLANGVER}
-          cd glslang-${GLSLANGVER}
-          mkdir -p build && cd build
-          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
-          ninja && cd ../../
-        fi
-        ninja -C glslang-${GLSLANGVER}/build install
-        glslangValidator --version
+    #- name: "Install glslang"
+    #  run: |
+    #    GLSLANGVER=11.11.0
+    #    cd ${{ env.CACHEDIR }}
+    #    if [[ ! -e glslang-${GLSLANGVER} ]]; then
+    #      curl -sSfL https://github.com/KhronosGroup/glslang/archive/refs/tags/${GLSLANGVER}.tar.gz -o glslang-${GLSLANGVER}
+    #      tar xf glslang-${GLSLANGVER}
+    #      cd glslang-${GLSLANGVER}
+    #      mkdir -p build && cd build
+    #      cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
+    #      ninja && cd ../../
+    #    fi
+    #    ninja -C glslang-${GLSLANGVER}/build install
+    #    glslangValidator --version
 
-    - name: "Install Libzip"
-      run: |
-        LIBZIPVER=1.7.3
-        cd ${{ env.CACHEDIR }}
-        if [[ ! -e libzip-${LIBZIPVER} ]]; then
-          curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
-          tar -xf libzip-${LIBZIPVER}.tar.gz
-          cd libzip-${LIBZIPVER}
-          mkdir build && cd build
-          cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-          make && cd ../../
-          rm libzip-${LIBZIPVER}.tar.gz
-        fi
-        make -C libzip-${LIBZIPVER}/build install
+    #- name: "Install Libzip"
+    #  run: |
+    #    LIBZIPVER=1.7.3
+    #    cd ${{ env.CACHEDIR }}
+    #    if [[ ! -e libzip-${LIBZIPVER} ]]; then
+    #      curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
+    #      tar -xf libzip-${LIBZIPVER}.tar.gz
+    #      cd libzip-${LIBZIPVER}
+    #      mkdir build && cd build
+    #      cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+    #      make && cd ../../
+    #      rm libzip-${LIBZIPVER}.tar.gz
+    #    fi
+    #    make -C libzip-${LIBZIPVER}/build install
         
-    - name: "Install fmt"
-      run: |
-        FMTVER=9.1.0
-        cd ${{ env.CACHEDIR }}
-        if [[ ! -e fmt-${FMTVER} ]]; then
-          curl -sSfL https://github.com/fmtlib/fmt/archive/refs/tags/${FMTVER}.tar.gz -o fmt-${FMTVER}
-          tar xf fmt-${FMTVER}
-          cd fmt-${FMTVER}
-          mkdir -p build && cd build
-          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
-          ninja && cd ../../
-        fi
-        ninja -C fmt-${FMTVER}/build install       
+    #- name: "Install fmt"
+    #  run: |
+    #    FMTVER=9.1.0
+    #    cd ${{ env.CACHEDIR }}
+    #    if [[ ! -e fmt-${FMTVER} ]]; then
+    #      curl -sSfL https://github.com/fmtlib/fmt/archive/refs/tags/${FMTVER}.tar.gz -o fmt-${FMTVER}
+    #      tar xf fmt-${FMTVER}
+    #     cd fmt-${FMTVER}
+    #     mkdir -p build && cd build
+    #     cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
+    #     ninja && cd ../../
+    #   fi
+    #   ninja -C fmt-${FMTVER}/build install       
 
-    - name: "Install wxWidgets"
-      run: |
-        WXVER=3.2.1
-        cd ${{ env.CACHEDIR }}
-        if [[ ! -e wxWidgets-${WXVER} ]]; then
-          curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${WXVER}/wxWidgets-${WXVER}.tar.bz2
-          tar xf wxWidgets-${WXVER}.tar.bz2
-          cd wxWidgets-${WXVER}
-          mkdir build-gtk3 && cd build-gtk3
-          cmake ..
-          make && cd ../../
-          rm wxWidgets-${WXVER}.tar.bz2
-        fi
-        make -C wxWidgets-${WXVER}/build-gtk3 install
-        ln -sr /usr/local/lib/libwx_* /usr/lib/
+    #-name: "Install wxWidgets"
+    #  run: |
+    #    WXVER=3.2.1
+    #    cd ${{ env.CACHEDIR }}
+    #    if [[ ! -e wxWidgets-${WXVER} ]]; then
+    #      curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${WXVER}/wxWidgets-${WXVER}.tar.bz2
+    #      tar xf wxWidgets-${WXVER}.tar.bz2
+    #      cd wxWidgets-${WXVER}
+    #      mkdir build-gtk3 && cd build-gtk3
+    #      cmake ..
+    #      make && cd ../../
+    #      rm wxWidgets-${WXVER}.tar.bz2
+    #    fi
+    #    make -C wxWidgets-${WXVER}/build-gtk3 install
+    #    ln -sr /usr/local/lib/libwx_* /usr/lib/
         
     #- name: "Build Cemu"
     #  run: |
