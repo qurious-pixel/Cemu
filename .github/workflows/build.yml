@@ -39,9 +39,9 @@ jobs:
       with:
         path: |
           ${{ env.CACHEDIR }}
-        key: build-${{github.run_id}}
+        key: builds-${{github.run_id}}
         restore-keys: |
-          build
+          builds
           
     - name: "Install system dependencies"
       run: |
