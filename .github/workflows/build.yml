@@ -180,21 +180,21 @@ jobs:
         fi
         ninja -C fmt-${FMTVER}/build install       
 
-    #-name: "Install wxWidgets"
-    #  run: |
-    #    WXVER=3.2.1
-    #    cd ${{ env.CACHEDIR }}
-    #    if [[ ! -e wxWidgets-${WXVER} ]]; then
-    #      curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${WXVER}/wxWidgets-${WXVER}.tar.bz2
-    #      tar xf wxWidgets-${WXVER}.tar.bz2
-    #      cd wxWidgets-${WXVER}
-    #      mkdir build-gtk3 && cd build-gtk3
-    #      cmake ..
-    #      make && cd ../../
-    #      rm wxWidgets-${WXVER}.tar.bz2
-    #    fi
-    #    make -C wxWidgets-${WXVER}/build-gtk3 install
-    #    ln -sr /usr/local/lib/libwx_* /usr/lib/
+    -name: "Install wxWidgets"
+      run: |
+        WXVER=3.2.1
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e wxWidgets-${WXVER} ]]; then
+          curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${WXVER}/wxWidgets-${WXVER}.tar.bz2
+          tar xf wxWidgets-${WXVER}.tar.bz2
+          cd wxWidgets-${WXVER}
+          mkdir build-gtk3 && cd build-gtk3
+          cmake ..
+          make && cd ../../
+          rm wxWidgets-${WXVER}.tar.bz2
+        fi
+        make -C wxWidgets-${WXVER}/build-gtk3 install
+        ln -sr /usr/local/lib/libwx_* /usr/lib/
         
     #- name: "Build Cemu"
     #  run: |
