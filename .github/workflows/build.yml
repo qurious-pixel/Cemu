@@ -72,6 +72,15 @@ jobs:
         cp ci/scripts/appimage.sh dist/linux/
         cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
 
+    - name: cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ${{ env.CACHEDIR }}
+        key: build-${{github.run_id}}
+        restore-keys: |
+          build
+          
     - name: Setup Cache Path
       run: |
         if [[ ! -e ${{ env.CACHEDIR }} ]]; then 
