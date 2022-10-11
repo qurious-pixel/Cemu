@@ -19,7 +19,7 @@ jobs:
       SDL2VER: 2.24.0
       WXVER: 3.2.1
       CACHEDIR: /__w/Cemu/Cemu/
-      INST: yum install -y --setopt=skip_missing_names_on_install=False --enablerepo=remi
+      INST: yum install -y --setopt=skip_missing_names_on_install=False #--enablerepo=remi
       CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
       CPP: /opt/rh/devtoolset-11/root/usr/bin/cpp
       CXX: /opt/rh/devtoolset-11/root/usr/bin/g++
@@ -61,7 +61,7 @@ jobs:
           
     - name: "Install system dependencies"
       run: |
-        $INST epel-release centos-release-scl
+        $INST epel-release centos-release-scl remi-release
         $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
         libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
         libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
