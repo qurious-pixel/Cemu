@@ -19,7 +19,7 @@ jobs:
       SDL2VER: 2.24.0
       WXVER: 3.2.1
       CACHEDIR: /__w/Cemu/Cemu/
-      INST: yum install -y --setopt=skip_missing_names_on_install=False #--enablerepo=remi
+      INST: yum install -y --setopt=skip_missing_names_on_install=False
       CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
       CPP: /opt/rh/devtoolset-11/root/usr/bin/cpp
       CXX: /opt/rh/devtoolset-11/root/usr/bin/g++
@@ -65,7 +65,7 @@ jobs:
         $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
         libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
         libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
-        rapidjson-devel pugixml-devel boost-devel libzstd-devel libzip5-devel \
+        rapidjson-devel pugixml-devel boost-devel libzstd-devel \
         pulseaudio-libs-devel libcurl-devel nasm git bzip2 # mono-devel
         python3 -m pip install --upgrade pip wheel
         python3 -m pip install cmake
@@ -168,20 +168,20 @@ jobs:
         ninja -C glslang-${GLSLANGVER}/build install
         glslangValidator --version
 
-    #- name: "Install Libzip"
-    #  run: |
-    #    LIBZIPVER=1.7.3
-    #    cd ${{ env.CACHEDIR }}
-    #    if [[ ! -e libzip-${LIBZIPVER} ]]; then
-    #      curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
-    #      tar -xf libzip-${LIBZIPVER}.tar.gz
-    #      cd libzip-${LIBZIPVER}
-    #      mkdir build && cd build
-    #      cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-    #      make && cd ../../
-    #      rm libzip-${LIBZIPVER}.tar.gz
-    #    fi
-    #    make -C libzip-${LIBZIPVER}/build install
+    - name: "Install Libzip"
+      run: |
+        LIBZIPVER=1.9.2
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e libzip-${LIBZIPVER} ]]; then
+          curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
+          tar -xf libzip-${LIBZIPVER}.tar.gz
+          cd libzip-${LIBZIPVER}
+          mkdir build && cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+          make && cd ../../
+          rm libzip-${LIBZIPVER}.tar.gz
+        fi
+        make -C libzip-${LIBZIPVER}/build install
 
     #- name: "Install PugiXML"
     #  run: |
@@ -225,43 +225,44 @@ jobs:
         ninja && cd ../../
       if: steps.fmt.outputs.cache-hit != 'true'
      
-    - name: "Install SDL2"
-      run: | 
-        cd ${{ env.CACHEDIR }}
-        curl -sLO https://libsdl.org/release/SDL2-${{ env.SDL2VER }}.tar.gz
-        tar -xzf SDL2-${{ env.SDL2VER }}.tar.gz
-        cd SDL2-${{ env.SDL2VER }}
-        ./configure --prefix=/usr
-        make && cd ../
-        rm SDL2-${{ env.SDL2VER }}.tar.gz
-      if: steps.SDL2.outputs.cache-hit != 'true'
+    #- name: "Install SDL2"
+    #  run: | 
+    #    cd ${{ env.CACHEDIR }}
+    #    curl -sLO https://libsdl.org/release/SDL2-${{ env.SDL2VER }}.tar.gz
+    #    tar -xzf SDL2-${{ env.SDL2VER }}.tar.gz
+    #    cd SDL2-${{ env.SDL2VER }}
+    #    ./configure --prefix=/usr
+    #    make && cd ../
+    #    rm SDL2-${{ env.SDL2VER }}.tar.gz
+    #  if: steps.SDL2.outputs.cache-hit != 'true'
       
-    - name: "Install wxWidgets"
-      run: |
-        cd ${{ env.CACHEDIR }}
-        curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${{ env.WXVER }}/wxWidgets-${{ env.WXVER }}.tar.bz2
-        tar xf wxWidgets-${{ env.WXVER }}.tar.bz2
-        cd wxWidgets-${{ env.WXVER }}
-        mkdir build-gtk3 && cd build-gtk3
-        cmake ..
-        make && cd ../../
-        rm wxWidgets-${{ env.WXVER }}.tar.bz2
-      if: steps.wxWidgets.outputs.cache-hit != 'true'
+    #- name: "Install wxWidgets"
+    #  run: |
+    #    cd ${{ env.CACHEDIR }}
+    #    curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${{ env.WXVER }}/wxWidgets-${{ env.WXVER }}.tar.bz2
+    #    tar xf wxWidgets-${{ env.WXVER }}.tar.bz2
+    #    cd wxWidgets-${{ env.WXVER }}
+    #    mkdir build-gtk3 && cd build-gtk3
+    #    cmake ..
+    #    make && cd ../../
+    #    rm wxWidgets-${{ env.WXVER }}.tar.bz2
+    #  if: steps.wxWidgets.outputs.cache-hit != 'true'
       
     - name: "Install submodules"
       run: |
+        echo "installing ..."
         cd ${{ env.CACHEDIR }}
-        make -C wxWidgets-${{ env.WXVER }}/build-gtk3 install
-        ln -sr /usr/local/lib/libwx_* /usr/lib/
-        make -C SDL2-${{ env.SDL2VER }} install
-        sdl2-config --version
+        #make -C wxWidgets-${{ env.WXVER }}/build-gtk3 install
+        #ln -sr /usr/local/lib/libwx_* /usr/lib/
+        #make -C SDL2-${{ env.SDL2VER }} install
+        #sdl2-config --version
         ninja -C fmt-${{ env.FMTVER }}/build install
         
-    - name: "Build Cemu"
-      run: |
-        cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DENABLE_VCPKG=OFF -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
-        cmake --build build
-        #mkdir build && cd build
+    #- name: "Build Cemu"
+    #  run: |
+    #    cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DENABLE_VCPKG=OFF -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
+    #    cmake --build build
+    #    #mkdir build && cd build
 
 
     #- name: "Build AppImage"
