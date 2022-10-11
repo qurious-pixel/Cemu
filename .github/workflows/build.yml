@@ -41,7 +41,7 @@ jobs:
       id: fmt
       uses: actions/cache@v3
       with:
-        path: ${{ env.CACHEDIR }}/fmt-${{ env.FMTVER }}
+        path: /home/runner/work/fmt-${{ env.FMTVER }}
         key: fmt-${{ env.FMTVER }}
         restore-keys: fmt-${{ env.FMTVER }}
     - name: SDL2-${{ env.SDL2VER }} cache
