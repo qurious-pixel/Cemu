@@ -18,7 +18,7 @@ jobs:
       FMTVER: 9.1.0
       SDL2VER: 2.24.0
       WXVER: 3.2.1
-      CACHEDIR: /__w/Cemu/Cemu/
+      CACHEDIR: /__w/Cemu/Cemu
       INST: yum install -y --setopt=skip_missing_names_on_install=False
       CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
       CPP: /opt/rh/devtoolset-11/root/usr/bin/cpp
@@ -41,7 +41,7 @@ jobs:
       id: fmt
       uses: actions/cache@v3
       with:
-        path: /home/runner/work/fmt-${{ env.FMTVER }}
+        path: ${{ env.CACHEDIR }}/fmt-${{ env.FMTVER }}
         key: fmt-${{ env.FMTVER }}
         restore-keys: fmt-${{ env.FMTVER }}
     - name: SDL2-${{ env.SDL2VER }} cache
