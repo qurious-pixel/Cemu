@@ -15,6 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     container: centos:7
     env:
+      FMTVER: 9.1.0
+      SDL2VER: 2.24.0
+      WXVER: 3.2.1
       CACHEDIR: /__w/Cemu/Cemu/ci/deps
       INST: yum install -y --setopt=skip_missing_names_on_install=False
       CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
@@ -34,15 +37,27 @@ jobs:
       with:
           clean: false
           path: ci
-    - name: cache
+    - name: fmt-${{ env.FMTVER }} cache
+      id: fmt
       uses: actions/cache@v3
       with:
-        path: |
-          ${{ env.CACHEDIR }}
-        key: builds-deps-${{github.run_id}}
-        restore-keys: |
-          builds-deps-
-          builds-
+        path: ${{ env.CACHEDIR }}/fmt-${{ env.FMTVER }}
+        key: fmt-${{ env.FMTVER }}
+        restore-keys: fmt-${{ env.FMTVER }}
+    - name: SDL2-${{ env.SDL2VER }} cache
+      id: SDL2
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.CACHEDIR }}/SDL2-${{ env.SDL2VER }}
+        key: SDL2-${{ env.SDL2VER }}
+        restore-keys: SDL2-${{ env.SDL2VER }}
+    - name: wxWidgets-${{ env.WXVER }} cache
+      id: wxWidgets
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.CACHEDIR }}/wxWidgets-${{ env.WXVER }}
+        key: wxWidgets-${{ env.WXVER }}
+        restore-keys: wxWidgets-${{ env.WXVER }}
           
     - name: "Install system dependencies"
       run: |
@@ -186,64 +201,63 @@ jobs:
       run: |
         FMTVER=9.1.0
         cd ${{ env.CACHEDIR }}
-        if [[ ! -e fmt-${FMTVER} ]]; then
-          curl -sSfL https://github.com/fmtlib/fmt/archive/refs/tags/${FMTVER}.tar.gz -o fmt-${FMTVER}
-          tar xf fmt-${FMTVER}
-          cd fmt-${FMTVER}
-          mkdir -p build && cd build
-          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
-          ninja && cd ../../
-        fi
-        ninja -C fmt-${FMTVER}/build install       
-
+        curl -sSfL https://github.com/fmtlib/fmt/archive/refs/tags/${{ env.FMTVER }}.tar.gz -o fmt-${{ env.FMTVER }}
+        tar xf fmt-${{ env.FMTVER }}
+        cd fmt-${{ env.FMTVER }}
+        mkdir -p build && cd build
+        cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
+        ninja && cd ../../
+      if: steps.fmt.outputs.cache-hit != 'true'
+     
     - name: "Install SDL2"
       run: | 
-        SDL2VER=2.24.0
         cd ${{ env.CACHEDIR }}
-        if [[ ! -e SDL2-${SDL2VER} ]]; then
-          curl -sLO https://libsdl.org/release/SDL2-${SDL2VER}.tar.gz
-          tar -xzf SDL2-${SDL2VER}.tar.gz
-          cd SDL2-${SDL2VER}
-          ./configure --prefix=/usr
-          make && cd ../
-          rm SDL2-${SDL2VER}.tar.gz
-        fi  
-        make -C SDL2-${SDL2VER} install
-        sdl2-config --version
-        
+        curl -sLO https://libsdl.org/release/SDL2-${{ env.SDL2VER }}.tar.gz
+        tar -xzf SDL2-${{ env.SDL2VER }}.tar.gz
+        cd SDL2-${{ env.SDL2VER }}
+        ./configure --prefix=/usr
+        make && cd ../
+        rm SDL2-${{ env.SDL2VER }}.tar.gz
+      if: steps.SDL2.outputs.cache-hit != 'true'
+      
     - name: "Install wxWidgets"
       run: |
-        WXVER=3.2.1
         cd ${{ env.CACHEDIR }}
-        if [[ ! -e wxWidgets-${WXVER} ]]; then
-          curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${WXVER}/wxWidgets-${WXVER}.tar.bz2
-          tar xf wxWidgets-${WXVER}.tar.bz2
-          cd wxWidgets-${WXVER}
-          mkdir build-gtk3 && cd build-gtk3
-          cmake ..
-          make && cd ../../
-          rm wxWidgets-${WXVER}.tar.bz2
-        fi
-        make -C wxWidgets-${WXVER}/build-gtk3 install
+        curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${{ env.WXVER }}/wxWidgets-${{ env.WXVER }}.tar.bz2
+        tar xf wxWidgets-${{ env.WXVER }}.tar.bz2
+        cd wxWidgets-${{ env.WXVER }}
+        mkdir build-gtk3 && cd build-gtk3
+        cmake ..
+        make && cd ../../
+        rm wxWidgets-${{ env.WXVER }}.tar.bz2
+      if: steps.wxWidgets.outputs.cache-hit != 'true'
+      
+    - name: "Install submodules"
+      run: |
+        cd ${{ env.CACHEDIR }}
+        make -C wxWidgets-${{ env.WXVER }}/build-gtk3 install
         ln -sr /usr/local/lib/libwx_* /usr/lib/
+        make -C SDL2-${{ env.SDL2VER }} install
+        sdl2-config --version
+        ninja -C fmt-${{ env.FMTVER }}/build install
         
-    - name: "Build Cemu"
-      run: |
-        cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DENABLE_VCPKG=OFF -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
-        cmake --build build
-        #mkdir build && cd build
+    #- name: "Build Cemu"
+    #  run: |
+    #    cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DENABLE_VCPKG=OFF -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
+    #    cmake --build build
+    #    #mkdir build && cd build
 
 
-    - name: "Build AppImage"
-      run: |
-        chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
+    #- name: "Build AppImage"
+    #  run: |
+    #    chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
         
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      #if: ${{ inputs.deploymode == 'release' }}
-      with:
-        name: cemu-appimage-x64
-        path: artifacts
+    #- name: Upload artifact
+    #  uses: actions/upload-artifact@v3
+    #  #if: ${{ inputs.deploymode == 'release' }}
+    #  with:
+    #    name: cemu-appimage-x64
+    #    path: artifacts
         
   #build-windows:
   #  runs-on: windows-2022
