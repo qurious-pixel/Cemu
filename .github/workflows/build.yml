@@ -18,8 +18,8 @@ jobs:
       FMTVER: 9.1.0
       SDL2VER: 2.24.0
       WXVER: 3.2.1
-      CACHEDIR: /__w/Cemu/Cemu/ci/deps
-      INST: yum install -y --setopt=skip_missing_names_on_install=False
+      CACHEDIR: /__w/Cemu/Cemu/
+      INST: yum install -y --setopt=skip_missing_names_on_install=False --enablerepo=remi
       CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
       CPP: /opt/rh/devtoolset-11/root/usr/bin/cpp
       CXX: /opt/rh/devtoolset-11/root/usr/bin/g++
@@ -65,7 +65,7 @@ jobs:
         $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
         libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
         libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
-        rapidjson-devel pugixml-devel boost-devel libzstd-devel libzip-devel \
+        rapidjson-devel pugixml-devel boost-devel libzstd-devel libzip5-devel \
         pulseaudio-libs-devel libcurl-devel nasm git bzip2 # mono-devel
         python3 -m pip install --upgrade pip wheel
         python3 -m pip install cmake
@@ -257,11 +257,11 @@ jobs:
         sdl2-config --version
         ninja -C fmt-${{ env.FMTVER }}/build install
         
-    #- name: "Build Cemu"
-    #  run: |
-    #    cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DENABLE_VCPKG=OFF -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
-    #    cmake --build build
-    #    #mkdir build && cd build
+    - name: "Build Cemu"
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DENABLE_VCPKG=OFF -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
+        cmake --build build
+        #mkdir build && cd build
 
 
     #- name: "Build AppImage"
