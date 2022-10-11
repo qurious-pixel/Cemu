@@ -121,21 +121,21 @@ jobs:
         fi
         make -C zstd-${ZSTDVER} install
 
-    - name: "Install imgui"
-      run: |
-        IMGUIVER=1.88
-        cd ${{ env.CACHEDIR }}
-        if [[ ! -e imgui-${IMGUIVER} ]]; then
-          curl -sSfL https://codeload.github.com/ocornut/imgui/tar.gz/v${IMGUIVER} -o imgui-${IMGUIVER}
-          tar xf imgui-${IMGUIVER}
-          cd imgui-${IMGUIVER}
-          curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/CMakeLists.txt
-          curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/imgui-config.cmake.in
-          cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON -S. -B cmake-build-shared
-          cmake --build cmake-build-shared
-          cd ../
-        fi
-        make -C imgui-${IMGUIVER}/cmake-build-shared install
+    #- name: "Install imgui"
+    #  run: |
+    #    IMGUIVER=1.88
+    #    cd ${{ env.CACHEDIR }}
+    #    if [[ ! -e imgui-${IMGUIVER} ]]; then
+    #      curl -sSfL https://codeload.github.com/ocornut/imgui/tar.gz/v${IMGUIVER} -o imgui-${IMGUIVER}
+    #      tar xf imgui-${IMGUIVER}
+    #      cd imgui-${IMGUIVER}
+    #      curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/CMakeLists.txt
+    #      curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/imgui-config.cmake.in
+    #      cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON -S. -B cmake-build-shared
+    #      cmake --build cmake-build-shared
+    #      cd ../
+    #    fi
+    #    make -C imgui-${IMGUIVER}/cmake-build-shared install
 
     - name: "Install glslang"
       run: |
@@ -167,6 +167,21 @@ jobs:
         fi
         make -C libzip-${LIBZIPVER}/build install
 
+    - name: "Install PugiXML"
+      run: |
+        PUGIXMLVER=1.12.1
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e pugixml-${PUGIXMLVER} ]]; then
+          curl -sSfLO https://github.com/zeux/pugixml/releases/download/v${PUGIXMLVER}/pugixml-${PUGIXMLVER}.tar.gz
+          tar -xf pugixml-${PUGIXMLVER}.tar.gz
+          cd pugixml-${PUGIXMLVER%.*}
+          mkdir build && cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+          make && cd ../../
+          rm pugixml-${PUGIXMLVER}.tar.gz
+        fi
+        make -C pugixml-${PUGIXMLVER}/build install
+        
     - name: "Install fmt"
       run: |
         FMTVER=9.1.0
