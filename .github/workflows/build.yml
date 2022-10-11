@@ -65,7 +65,7 @@ jobs:
         $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
         libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
         libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
-        rapidjson-devel pugixml-devel boost-devel libzstd-devel libzip5-devel \
+        rapidjson-devel pugixml-devel boost-devel libzstd-devel libzip-devel \
         pulseaudio-libs-devel libcurl-devel nasm git bzip2 # mono-devel
         python3 -m pip install --upgrade pip wheel
         python3 -m pip install cmake
