@@ -196,6 +196,21 @@ jobs:
           rm pugixml-${PUGIXMLVER}.tar.gz
         fi
         make -C pugixml-${PUGIXMLVER%.*}/build install
+
+    - name: "Install RapidJSON"
+      run: |
+        RJSONVER=1.1.0
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e rapidjson-${RJSONVER} ]]; then
+          curl -sSfL https://github.com/Tencent/rapidjson/archive/refs/tags/v${RJSONVER}.tar.gz -o rapidjson-${RJSONVER}.tar.gz
+          tar -xf rapidjson-${RJSONVER}.tar.gz
+          cd rapidjson-${RJSONVER}
+          mkdir build && cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+          make && cd ../../
+          rm rapidjson-${RJSONVER}.tar.gz
+        fi
+        make -C rapidjson-${RJSONVER}/build install
         
     - name: "Install fmt"
       run: |
