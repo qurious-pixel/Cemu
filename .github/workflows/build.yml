@@ -89,9 +89,10 @@ jobs:
     - name: Setup Cache Path
       run: |
         if [[ ! -e ${{ env.CACHEDIR }} ]]; then 
-          mkdir -p ${{ env.CACHEDIR }}/deps
+          mkdir -p ${{ env.CACHEDIR }}/misc
         fi
-        ls -al ${{ env.CACHEDIR }}/deps
+        ls -al ${{ env.CACHEDIR }}
+        ls -al ${{ env.CACHEDIR }}/misc
     - name: Build Cubeb
       run: |
         cd ${{ env.CACHEDIR }}
@@ -104,19 +105,19 @@ jobs:
         cd ./build
         make install
     
-    #- name: Build Nasm
-    #  run: |
-    #    NASMVER=2.15.05
-    #    cd ${{ env.CACHEDIR }}
-    #    if [[ ! -e nasm-${NASMVER} ]]; then
-    #      curl -sSfLO https://www.nasm.us/pub/nasm/releasebuilds/${NASMVER}/nasm-${NASMVER}.tar.gz
-    #      tar xf nasm-${NASMVER}.tar.gz
-    #      cd nasm-${NASMVER}
-    #      ./configure --prefix=/usr
-    #      make -j$(nproc) && cd ../
-    #      rm nasm-${NASMVER}.tar.gz
-    #    fi
-    #    make -C nasm-${NASMVER} install
+    - name: Build Nasm
+      run: |
+        NASMVER=2.15.05
+        cd ${{ env.CACHEDIR }}/misc
+        if [[ ! -e nasm-${NASMVER} ]]; then
+          curl -sSfLO https://www.nasm.us/pub/nasm/releasebuilds/${NASMVER}/nasm-${NASMVER}.tar.gz
+          tar xf nasm-${NASMVER}.tar.gz
+          cd nasm-${NASMVER}
+          ./configure --prefix=/usr
+          make -j$(nproc) && cd ../
+          rm nasm-${NASMVER}.tar.gz
+        fi
+        make -C nasm-${NASMVER} install
     #- name: "Install ZSTD"
     #  run: |
     #    ZSTDVER=1.5.2
