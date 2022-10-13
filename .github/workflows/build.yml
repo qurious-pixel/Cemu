@@ -134,7 +134,7 @@ jobs:
           cd zstd-${ZSTDVER}/build/cmake
           mkdir builddir && cd builddir
           cmake ..
-          make && cd ${{ env.CACHEDIR }}
+          make && cd ${{ env.CACHEDIR }}/misc
         fi
         make -C zstd-${ZSTDVER} install
     #- name: "Install imgui"
