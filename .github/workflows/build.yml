@@ -28,10 +28,6 @@ jobs:
     steps:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
-      with:
-        repository: cemu-project/Cemu 
-        ref: main
-        submodules: false
     #- name: Checkout AppImage Repo
     #  uses: actions/checkout@v3
     #  with:
