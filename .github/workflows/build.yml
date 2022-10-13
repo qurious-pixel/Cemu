@@ -92,17 +92,17 @@ jobs:
           mkdir -p ${{ env.CACHEDIR }}/deps
         fi
         ls -al ${{ env.CACHEDIR }}/deps
-    #- name: Build Cubeb
-    #  run: |
-    #    cd ${{ env.CACHEDIR }}
-    #    git clone https://github.com/mozilla/cubeb
-    #    cd cubeb
-    #    git checkout 4783607ecc09e9493677a9c4e3db95f78d87409a
-    #    git submodule update --init --recursive
-    #    cmake -B ./build . 
-    #    cmake --build ./build
-    #    cd ./build
-    #    make install
+    - name: Build Cubeb
+      run: |
+        cd ${{ env.CACHEDIR }}
+        git clone https://github.com/mozilla/cubeb
+        cd cubeb
+        git checkout 4783607ecc09e9493677a9c4e3db95f78d87409a
+        git submodule update --init --recursive
+        cmake -B ./build . 
+        cmake --build ./build
+        cd ./build
+        make install
     
     #- name: Build Nasm
     #  run: |
