@@ -88,7 +88,7 @@ jobs:
          
     - name: Setup Cache Path
       run: |
-        if [[ ! -e ${{ env.CACHEDIR }} ]]; then 
+        if [[ ! -e ${{ env.CACHEDIR }}/misc ]]; then 
           mkdir -p ${{ env.CACHEDIR }}/misc
         fi
         ls -al ${{ env.CACHEDIR }}
