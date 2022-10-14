@@ -59,8 +59,8 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.CACHEDIR }}/misc
-        key: misc-
-        restore-keys: misc-${{github.run_id}}
+        key: misc-${{github.run_id}}
+        restore-keys: misc
     - name: "Install system dependencies"
       run: |
         $INST epel-release centos-release-scl
@@ -249,8 +249,8 @@ jobs:
       run: |
         echo "installing ..."
         cd ${{ env.CACHEDIR }}
-        #make -C wxWidgets-${{ env.WXVER }}/build-gtk3 install
-        #ln -sr /usr/local/lib/libwx_* /usr/lib/
+        make -C wxWidgets-${{ env.WXVER }}/build-gtk3 install
+        ln -sr /usr/local/lib/libwx_* /usr/lib/
         make -C SDL2-${{ env.SDL2VER }} install
         sdl2-config --version
         ninja -C fmt-${{ env.FMTVER }}/build install
