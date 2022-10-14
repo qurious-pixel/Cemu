@@ -166,20 +166,20 @@ jobs:
     #    fi
     #    ninja -C glslang-${GLSLANGVER}/build install
     #    glslangValidator --version
-    #- name: "Install Libzip"
-    #  run: |
-    #    LIBZIPVER=1.9.2
-    #    cd ${{ env.CACHEDIR }}/misc
-    #    if [[ ! -e libzip-${LIBZIPVER} ]]; then
-    #      curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
-    #      tar -xf libzip-${LIBZIPVER}.tar.gz
-    #      cd libzip-${LIBZIPVER}
-    #      mkdir build && cd build
-    #      cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-    #      make && cd ../../
-    #      rm libzip-${LIBZIPVER}.tar.gz
-    #    fi
-    #    make -C libzip-${LIBZIPVER}/build install
+    - name: "Install Libzip"
+      run: |
+        LIBZIPVER=1.9.2
+        cd ${{ env.CACHEDIR }}/misc
+        if [[ ! -e libzip-${LIBZIPVER} ]]; then
+          curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
+          tar -xf libzip-${LIBZIPVER}.tar.gz
+          cd libzip-${LIBZIPVER}
+          mkdir build && cd build
+          cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+          make && cd ../../
+          rm libzip-${LIBZIPVER}.tar.gz
+        fi
+        make -C libzip-${LIBZIPVER}/build install
     #- name: "Install PugiXML"
     #  run: |
     #    PUGIXMLVER=1.12.1
