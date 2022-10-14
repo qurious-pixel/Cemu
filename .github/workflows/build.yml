@@ -60,7 +60,7 @@ jobs:
       with:
         path: ${{ env.CACHEDIR }}/misc
         key: misc-${{github.run_id}}
-        restore-keys: misc-
+        restore-keys: misc-${{github.run_id}}
     - name: "Install system dependencies"
       run: |
         $INST epel-release centos-release-scl
