@@ -16,7 +16,7 @@ jobs:
     container: centos:7
     env:
       FMTVER: 9.1.0
-      SDL2VER: 2.24.0
+      SDL2VER: 2.24.1
       WXVER: 3.2.1
       CACHEDIR: /__w/Cemu/Cemu/deps
       INST: yum install -y --setopt=skip_missing_names_on_install=False
@@ -59,8 +59,8 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.CACHEDIR }}/misc
-        key: misc-${{github.run_id}}
-        restore-keys: misc-${{github.run_id}}
+        key: build-misc-${{github.run_id}}
+        restore-keys: build-misc-
     - name: "Install system dependencies"
       run: |
         $INST epel-release centos-release-scl
