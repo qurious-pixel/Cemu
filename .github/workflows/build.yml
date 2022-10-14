@@ -124,19 +124,19 @@ jobs:
           rm nasm-${NASMVER}.tar.gz
         fi
         make -C nasm-${NASMVER} install
-    #- name: "Install ZSTD"
-    #  run: |
-    #    ZSTDVER=1.5.2
-    #    cd ${{ env.CACHEDIR }}/misc
-    #    if [[ ! -e zstd-${ZSTDVER} ]]; then
-    #      curl -sSfLO https://github.com/facebook/zstd/releases/download/v${ZSTDVER}/zstd-${ZSTDVER}.tar.gz
-    #      tar xf zstd-${ZSTDVER}.tar.gz
-    #      cd zstd-${ZSTDVER}/build/cmake
-    #      mkdir builddir && cd builddir
-    #      cmake ..
-    #      make && cd ${{ env.CACHEDIR }}/misc
-    #    fi
-    #    make -C zstd-${ZSTDVER} install
+    - name: "Install ZSTD"
+      run: |
+        ZSTDVER=1.5.2
+        cd ${{ env.CACHEDIR }}/misc
+        if [[ ! -e zstd-${ZSTDVER} ]]; then
+          curl -sSfLO https://github.com/facebook/zstd/releases/download/v${ZSTDVER}/zstd-${ZSTDVER}.tar.gz
+          tar xf zstd-${ZSTDVER}.tar.gz
+          cd zstd-${ZSTDVER}/build/cmake
+          mkdir builddir && cd builddir
+          cmake ..
+          make && cd ${{ env.CACHEDIR }}/misc
+        fi
+        make -C zstd-${ZSTDVER} install
     #- name: "Install imgui"
     #  run: |
     #    IMGUIVER=1.88
