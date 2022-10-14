@@ -221,16 +221,16 @@ jobs:
         ninja && cd ../../
       if: steps.fmt.outputs.cache-hit != 'true'
      
-    #- name: "Install SDL2"
-    #  run: | 
-    #    cd ${{ env.CACHEDIR }}
-    #    curl -sLO https://libsdl.org/release/SDL2-${{ env.SDL2VER }}.tar.gz
-    #    tar -xzf SDL2-${{ env.SDL2VER }}.tar.gz
-    #    cd SDL2-${{ env.SDL2VER }}
-    #    ./configure --prefix=/usr
-    #    make && cd ../
-    #    rm SDL2-${{ env.SDL2VER }}.tar.gz
-    #  if: steps.SDL2.outputs.cache-hit != 'true'
+    - name: "Install SDL2"
+      run: | 
+        cd ${{ env.CACHEDIR }}
+        curl -sLO https://libsdl.org/release/SDL2-${{ env.SDL2VER }}.tar.gz
+        tar -xzf SDL2-${{ env.SDL2VER }}.tar.gz
+        cd SDL2-${{ env.SDL2VER }}
+        ./configure --prefix=/usr
+        make && cd ../
+        rm SDL2-${{ env.SDL2VER }}.tar.gz
+      if: steps.SDL2.outputs.cache-hit != 'true'
       
     #- name: "Install wxWidgets"
     #  run: |
@@ -250,8 +250,8 @@ jobs:
         cd ${{ env.CACHEDIR }}
         #make -C wxWidgets-${{ env.WXVER }}/build-gtk3 install
         #ln -sr /usr/local/lib/libwx_* /usr/lib/
-        #make -C SDL2-${{ env.SDL2VER }} install
-        #sdl2-config --version
+        make -C SDL2-${{ env.SDL2VER }} install
+        sdl2-config --version
         ninja -C fmt-${{ env.FMTVER }}/build install
         
     #- name: "Build Cemu"
