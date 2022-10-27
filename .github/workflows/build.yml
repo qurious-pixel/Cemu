@@ -99,17 +99,17 @@ jobs:
         fi
         ls -al ${{ env.CACHEDIR }}
         ls -al ${{ env.CACHEDIR }}/misc
-    #- name: Build Cubeb
-    #  run: |
-    #    cd ${{ env.CACHEDIR }}
-    #    git clone https://github.com/mozilla/cubeb
-    #    cd cubeb
-    #    git checkout 4783607ecc09e9493677a9c4e3db95f78d87409a
-    #    git submodule update --init --recursive
-    #    cmake -B ./build . 
-    #    cmake --build ./build
-    #    cd ./build
-    #    make install
+    - name: Build Cubeb
+      run: |
+        cd ${{ env.CACHEDIR }}
+        git clone https://github.com/mozilla/cubeb
+        cd cubeb
+        git checkout 4783607ecc09e9493677a9c4e3db95f78d87409a
+        git submodule update --init --recursive
+        cmake -B ./build . 
+        cmake --build ./build
+        cd ./build
+        make install
     
     - name: Build Nasm
       run: |
@@ -152,20 +152,20 @@ jobs:
     #      cd ../
     #    fi
     #    make -C imgui-${IMGUIVER}/cmake-build-shared install
-    #- name: "Install glslang"
-    #  run: |
-    #    GLSLANGVER=11.11.0
-    #    cd ${{ env.CACHEDIR }}/misc
-    #    if [[ ! -e glslang-${GLSLANGVER} ]]; then
-    #      curl -sSfL https://github.com/KhronosGroup/glslang/archive/refs/tags/${GLSLANGVER}.tar.gz -o glslang-${GLSLANGVER}
-    #      tar xf glslang-${GLSLANGVER}
-    #      cd glslang-${GLSLANGVER}
-    #      mkdir -p build && cd build
-    #      cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
-    #      ninja && cd ../../
-    #    fi
-    #    ninja -C glslang-${GLSLANGVER}/build install
-    #    glslangValidator --version
+    - name: "Install glslang"
+      run: |
+        GLSLANGVER=11.11.0
+        cd ${{ env.CACHEDIR }}/misc
+        if [[ ! -e glslang-${GLSLANGVER} ]]; then
+          curl -sSfL https://github.com/KhronosGroup/glslang/archive/refs/tags/${GLSLANGVER}.tar.gz -o glslang-${GLSLANGVER}
+          tar xf glslang-${GLSLANGVER}
+          cd glslang-${GLSLANGVER}
+          mkdir -p build && cd build
+          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
+          ninja && cd ../../
+        fi
+        ninja -C glslang-${GLSLANGVER}/build install
+        glslangValidator --version
     - name: "Install Libzip"
       run: |
         LIBZIPVER=1.9.2
@@ -232,17 +232,17 @@ jobs:
         rm SDL2-${{ env.SDL2VER }}.tar.gz
       if: steps.SDL2.outputs.cache-hit != 'true'
       
-    #- name: "Install wxWidgets"
-    #  run: |
-    #    cd ${{ env.CACHEDIR }}
-    #    curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${{ env.WXVER }}/wxWidgets-${{ env.WXVER }}.tar.bz2
-    #    tar xf wxWidgets-${{ env.WXVER }}.tar.bz2
-    #    cd wxWidgets-${{ env.WXVER }}
-    #    mkdir build-gtk3 && cd build-gtk3
-    #    cmake ..
-    #    make && cd ../../
-    #    rm wxWidgets-${{ env.WXVER }}.tar.bz2
-    #  if: steps.wxWidgets.outputs.cache-hit != 'true'
+    - name: "Install wxWidgets"
+      run: |
+        cd ${{ env.CACHEDIR }}
+        curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${{ env.WXVER }}/wxWidgets-${{ env.WXVER }}.tar.bz2
+        tar xf wxWidgets-${{ env.WXVER }}.tar.bz2
+        cd wxWidgets-${{ env.WXVER }}
+        mkdir build-gtk3 && cd build-gtk3
+        cmake ..
+        make && cd ../../
+        rm wxWidgets-${{ env.WXVER }}.tar.bz2
+      if: steps.wxWidgets.outputs.cache-hit != 'true'
       
     - name: "Install submodules"
       run: |
@@ -254,12 +254,10 @@ jobs:
         sdl2-config --version
         ninja -C fmt-${{ env.FMTVER }}/build install
         
-    #- name: "Build Cemu"
-    #  run: |
-    #    cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DENABLE_VCPKG=OFF -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
-    #    cmake --build build
-    #    #mkdir build && cd build
-
+    - name: "Build Cemu"
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DENABLE_VCPKG=OFF -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
+        cmake --build build
 
     #- name: "Build AppImage"
     #  run: |
