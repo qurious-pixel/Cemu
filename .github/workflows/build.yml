@@ -34,7 +34,7 @@ jobs:
             
     - name: "Build Cemu"
       run: |
-          docker pull quriouspixel/dolphin:18.04
+          docker pull quriouspixel/cemu
           docker run -u root -v $(pwd):/Cemu -v "$HOME/.ccache":/root/.ccache quriouspixel/cemu /bin/bash ci/scripts/docker.sh
 
     - name: "Build AppImage"
