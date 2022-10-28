@@ -1,7 +1,7 @@
 name: Build Cemu
 
 on:
-  #push:
+  push:
     paths-ignore:
       - "*.md"
   workflow_call:
