@@ -43,7 +43,17 @@ jobs:
         echo "Cemu CI version: $(./getversion)"
         echo "CEMU_FOLDER_NAME=Cemu_$(./getversion)" >> $GITHUB_ENV
         echo "CEMU_VERSION=$(./getversion)" >> $GITHUB_ENV
-          
+
+    - name: "Temp Fixes"
+      run: |
+        cat > dist/linux/docker.sh << EOF
+        #!/bin/bash -ex
+
+        yum install -y vulkan-dev libglvnd-opengl
+
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DENABLE_VCPKG=OFF -DPORTABLE=OFF -G Ninja
+        cmake --build build
+        EOF
     - name: "Temp Fixes"
       run: |
         echo "Linux Fixes"
