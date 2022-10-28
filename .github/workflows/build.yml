@@ -22,8 +22,10 @@ jobs:
     - name: Checkout AppImage Repo
       uses: actions/checkout@v3
       with:
-          clean: false
-          path: ci
+        repository: qurious-pixel/Cemu
+        ref: ci-appimage
+        clean: false
+        path: ci
 
     - name: "Install system dependencies"
       run: |
