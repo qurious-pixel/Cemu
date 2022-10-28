@@ -51,6 +51,7 @@ jobs:
         yum install -y vulkan-devel libglvnd-devel       
         cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DENABLE_VCPKG=OFF -DPORTABLE=OFF -G Ninja
         cmake --build build
+        mv bin/Cemu_release bin/Cemu
         dist/linux/appimage.sh
         EOF
     - name: "Temp Fixes"
