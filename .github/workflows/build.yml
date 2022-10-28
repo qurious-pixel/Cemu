@@ -51,7 +51,6 @@ jobs:
           build
 
     - name: Setup release mode parameters (for deploy)
-      #if: ${{ inputs.deploymode == 'release' }}
       run: |
         echo "BUILD_MODE=release" >> $GITHUB_ENV
         echo "BUILD_FLAGS=-DPUBLIC_RELEASE=ON" >> $GITHUB_ENV
@@ -65,12 +64,10 @@ jobs:
           docker run -u root -e VERSION=${{ env.CEMU_VERSION }} -v $(pwd):/Cemu -v "$HOME/.ccache":/root/.ccache -w /Cemu quriouspixel/cemu /bin/bash dist/linux/docker.sh
 
     - name: Prepare artifact
-      if: ${{ inputs.deploymode == 'release' }}
       run: mv bin/Cemu_release bin/Cemu
 
     - name: Upload artifact
       uses: actions/upload-artifact@v3
-      #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-linux-x64
         path: ./bin/Cemu
@@ -112,7 +109,6 @@ jobs:
         
     - name: Upload artifact
       uses: actions/upload-artifact@v3
-      #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-appimage-x64
         path: artifacts
