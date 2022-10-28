@@ -44,16 +44,17 @@ jobs:
         echo "CEMU_FOLDER_NAME=Cemu_$(./getversion)" >> $GITHUB_ENV
         echo "CEMU_VERSION=$(./getversion)" >> $GITHUB_ENV
 
-    - name: "Temp Fixes"
+    - name: "Docker Entrypoint"
       run: |
         cat > dist/linux/docker.sh << EOF
         #!/bin/bash -ex
-        sed '42,43d' CMakeLists.txt       
+        sed -i '42,43d' CMakeLists.txt       
         cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DENABLE_VCPKG=OFF -DPORTABLE=OFF -DCMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE=OFF -G Ninja
         cmake --build build
         mv bin/Cemu_release bin/Cemu
         dist/linux/appimage.sh
         EOF
+
     - name: "Temp Fixes"
       run: |
         echo "Linux Fixes"
@@ -61,7 +62,7 @@ jobs:
         cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
         ls -al dist/linux/
         chmod +x dist/linux/{appimage.sh,docker.sh}
-            
+
     - name: "Build Cemu"
       run: |
           docker pull quriouspixel/cemu
@@ -70,7 +71,7 @@ jobs:
     - name: "Build AppImage"
       run: |
         ls -al artifacts
-        
+
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
