@@ -36,6 +36,7 @@ jobs:
         echo "Linux Fixes"
         cp ci/scripts/appimage.sh dist/linux/
         cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
+        ls -al ci/scripts
             
     - name: "Build Cemu"
       run: |
