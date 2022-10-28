@@ -12,7 +12,7 @@ curl -sSfLO "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gt
 chmod a+x linuxdeploy-plugin-gtk.sh
 
 if [[ ! -e /usr/lib/x86_64-linux-gnu ]]; then
-	sed 's#lib\/x86_64-linux-gnu#lib64#g' linuxdeploy-plugin-gtk.sh
+	sed -i 's#lib\/x86_64-linux-gnu#lib64#g' linuxdeploy-plugin-gtk.sh
 fi
 
 mkdir -p AppDir/usr/
