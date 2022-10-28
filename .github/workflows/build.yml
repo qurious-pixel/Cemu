@@ -34,15 +34,15 @@ jobs:
     - name: "Temp Fixes"
       run: |
         echo "Linux Fixes"
-        cp ci/scripts/appimage.sh dist/linux/
+        cp ci/scripts/{appimage.sh,docker.sh} dist/linux/
         cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
-        chmod +x ci/scripts/docker.sh
+        chmod +x dist/linux/docker.sh
         ls -al ci/scripts
             
     - name: "Build Cemu"
       run: |
           docker pull quriouspixel/cemu
-          docker run -u root -v $(pwd):/Cemu -v "$HOME/.ccache":/root/.ccache quriouspixel/cemu /bin/bash ci/scripts/docker.sh
+          docker run -u root -v $(pwd):/Cemu quriouspixel/cemu /bin/bash dist/linux/docker.sh
 
     - name: "Build AppImage"
       run: |
