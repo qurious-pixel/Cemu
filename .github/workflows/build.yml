@@ -1,14 +1,14 @@
 name: Build Cemu
 
 on:
-  push:
-    paths-ignore:
-      - "*.md"
-  workflow_call:
-    inputs:
-      deploymode:
-        required: false
-        type: string
+  #push:
+  #  paths-ignore:
+  #    - "*.md"
+  #workflow_call:
+  #  inputs:
+  #    deploymode:
+  #      required: false
+  #      type: string
 
 jobs:    
   build-appimage:
