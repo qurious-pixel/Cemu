@@ -42,8 +42,8 @@ jobs:
     - name: "Build Cemu"
       run: |
           docker pull quriouspixel/cemu
-          docker run -u root -v $(pwd):/Cemu quriouspixel/cemu /bin/bash ls -al && ls -al Cemu
-          #/Cemu/dist/linux/docker.sh
+          docker run -u root -v $(pwd):/Cemu quriouspixel/cemu ls -al && ls -al Cemu
+          #/bin/bash /Cemu/dist/linux/docker.sh
 
     - name: "Build AppImage"
       run: |
