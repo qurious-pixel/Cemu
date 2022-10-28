@@ -59,6 +59,7 @@ jobs:
 
     - name: "Build Cemu"
       run: |
+          cp ci/scripts/docker.sh dist/linux/docker.sh
           chmod +x dist/linux/docker.sh
           docker pull quriouspixel/cemu
           docker run -u root -e VERSION=${{ env.CEMU_VERSION }} -v $(pwd):/Cemu -v "$HOME/.ccache":/root/.ccache -w /Cemu quriouspixel/cemu /bin/bash dist/linux/docker.sh
