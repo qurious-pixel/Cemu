@@ -10,7 +10,11 @@ curl -sSfL https://github.com$(curl https://github.com/probonopd/go-appimage/rel
 chmod a+x mkappimage.AppImage
 curl -sSfLO "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh"
 chmod a+x linuxdeploy-plugin-gtk.sh
- 
+
+if [[ -e /usr/lib/x86_64-linux-gnu ]]; then
+	sed 's#lib\/x86_64-linux-gnu#lib64#g' linuxdeploy-plugin-gtk.sh
+fi
+
 mkdir -p AppDir/usr/
 cp dist/linux/{info.cemu.Cemu.desktop,info.cemu.Cemu.png} AppDir/
 
