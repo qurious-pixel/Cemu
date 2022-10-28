@@ -11,7 +11,7 @@ chmod a+x mkappimage.AppImage
 curl -sSfLO "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh"
 chmod a+x linuxdeploy-plugin-gtk.sh
 
-if [[ -e /usr/lib/x86_64-linux-gnu ]]; then
+if [[ ! -e /usr/lib/x86_64-linux-gnu ]]; then
 	sed 's#lib\/x86_64-linux-gnu#lib64#g' linuxdeploy-plugin-gtk.sh
 fi
 
@@ -23,10 +23,9 @@ mkdir -p AppDir/usr/share/icons/hicolor/scalable/apps
 mkdir -p AppDir/usr/lib
 
 cp -r bin AppDir/usr/
-#cp .ci/cemu.sh AppDir/usr/bin/
 
-chmod +x AppDir/usr/bin/Cemu    # {Cemu,cemu.sh}
-chmod +x AppDir/AppRun
+chmod +x AppDir/usr/bin/Cemu
+#chmod +x AppDir/AppRun
 
 export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
 ./linuxdeploy-x86_64.AppImage --appimage-extract-and-run\
@@ -36,8 +35,9 @@ export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
   -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/Cemu			\
   --plugin gtk
 
-VERSION=2.0 ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
+echo "Cemu Version Cemu-${VERSION}"
+VERSION=${VERSION} ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
 
 mkdir -p "$GITHUB_WORKSPACE"/artifacts/ 
-mv Cemu-2.0-x86_64.AppImage "$GITHUB_WORKSPACE"/artifacts/
+mv Cemu-${VERSION}-x86_64.AppImage "$GITHUB_WORKSPACE"/artifacts/
 ls -al artifacts
