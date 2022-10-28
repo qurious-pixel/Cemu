@@ -59,7 +59,7 @@ jobs:
 
     - name: "Build AppImage"
       run: |
-        ls -al
+        ls -al artifacts
         
     - name: Upload artifact
       uses: actions/upload-artifact@v3
