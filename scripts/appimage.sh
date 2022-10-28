@@ -21,7 +21,7 @@ mkdir -p AppDir/usr/lib
 cp -r bin AppDir/usr/
 #cp .ci/cemu.sh AppDir/usr/bin/
 
-chmod +x AppDir/usr/bin/cemu    # {Cemu,cemu.sh}
+chmod +x AppDir/usr/bin/Cemu    # {Cemu,cemu.sh}
 chmod +x AppDir/AppRun
 
 export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
@@ -29,7 +29,7 @@ export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
   --appdir="$GITHUB_WORKSPACE"/AppDir/          		\
   -d "$GITHUB_WORKSPACE"/AppDir/info.cemu.Cemu.desktop  \
   -i "$GITHUB_WORKSPACE"/AppDir/info.cemu.Cemu.png      \
-  -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/cemu			\
+  -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/Cemu			\
   --plugin gtk
 
 VERSION=2.0 ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
