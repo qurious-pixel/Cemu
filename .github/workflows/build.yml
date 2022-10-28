@@ -1,7 +1,7 @@
 name: Build Cemu
 
 on:
-  push:
+  #push:
     paths-ignore:
       - "*.md"
   workflow_call:
@@ -13,255 +13,33 @@ on:
 jobs:    
   build-appimage:
     runs-on: ubuntu-latest
-    container: centos:7
-    env:
-      FMTVER: 9.1.0
-      SDL2VER: 2.24.1
-      WXVER: 3.2.1
-      CACHEDIR: /__w/Cemu/Cemu/deps
-      INST: yum install -y --setopt=skip_missing_names_on_install=False
-      CC: /opt/rh/devtoolset-11/root/usr/bin/gcc
-      CPP: /opt/rh/devtoolset-11/root/usr/bin/cpp
-      CXX: /opt/rh/devtoolset-11/root/usr/bin/g++
-      PATH: /opt/rh/devtoolset-11/root/usr/bin:/usr/local/bin:/usr/bin:$PATH
-      LD_LIBRARY_PATH: /opt/rh/devtoolset-11/root/usr/lib64:/opt/rh/devtoolset-11/root/usr/lib:/opt/rh/devtoolset-11/root/usr/lib64/dyninst:/opt/rh/devtoolset-11/root/usr/lib/dyninst:/opt/rh/devtoolset-11/root/usr/lib64:/opt/rh/devtoolset-11/root/usr/lib:$LD_LIBRARY_PATH      
     steps:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
-    #- name: Checkout AppImage Repo
-    #  uses: actions/checkout@v3
-    #  with:
-    #      clean: false
-    #      path: ci
-    - name: fmt-${{ env.FMTVER }} cache
-      id: fmt
-      uses: actions/cache@v3
+    - name: Checkout AppImage Repo
+      uses: actions/checkout@v3
       with:
-        path: ${{ env.CACHEDIR }}/fmt-${{ env.FMTVER }}
-        key: fmt-${{ env.FMTVER }}
-        restore-keys: fmt-${{ env.FMTVER }}
-    - name: SDL2-${{ env.SDL2VER }} cache
-      id: SDL2
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.CACHEDIR }}/SDL2-${{ env.SDL2VER }}
-        key: SDL2-${{ env.SDL2VER }}
-        restore-keys: SDL2-${{ env.SDL2VER }}
-    - name: wxWidgets-${{ env.WXVER }} cache
-      id: wxWidgets
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.CACHEDIR }}/wxWidgets-${{ env.WXVER }}
-        key: wxWidgets-${{ env.WXVER }}
-        restore-keys: wxWidgets-${{ env.WXVER }}
-    - name: Misc cache
-      id: misc
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.CACHEDIR }}/misc
-        key: build-misc-${{github.run_id}}
-        restore-keys: build-misc-
+          clean: false
+          path: ci
+
     - name: "Install system dependencies"
       run: |
-        $INST epel-release centos-release-scl
-        $INST autoconf devtoolset-11 ninja-build kernel-headers perl-core python36 python36-pip \
-        libsecret-devel libgcrypt-devel systemd-devel freeglut-devel zlib-devel \
-        libmount-devel bzip2-devel libselinux-devel libffi-devel gtk3-devel \
-        rapidjson-devel pugixml-devel boost-devel boost-nowide-devel libzstd-devel \
-        pulseaudio-libs-devel libcurl-devel nasm git bzip2 # mono-devel
-        python3 -m pip install --upgrade pip wheel
-        python3 -m pip install cmake
-        #rpmkeys --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
-        #su -c 'curl https://download.mono-project.com/repo/centos7-stable.repo | tee /etc/yum.repos.d/mono-centos7-stable.repo'
-        
-    #- name: "Install Git"
-    #  run: |
-    #    yum remove -y git
-    #    curl -L https://github.com/git/git/tarball/e9d7761bb94f20acc98824275e317fa82436c25d |\
-    #    tar -xzC . --strip-components=1
-    #    make configure
-    #    ./configure --prefix=/usr
-    #    make -j$(nproc)
-    #    make install
+        echo "Place Holder"
 
     - name: "Temp Fixes"
       run: |
         echo "Linux Fixes"
-        #git apply ci/scripts/xdg.patch
-        #sed -i '37,40d' vcpkg.json
-        #cp ci/scripts/appimage.sh dist/linux/
-        #cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
-         
-    - name: Setup Cache Path
-      run: |
-        if [[ ! -e ${{ env.CACHEDIR }}/misc ]]; then 
-          mkdir -p ${{ env.CACHEDIR }}/misc
-        fi
-        ls -al ${{ env.CACHEDIR }}
-        ls -al ${{ env.CACHEDIR }}/misc
-    - name: Build Cubeb
-      run: |
-        cd ${{ env.CACHEDIR }}
-        git clone https://github.com/mozilla/cubeb
-        cd cubeb
-        git checkout 4783607ecc09e9493677a9c4e3db95f78d87409a
-        git submodule update --init --recursive
-        cmake -B ./build . 
-        cmake --build ./build
-        cd ./build
-        make install
-    
-    - name: Build Nasm
-      run: |
-        NASMVER=2.15.05
-        cd ${{ env.CACHEDIR }}/misc
-        if [[ ! -e nasm-${NASMVER} ]]; then
-          curl -sSfLO https://www.nasm.us/pub/nasm/releasebuilds/${NASMVER}/nasm-${NASMVER}.tar.gz
-          tar xf nasm-${NASMVER}.tar.gz
-          cd nasm-${NASMVER}
-          ./configure --prefix=/usr
-          make -j$(nproc) && cd ../
-          rm nasm-${NASMVER}.tar.gz
-        fi
-        make -C nasm-${NASMVER} install
-    - name: "Install ZSTD"
-      run: |
-        ZSTDVER=1.5.2
-        cd ${{ env.CACHEDIR }}/misc
-        if [[ ! -e zstd-${ZSTDVER} ]]; then
-          curl -sSfLO https://github.com/facebook/zstd/releases/download/v${ZSTDVER}/zstd-${ZSTDVER}.tar.gz
-          tar xf zstd-${ZSTDVER}.tar.gz
-          cd zstd-${ZSTDVER}/build/cmake
-          mkdir builddir && cd builddir
-          cmake ..
-          make && cd ${{ env.CACHEDIR }}/misc
-        fi
-        make -C zstd-${ZSTDVER} install
-    #- name: "Install imgui"
-    #  run: |
-    #    IMGUIVER=1.88
-    #    cd ${{ env.CACHEDIR }}/misc
-    #    if [[ ! -e imgui-${IMGUIVER} ]]; then
-    #      curl -sSfL https://codeload.github.com/ocornut/imgui/tar.gz/v${IMGUIVER} -o imgui-${IMGUIVER}
-    #      tar xf imgui-${IMGUIVER}
-    #      cd imgui-${IMGUIVER}
-    #      curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/CMakeLists.txt
-    #      curl -sSfLO https://raw.githubusercontent.com/microsoft/vcpkg/master/ports/imgui/imgui-config.cmake.in
-    #      cmake -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_SHARED_LIBS=ON -S. -B cmake-build-shared
-    #      cmake --build cmake-build-shared
-    #      cd ../
-    #    fi
-    #    make -C imgui-${IMGUIVER}/cmake-build-shared install
-    - name: "Install glslang"
-      run: |
-        GLSLANGVER=11.11.0
-        cd ${{ env.CACHEDIR }}/misc
-        if [[ ! -e glslang-${GLSLANGVER} ]]; then
-          curl -sSfL https://github.com/KhronosGroup/glslang/archive/refs/tags/${GLSLANGVER}.tar.gz -o glslang-${GLSLANGVER}
-          tar xf glslang-${GLSLANGVER}
-          cd glslang-${GLSLANGVER}
-          mkdir -p build && cd build
-          cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
-          ninja && cd ../../
-        fi
-        ninja -C glslang-${GLSLANGVER}/build install
-        glslangValidator --version
-    - name: "Install Libzip"
-      run: |
-        LIBZIPVER=1.9.2
-        cd ${{ env.CACHEDIR }}/misc
-        if [[ ! -e libzip-${LIBZIPVER} ]]; then
-          curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
-          tar -xf libzip-${LIBZIPVER}.tar.gz
-          cd libzip-${LIBZIPVER}
-          mkdir build && cd build
-          cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-          make && cd ../../
-          rm libzip-${LIBZIPVER}.tar.gz
-        fi
-        make -C libzip-${LIBZIPVER}/build install
-    #- name: "Install PugiXML"
-    #  run: |
-    #    PUGIXMLVER=1.12.1
-    #    cd ${{ env.CACHEDIR }}
-    #    if [[ ! -e pugixml-${PUGIXMLVER} ]]; then
-    #      curl -sSfLO https://github.com/zeux/pugixml/releases/download/v${PUGIXMLVER}/pugixml-${PUGIXMLVER}.tar.gz
-    #      tar -xf pugixml-${PUGIXMLVER}.tar.gz
-    #      cd pugixml-${PUGIXMLVER%.*}
-    #      mkdir build && cd build
-    #      cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-    #      make && cd ../../
-    #      rm pugixml-${PUGIXMLVER}.tar.gz
-    #    fi
-    #    make -C pugixml-${PUGIXMLVER%.*}/build install
-
-    #- name: "Install RapidJSON"
-    #  run: |
-    #    RJSONVER=1.1.0
-    #    cd ${{ env.CACHEDIR }}
-    #    if [[ ! -e rapidjson-${RJSONVER} ]]; then
-    #      curl -sSfL https://github.com/Tencent/rapidjson/archive/refs/tags/v${RJSONVER}.tar.gz -o rapidjson-${RJSONVER}.tar.gz
-    #      tar -xf rapidjson-${RJSONVER}.tar.gz
-    #      cd rapidjson-${RJSONVER}
-    #      mkdir build && cd build
-    #      cmake .. -DCMAKE_INSTALL_PREFIX=/usr
-    #      make && cd ../../
-    #      rm rapidjson-${RJSONVER}.tar.gz
-    #    fi
-    #    make -C rapidjson-${RJSONVER}/build install
-        
-    - name: "Install fmt"
-      run: |
-        cd ${{ env.CACHEDIR }}
-        curl -sSfL https://github.com/fmtlib/fmt/archive/refs/tags/${{ env.FMTVER }}.tar.gz -o fmt-${{ env.FMTVER }}
-        tar xf fmt-${{ env.FMTVER }}
-        cd fmt-${{ env.FMTVER }}
-        mkdir -p build && cd build
-        cmake .. -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="/usr"
-        ninja && cd ../../
-      if: steps.fmt.outputs.cache-hit != 'true'
-     
-    - name: "Install SDL2"
-      run: | 
-        cd ${{ env.CACHEDIR }}
-        curl -sLO https://libsdl.org/release/SDL2-${{ env.SDL2VER }}.tar.gz
-        tar -xzf SDL2-${{ env.SDL2VER }}.tar.gz
-        cd SDL2-${{ env.SDL2VER }}
-        ./configure --prefix=/usr
-        make && cd ../
-        rm SDL2-${{ env.SDL2VER }}.tar.gz
-      if: steps.SDL2.outputs.cache-hit != 'true'
-      
-    - name: "Install wxWidgets"
-      run: |
-        cd ${{ env.CACHEDIR }}
-        curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${{ env.WXVER }}/wxWidgets-${{ env.WXVER }}.tar.bz2
-        tar xf wxWidgets-${{ env.WXVER }}.tar.bz2
-        cd wxWidgets-${{ env.WXVER }}
-        mkdir build-gtk3 && cd build-gtk3
-        cmake ..
-        make && cd ../../
-        rm wxWidgets-${{ env.WXVER }}.tar.bz2
-      if: steps.wxWidgets.outputs.cache-hit != 'true'
-      
-    - name: "Install submodules"
-      run: |
-        echo "installing ..."
-        cd ${{ env.CACHEDIR }}
-        #make -C wxWidgets-${{ env.WXVER }}/build-gtk3 install
-        #ln -sr /usr/local/lib/libwx_* /usr/lib/
-        make -C SDL2-${{ env.SDL2VER }} install
-        sdl2-config --version
-        ninja -C fmt-${{ env.FMTVER }}/build install
-        
+        cp ci/scripts/appimage.sh dist/linux/
+        cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
+            
     - name: "Build Cemu"
       run: |
-        cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DENABLE_VCPKG=OFF -DCMAKE_C_COMPILER=${CC} -DCMAKE_CXX_COMPILER=${CXX} -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -G Ninja
-        cmake --build build
+          docker pull quriouspixel/dolphin:18.04
+          docker run -u root -v $(pwd):/Cemu -v "$HOME/.ccache":/root/.ccache quriouspixel/cemu /bin/bash ci/scripts/docker.sh
 
-    #- name: "Build AppImage"
-    #  run: |
-    #    chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
+    - name: "Build AppImage"
+      run: |
+        ls -al
         
     #- name: Upload artifact
     #  uses: actions/upload-artifact@v3
