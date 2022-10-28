@@ -28,10 +28,22 @@ jobs:
         clean: false
         path: ci
 
-    - name: "Install system dependencies"
-      run: |
-        echo "Place Holder"
+    - name: cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.ccache
+        key: build-${{github.run_id}}
+        restore-keys: |
+          build
 
+    - name: Get Cemu release version
+      run: |
+        gcc -o getversion .github/getversion.cpp
+        echo "Cemu CI version: $(./getversion)"
+        echo "CEMU_FOLDER_NAME=Cemu_$(./getversion)" >> $GITHUB_ENV
+        echo "CEMU_VERSION=$(./getversion)" >> $GITHUB_ENV
+          
     - name: "Temp Fixes"
       run: |
         echo "Linux Fixes"
@@ -43,15 +55,14 @@ jobs:
     - name: "Build Cemu"
       run: |
           docker pull quriouspixel/cemu
-          docker run -u root -v $(pwd):/Cemu -w /Cemu quriouspixel/cemu /bin/bash dist/linux/docker.sh
+          docker run -u root -e VERSION=${{ env.CEMU_VERSION }} -v $(pwd):/Cemu -v "$HOME/.ccache":/root/.ccache -w /Cemu quriouspixel/cemu /bin/bash dist/linux/docker.sh
 
     - name: "Build AppImage"
       run: |
         ls -al
         
-    #- name: Upload artifact
-    #  uses: actions/upload-artifact@v3
-    #  #if: ${{ inputs.deploymode == 'release' }}
-    #  with:
-    #    name: cemu-appimage-x64
-    #    path: artifacts
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: cemu-appimage-x64
+        path: artifacts
