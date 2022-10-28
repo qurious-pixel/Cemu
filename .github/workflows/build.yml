@@ -48,7 +48,7 @@ jobs:
       run: |
         cat > dist/linux/docker.sh << EOF
         #!/bin/bash -ex
-        yum install -y vulkan-devel libglvnd-devel       
+        sed '42,43d' CMakeLists.txt       
         cmake -S . -B build -DCMAKE_BUILD_TYPE=release -DENABLE_VCPKG=OFF -DPORTABLE=OFF -DCMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE=OFF -G Ninja
         cmake --build build
         mv bin/Cemu_release bin/Cemu
