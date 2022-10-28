@@ -47,9 +47,9 @@ jobs:
     - name: "Temp Fixes"
       run: |
         echo "Linux Fixes"
-        cp ci/scripts/{appimage.sh,docker.sh} dist/linux/
+        cp ci/scripts/appimage.sh dist/linux/
         cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
-        chmod +x dist/linux/docker.sh
+        chmod +x dist/linux/{appimage.sh,docker.sh}
         ls -al ci/scripts
             
     - name: "Build Cemu"
