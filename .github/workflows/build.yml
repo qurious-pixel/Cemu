@@ -93,12 +93,12 @@ jobs:
         name: cemu-bin-linux-x64
         path: bin
           
-    - name: "Temp Fixes"
+    - name: Get Cemu release version
       run: |
-        echo "Linux Fixes"
-        cp ci/scripts/{appimage.sh,docker.sh} dist/linux/
-        cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
-        chmod +x dist/linux/{appimage.sh,docker.sh}
+        gcc -o getversion .github/getversion.cpp
+        echo "Cemu CI version: $(./getversion)"
+        echo "CEMU_FOLDER_NAME=Cemu_$(./getversion)" >> $GITHUB_ENV
+        echo "CEMU_VERSION=$(./getversion)" >> $GITHUB_ENV
 
     - name: "Build AppImage"
       run: |
