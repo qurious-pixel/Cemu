@@ -35,6 +35,10 @@ export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
   -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/Cemu			\
   --plugin gtk
 
+if [[ -z $VERSION ]]; then
+	VERSION=experimental
+fi
+
 echo "Cemu Version Cemu-${VERSION}"
 VERSION=${VERSION} ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
 
