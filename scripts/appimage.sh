@@ -17,7 +17,7 @@ fi
 
 mkdir -p AppDir/usr/
 cp dist/linux/{info.cemu.Cemu.desktop,info.cemu.Cemu.png} AppDir/
-sed -i 's|Exec=Cemu|Exec=env GDK_BACKEND=x11 Cemu|g' dist/linux/info.cemu.Cemu.desktop
+sed -i 's|Exec=Cemu|Exec=env GDK_BACKEND=x11 Cemu|g' AppDir/info.cemu.Cemu.desktop
 
 mkdir -p AppDir/usr/share/applications 
 mkdir -p AppDir/usr/share/icons/hicolor/scalable/apps
@@ -31,10 +31,10 @@ chmod +x AppDir/usr/bin/Cemu
 
 export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
 ./linuxdeploy-x86_64.AppImage --appimage-extract-and-run\
-  --appdir="$GITHUB_WORKSPACE"/AppDir/          		\
+  --appdir="$GITHUB_WORKSPACE"/AppDir/          	\
   -d "$GITHUB_WORKSPACE"/AppDir/info.cemu.Cemu.desktop  \
   -i "$GITHUB_WORKSPACE"/AppDir/info.cemu.Cemu.png      \
-  -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/Cemu			\
+  -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/Cemu		\
   --plugin gtk
 
 if [[ -z $VERSION ]]; then
