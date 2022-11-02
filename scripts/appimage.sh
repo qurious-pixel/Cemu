@@ -17,6 +17,7 @@ fi
 
 mkdir -p AppDir/usr/
 cp dist/linux/{info.cemu.Cemu.desktop,info.cemu.Cemu.png} AppDir/
+sed -i 's|Exec=Cemu|Exec=env GDK_BACKEND=x11 Cemu|g' dist/linux/info.cemu.Cemu.desktop
 
 mkdir -p AppDir/usr/share/applications 
 mkdir -p AppDir/usr/share/icons/hicolor/scalable/apps
