@@ -97,7 +97,7 @@ jobs:
     - name: "Build Cemu"
       run: |
         cmake --build build
-        mv ../bin/Cemu_release ../bin/Cemu
+        mv bin/Cemu_release bin/Cemu
                
     - name: Upload artifact
       uses: actions/upload-artifact@v3
