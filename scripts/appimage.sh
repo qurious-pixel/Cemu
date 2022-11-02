@@ -23,6 +23,7 @@ mkdir -p AppDir/usr/share/icons/hicolor/scalable/apps
 mkdir -p AppDir/usr/lib
 
 cp -r bin AppDir/usr/
+cp /usr/lib/x86_64-linux-gnu/{libsepol.so.1,libffi.so.7,libpcre.so.3,libGLU.so.1}
 
 chmod +x AppDir/usr/bin/Cemu
 #chmod +x AppDir/AppRun
