@@ -133,7 +133,7 @@ jobs:
       #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-linux-x64
-        path: ./bin/cemu
+        path: ./bin/Cemu
         
   build-appimage:
     runs-on: ubuntu-20.04
