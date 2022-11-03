@@ -62,7 +62,7 @@ jobs:
       - name: Create appimage
         run: |
           VERSION=${{ env.CEMU_VERSION }}
-          ls
+          echo "Cemu Version is $VERSION"
           ls cemu-appimage-x64
           mv cemu-appimage-x64/Cemu-*-x86_64.AppImage upload/Cemu-$VERSION-x86_64.AppImage
         
