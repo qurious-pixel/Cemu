@@ -81,5 +81,30 @@ jobs:
         name: cemu-bin-linux-x64
         path: ./bin/Cemu
         
+  build-appimage:
+    runs-on: ubuntu-20.04
+    needs: build-ubuntu
+    steps:
+    - name: Checkout Upstream Repo
+      uses: actions/checkout@v3
+          
+    - uses: actions/download-artifact@v3
+      with:
+        name: cemu-bin-linux-x64
+        path: bin
+          
+    - name: "Install system dependencies"
+      run: |
+        sudo apt update -qq
+        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm gcc-11 g++-11 libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5 libvulkan-dev
         
+    - name: "Build AppImage"
+      run: |
+        chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
+        
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: cemu-appimage-x64
+        path: artifacts      
   
