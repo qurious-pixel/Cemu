@@ -42,7 +42,7 @@ if [[ -z ${GITVERSION} ]]; then
 	GITVERSION=experimental
 fi
 
-echo "Cemu Version Cemu-${VERSION}"
+echo "Cemu Version Cemu-${GITVERSION}"
 rm AppDir/usr/lib/libwayland-client.so.0
 VERSION=${GITVERSION} ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
 
