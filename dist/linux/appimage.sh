@@ -37,7 +37,7 @@ export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
   --plugin gtk
 
 if [[ -z ${VERSION} ]]; then
-	${VERSION}=experimental
+	VERSION=experimental
 fi
 
 echo "Cemu Version Cemu-${VERSION}"
