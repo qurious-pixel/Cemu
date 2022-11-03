@@ -46,4 +46,4 @@ rm AppDir/usr/lib/libwayland-client.so.0
 VERSION=${VERSION} ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
 
 mkdir -p "$GITHUB_WORKSPACE"/artifacts/ 
-mv Cemu-${VERSION}-x86_64.AppImage "$GITHUB_WORKSPACE"/upload/
+mv Cemu-${VERSION}-x86_64.AppImage "$GITHUB_WORKSPACE"/artifacts/ 
