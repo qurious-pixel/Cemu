@@ -56,7 +56,7 @@ jobs:
 
       - name: Create appimage
         env:
-      	  VERSION: ${{ env.CEMU_VERSION }}
+          VERSION: ${{ env.CEMU_VERSION }}
         run: dist/linux/appimage.sh
         
       - name: Create release from linux-bin
