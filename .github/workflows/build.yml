@@ -101,6 +101,7 @@ jobs:
     - name: "Build AppImage"
       run: |
         VERSION=$(git rev-parse --short HEAD)
+        echo $VERSION
         chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
         
     - name: Upload artifact
