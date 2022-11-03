@@ -20,6 +20,11 @@ jobs:
           name: cemu-bin-linux-x64
           path: cemu-bin-linux-x64
 
+      - uses: actions/download-artifact@v3
+        with:
+          name: cemu-appimage-x64
+          path: cemu-appimage-x64
+          
       #- uses: actions/download-artifact@v3
       #  with:
       #    name: cemu-bin-windows-x64
@@ -57,7 +62,11 @@ jobs:
       - name: Create appimage
         env:
           VERSION: ${{ env.CEMU_VERSION }}
-        run: chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
+        run: |
+          VERSION=${{ env.CEMU_FOLDER_NAME }}
+          ls
+          ls cemu-appimage-x64
+          mv cemu-appimage-x64/Cemu-$(git rev-parse --short HEAD)-x86_64.AppImage upload/Cemu-$VERSION-x86_64.AppImage
         
       - name: Create release from linux-bin
         run: |
