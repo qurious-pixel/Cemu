@@ -36,13 +36,13 @@ export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
   -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/Cemu		\
   --plugin gtk
 
-if [[ -z ${{ env.VERSION }} ]]; then
-	${{ env.VERSION }}=experimental
+if [[ -z ${VERSION} ]]; then
+	${VERSION}=experimental
 fi
 
-echo "Cemu Version Cemu-${{ env.VERSION }}"
+echo "Cemu Version Cemu-${VERSION}"
 rm AppDir/usr/lib/libwayland-client.so.0
-VERSION=${{ env.VERSION }} ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
+VERSION=${VERSION} ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
 
 mkdir -p "$GITHUB_WORKSPACE"/artifacts/ 
 mv Cemu-${VERSION}-x86_64.AppImage "$GITHUB_WORKSPACE"/artifacts/ 
