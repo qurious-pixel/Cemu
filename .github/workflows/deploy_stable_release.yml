@@ -45,9 +45,6 @@ jobs:
           echo "CEMU_FOLDER_NAME=Cemu_$(./getversion)" >> $GITHUB_ENV
           echo "CEMU_VERSION=$(./getversion)" >> $GITHUB_ENV
 
-      - name: Create appimage
-        run: |
-          echo "to do"
 
       - name: Create release from windows-bin
         run: |
@@ -57,7 +54,12 @@ jobs:
           mv cemu-bin-windows-x64/Cemu.exe ./${{ env.CEMU_FOLDER_NAME }}/Cemu.exe
           zip -9 -r upload/cemu-${{ env.CEMU_VERSION }}-windows-x64.zip ${{ env.CEMU_FOLDER_NAME }}
           rm -r ./${{ env.CEMU_FOLDER_NAME }}
-          
+
+      - name: Create appimage
+        env:
+          VERSION: ${{ env.CEMU_VERSION }}
+        run: dist/linux/appimage.sh
+        
       - name: Create release from ubuntu-bin
         run: |
           ls ./
