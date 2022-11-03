@@ -23,7 +23,6 @@ mkdir -p AppDir/usr/share/icons/hicolor/scalable/apps
 mkdir -p AppDir/usr/lib
 
 cp -r bin AppDir/usr/
-cp cemu-bin-linux-x64/Cemu AppDir/usr/bin/
 cp /usr/lib/x86_64-linux-gnu/{libsepol.so.1,libffi.so.7,libpcre.so.3,libGLU.so.1} AppDir/usr/lib
 
 chmod +x AppDir/usr/bin/Cemu
@@ -37,13 +36,13 @@ export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
   -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/Cemu		\
   --plugin gtk
 
-if [[ -z $VERSION ]]; then
-	VERSION=experimental
+if [[ -z ${{ env.VERSION }} ]]; then
+	${{ env.VERSION }}=experimental
 fi
 
-echo "Cemu Version Cemu-${VERSION}"
+echo "Cemu Version Cemu-${{ env.VERSION }}"
 rm AppDir/usr/lib/libwayland-client.so.0
-VERSION=${VERSION} ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
+VERSION=${{ env.VERSION }} ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
 
 mkdir -p "$GITHUB_WORKSPACE"/artifacts/ 
 mv Cemu-${VERSION}-x86_64.AppImage "$GITHUB_WORKSPACE"/artifacts/ 
