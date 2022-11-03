@@ -53,7 +53,12 @@ jobs:
           mv cemu-bin-windows-x64/Cemu.exe ./${{ env.CEMU_FOLDER_NAME }}/Cemu.exe
           zip -9 -r upload/cemu-${{ env.CEMU_VERSION }}-windows-x64.zip ${{ env.CEMU_FOLDER_NAME }}
           rm -r ./${{ env.CEMU_FOLDER_NAME }}
-          
+
+      - name: Create appimage
+        env:
+      	  VERSION: ${{ env.CEMU_VERSION }}
+        run: dist/linux/appimage.sh
+        
       - name: Create release from linux-bin
         run: |
           ls ./
