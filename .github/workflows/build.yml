@@ -99,9 +99,10 @@ jobs:
         sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm gcc-11 g++-11 libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5 libvulkan-dev
         
     - name: "Build AppImage"
+      env:
+        VERSION: $(git rev-parse --short HEAD)
       run: |
-        VERSION=$(git rev-parse --short HEAD)
-        echo $VERSION
+        echo ${{ env.VERSION }}
         chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
         
     - name: Upload artifact
