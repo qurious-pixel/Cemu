@@ -64,7 +64,7 @@ jobs:
           VERSION=${{ env.CEMU_VERSION }}
           ls
           ls cemu-appimage-x64
-          mv cemu-appimage-x64/Cemu-$(git rev-parse --short HEAD)-x86_64.AppImage upload/Cemu-$VERSION-x86_64.AppImage
+          mv cemu-appimage-x64/Cemu-*-x86_64.AppImage upload/Cemu-$VERSION-x86_64.AppImage
         
       - name: Create release from linux-bin
         run: |
