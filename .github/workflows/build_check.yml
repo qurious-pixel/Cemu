@@ -10,8 +10,8 @@ on:
   push:
     paths-ignore:
       - "*.md"
-    #branches:
-    #   - main
+    branches:
+       - main
 
 jobs:
   build:
