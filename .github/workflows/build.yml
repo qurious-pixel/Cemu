@@ -65,15 +65,10 @@ jobs:
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
         
     - name: "cmake"
-      run: |
-        mkdir -p build
-        cd build
-        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
+      run: cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DPORTABLE=OFF -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
         
     - name: "Build Cemu"
-      run: |
-        cd build
-        ninja
+      run: cmake --build build
 
     - name: Prepare artifact
       if: ${{ inputs.deploymode == 'release' }}
