@@ -41,7 +41,7 @@ if [[ -z $VERSION ]]; then
 fi
 
 echo "Cemu Version Cemu-${VERSION}"
-sed -i 's|Exec=Cemu|Exec=env GDK_BACKEND=x11 Cemu|g' AppDir/info.cemu.Cemu.desktop
+rm AppDir/usr/lib/libwayland-client.so.0
 VERSION=${VERSION} ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
 
 mkdir -p "$GITHUB_WORKSPACE"/artifacts/ 
