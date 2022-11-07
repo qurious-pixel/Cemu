@@ -36,7 +36,7 @@ export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
   -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/Cemu		\
   --plugin gtk
 
-GITVERSION=$(git rev-parse --short HEAD) 
+GITVERSION=$(git rev-parse --short ${{github.sha}}) 
 echo $GITVERSION
 if [[ -z ${GITVERSION} ]]; then
 	GITVERSION=experimental
