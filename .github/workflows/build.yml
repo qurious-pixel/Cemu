@@ -66,9 +66,10 @@ jobs:
 
     - name: "Apply patches"
       run: |
-        curl -s "https://patch-diff.githubusercontent.com/raw/cemu-project/Cemu/pull/439.patch" -o dark.patch
+        echo patches
+        #curl -s "https://patch-diff.githubusercontent.com/raw/cemu-project/Cemu/pull/439.patch" -o dark.patch
         curl -s "https://patch-diff.githubusercontent.com/raw/cemu-project/Cemu/pull/143.patch" -o wayland.patch
-        git apply dark.patch
+        #git apply dark.patch
         git apply wayland.patch
       
     - name: "cmake"
