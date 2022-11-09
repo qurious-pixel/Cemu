@@ -72,6 +72,7 @@ jobs:
       run: |
         echo "Linux Fixes"
         sed -i 's|Exec=cemu|Exec=Cemu|g' dist/linux/info.cemu.Cemu.desktop ## wayland build
+        git apply ci/scripts/xdg.patch
 
     - name: "Bootstrap vcpkg"
       run: |
