@@ -33,7 +33,7 @@ export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
   --appdir="$GITHUB_WORKSPACE"/AppDir/          		\
   -d "$GITHUB_WORKSPACE"/AppDir/info.cemu.Cemu.desktop  	\
   -i "$GITHUB_WORKSPACE"/AppDir/info.cemu.Cemu.png      	\
-  -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/cemu			\
+  -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/Cemu			\
   --plugin gtk
 
 mkdir -p AppDir/usr/lib/wayland
