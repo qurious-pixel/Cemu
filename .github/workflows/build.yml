@@ -71,6 +71,7 @@ jobs:
     - name: "Linux Fixes"
       run: |
         echo "Linux Fixes"
+        sed -i 's|Exec=cemu|Exec=Cemu|g' dist/linux/info.cemu.Cemu.desktop ## wayland build
 
     - name: "Bootstrap vcpkg"
       run: |
