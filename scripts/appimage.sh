@@ -24,16 +24,8 @@ mkdir -p AppDir/usr/share/icons/hicolor/scalable/apps
 mkdir -p AppDir/usr/lib
 
 cp -r bin AppDir/usr/
-#cp .ci/cemu.sh AppDir/usr/bin/
+cp /usr/lib/x86_64-linux-gnu/{libsepol.so.1,libffi.so.7,libpcre.so.3,libGLU.so.1} AppDir/usr/lib
 
-mkdir -p AppDir/usr/optional/{libstdc++,libgcc_s}
-cp --dereference /usr/lib/x86_64-linux-gnu/libstdc++.so.6 AppDir/usr/optional/libstdc++/libstdc++.so.6
-cp --dereference /lib/x86_64-linux-gnu/libgcc_s.so.1 AppDir/usr/optional/libgcc_s/libgcc_s.so.1
-cp /usr/lib/x86_64-linux-gnu/libsepol.so.1 AppDir/usr/lib/
-curl -sSfL https://github.com/RPCS3/AppImageKit-checkrt/releases/download/continuous2/exec-x86_64.so -o ./AppDir/usr/optional/exec.so
-curl -sSfL https://github.com/RPCS3/AppImageKit-checkrt/releases/download/continuous2/AppRun-patched-x86_64 -o ./AppDir/AppRun
-chmod +x AppDir/usr/optional/exec.so
-chmod +x AppDir/usr/bin/cemu
 chmod +x AppDir/AppRun
 
 export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
@@ -44,8 +36,13 @@ export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
   -e "$GITHUB_WORKSPACE"/AppDir/usr/bin/cemu			\
   --plugin gtk
 
-VERSION=2.0 ./mkappimage.AppImage "$GITHUB_WORKSPACE"/AppDir
+mkdir -p AppDir/usr/lib/wayland
+mv AppDir/usr/lib/libwayland-client.so.0 AppDir/usr/lib/wayland
+
+GITVERSION=$(git rev-parse --short HEAD) 
+echo "Cemu Version Cemu-${GITVERSION}"
+VERSION=${GITVERSION} ./mkappimage.AppImage "$GITHUB_WORKSPACE"/AppDir
 
 mkdir -p "$GITHUB_WORKSPACE"/artifacts/ 
-mv Cemu-2.0-x86_64.AppImage "$GITHUB_WORKSPACE"/artifacts/
+mv Cemu-${GITVERSION}-x86_64.AppImage "$GITHUB_WORKSPACE"/artifacts/ 
 ls -al artifacts
