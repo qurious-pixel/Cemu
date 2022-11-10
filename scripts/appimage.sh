@@ -28,6 +28,7 @@ cp /usr/lib/x86_64-linux-gnu/{libsepol.so.1,libffi.so.7,libpcre.so.3,libGLU.so.1
 
 chmod +x AppDir/AppRun
 
+export NO_STRIP=1
 export UPD_INFO="gh-releases-zsync|cemu-project|Cemu|ci|Cemu.AppImage.zsync"
 ./linuxdeploy-x86_64.AppImage                   		\
   --appdir="$GITHUB_WORKSPACE"/AppDir/          		\
