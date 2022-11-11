@@ -38,8 +38,8 @@ elseif(UNIX)
 	# the same cannot be said for no executable stack which some linkers
 	# and configurations thereof might enable due to the assembly in the project
 	if(NOT APPLE)
-		add_compile_options(-fpie)
-		add_link_options(-pie --no-dynamic-linker -z noexecstack)
+		add_compile_options(-fPIE)
+		add_link_options(-pie -z noexecstack)
 	endif()
 
     add_compile_options(-Wno-multichar -Wno-invalid-offsetof -Wno-switch -Wno-ignored-attributes -Wno-deprecated-enum-enum-conversion)
