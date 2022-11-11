@@ -26,7 +26,7 @@ jobs:
            - compiler: clang++-12
              cc: clang-12
              deb: clang-12
-    name: Build Ubuntu ${{ matrix.compiler }}
+    name: Build Ubuntu ${{ matrix.build }}
     runs-on: ubuntu-20.04
     env:
       CACHEDIR: ~/.ccache
@@ -72,8 +72,8 @@ jobs:
     - name: "Linux Fixes"
       run: |
         echo "Linux Fixes"
-        sed -i 's|Exec=cemu|Exec=Cemu|g' dist/linux/info.cemu.Cemu.desktop ## wayland build
-        git apply ci/scripts/xdg.patch
+        #sed -i 's|Exec=cemu|Exec=Cemu|g' dist/linux/info.cemu.Cemu.desktop ## wayland build
+        #git apply ci/scripts/xdg.patch
 
     - name: "Bootstrap vcpkg"
       run: |
@@ -106,7 +106,7 @@ jobs:
         ninja
         ccache -s
         ls -al ../bin/
-        #mv ../bin/Cemu_release ../bin/Cemu
+        mv ../bin/Cemu* ../bin/Cemu
 
         
     - name: "Build AppImage"
