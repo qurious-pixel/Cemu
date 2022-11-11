@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         compiler: [clang++-12] # [g++-11, clang++-12] # [g++-11] # 
-        build: [Release,release,Debug]
+        build: [Release,Debug]
         include:
            #- compiler: g++-11
            #  cc: gcc-11
@@ -56,7 +56,7 @@ jobs:
       #if: ${{ inputs.deploymode == 'release' }}
       run: |
         echo "BUILD_MODE=${{ matrix.build }}" >> $GITHUB_ENV
-        echo "BUILD_FLAGS=" >> $GITHUB_ENV
+        echo "BUILD_FLAGS=-DCMAKE_CXX_FLAGS="-fPIE"" >> $GITHUB_ENV
         echo "Build mode is release"
        
     - name: "Install system dependencies"
