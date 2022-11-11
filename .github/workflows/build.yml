@@ -56,7 +56,7 @@ jobs:
       #if: ${{ inputs.deploymode == 'release' }}
       run: |
         echo "BUILD_MODE=${{ matrix.build }}" >> $GITHUB_ENV
-        echo "BUILD_FLAGS=-DCMAKE_CXX_FLAGS="-fPIE"" >> $GITHUB_ENV
+        echo "BUILD_FLAGS=" >> $GITHUB_ENV
         echo "Build mode is release"
        
     - name: "Install system dependencies"
@@ -74,6 +74,7 @@ jobs:
         echo "Linux Fixes"
         #sed -i 's|Exec=cemu|Exec=Cemu|g' dist/linux/info.cemu.Cemu.desktop ## wayland build
         #git apply ci/scripts/xdg.patch
+        sed -i 40,43d src/CMakeLists.txt
 
     - name: "Bootstrap vcpkg"
       run: |
