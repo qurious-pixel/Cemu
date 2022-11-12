@@ -6,8 +6,10 @@ fi
   
 curl -sSfLO "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
 chmod a+x linuxdeploy*.AppImage
-curl -sSfL https://github.com$(curl https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous | grep "mkappimage-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2) -o mkappimage.AppImage
-chmod a+x mkappimage.AppImage
+#curl -sSfL https://github.com$(curl https://github.com/probonopd/go-appimage/releases/expanded_assets/continuous | grep "mkappimage-.*-x86_64.AppImage" | head -n 1 | cut -d '"' -f 2) -o mkappimage.AppImage
+#chmod a+x mkappimage.AppImage
+curl -sSfLO https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+chmod a+x appimagetool-x86_64.AppImage
 curl -sSfLO "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh"
 chmod a+x linuxdeploy-plugin-gtk.sh
 
@@ -45,7 +47,10 @@ fi
 echo "Cemu Version Cemu-${GITVERSION}"
 rm AppDir/usr/lib/libwayland-client.so.0
 echo "export LC_ALL=C" >> AppDir/apprun-hooks/linuxdeploy-plugin-gtk.sh
-VERSION=${GITVERSION} ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
+#VERSION=${GITVERSION} ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
+./appimagetool-x86_64.AppImage --appimage-extract-and-run "$GITHUB_WORKSPACE"/AppDir
 
 mkdir -p "$GITHUB_WORKSPACE"/artifacts/ 
-mv Cemu-${GITVERSION}-x86_64.AppImage "$GITHUB_WORKSPACE"/artifacts/ 
+#mv Cemu-${GITVERSION}-x86_64.AppImage "$GITHUB_WORKSPACE"/artifacts/ 
+mv Cemu-x86_64.AppImage "$GITHUB_WORKSPACE"/artifacts/ 
+
