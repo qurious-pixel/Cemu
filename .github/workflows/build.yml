@@ -71,7 +71,7 @@ jobs:
         git apply dark.patch
       
     - name: "cmake"
-      run: cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DPORTABLE=OFF -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
+      run: cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DPORTABLE=ON -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
         
     - name: "Build Cemu"
       run: cmake --build build
