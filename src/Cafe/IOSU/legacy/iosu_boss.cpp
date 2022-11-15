@@ -647,7 +647,7 @@ namespace iosu
 
 			try
 			{
-				fs::path path = ActiveSettings::GetMlcPath("usr/boss/{:08x}/{:08x}/user/common/data/{}", (uint32)(it->title_id >> 32), (uint32)(it->title_id & 0xFFFFFFFF), taskIdStr);
+				fs::path path = ActiveSettings::GetMLCPath("usr/boss/{:08x}/{:08x}/user/common/data/{}", (uint32)(it->title_id >> 32), (uint32)(it->title_id & 0xFFFFFFFF), taskIdStr);
 				if (!fs::exists(path))
 					fs::create_directories(path);
 
@@ -670,7 +670,7 @@ namespace iosu
 
 					// create/open fad db content
 					BossStorageFadFile fad_content{};
-					fs::path db_file = ActiveSettings::GetMlcPath("usr/boss/{:08x}/{:08x}/user/common/{:08x}/{}", (uint32)(it->title_id >> 32), (uint32)(it->title_id & 0xFFFFFFFF), it->account_id, taskIdStr);
+					fs::path db_file = ActiveSettings::GetMLCPath("usr/boss/{:08x}/{:08x}/user/common/{:08x}/{}", (uint32)(it->title_id >> 32), (uint32)(it->title_id & 0xFFFFFFFF), it->account_id, taskIdStr);
 					if (!fs::exists(db_file))
 						fs::create_directories(db_file);
 
