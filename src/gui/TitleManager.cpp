@@ -503,13 +503,13 @@ void TitleManager::OnSaveDelete(wxCommandEvent& event)
 
 	const auto persistent_id = (uint32)(uintptr_t)m_save_account_list->GetClientData(selection_index);
 
-	const fs::path target = ActiveSettings::GetMlcPath("usr/save/{:08x}/{:08x}/user/{:08x}", (uint32)(entry->title_id >> 32), (uint32)(entry->title_id & 0xFFFFFFFF), persistent_id);
+	const fs::path target = ActiveSettings::GetMLCPath("usr/save/{:08x}/{:08x}/user/{:08x}", (uint32)(entry->title_id >> 32), (uint32)(entry->title_id & 0xFFFFFFFF), persistent_id);
 	if (!fs::exists(target) || !fs::is_directory(target))
 		return;
 
 	// edit meta saveinfo.xml
 	bool meta_file_edited = false;
-	const fs::path saveinfo = ActiveSettings::GetMlcPath("usr/save/{:08x}/{:08x}/meta/saveinfo.xml", (uint32)(entry->title_id >> 32), (uint32)(entry->title_id & 0xFFFFFFFF));
+	const fs::path saveinfo = ActiveSettings::GetMLCPath("usr/save/{:08x}/{:08x}/meta/saveinfo.xml", (uint32)(entry->title_id >> 32), (uint32)(entry->title_id & 0xFFFFFFFF));
 	if (fs::exists(saveinfo) || fs::is_regular_file(saveinfo))
 	{
 		pugi::xml_document doc;
