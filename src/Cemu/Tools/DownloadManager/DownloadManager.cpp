@@ -1538,7 +1538,7 @@ void DownloadManager::runManager()
 	if (!m_threadLaunched.compare_exchange_weak(prevBool, true))
 		return;
 	// open cache
-	auto cacheFilePath = ActiveSettings::GetMlcPath("usr/save/system/nim/nup/");
+	auto cacheFilePath = ActiveSettings::GetMLCPath("usr/save/system/nim/nup/");
 	fs::create_directories(cacheFilePath);
 	cacheFilePath /= "cemu_cache.dat";
 	s_nupFileCache = FileCache::Open(cacheFilePath.generic_wstring(), true);
