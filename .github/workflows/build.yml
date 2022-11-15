@@ -65,12 +65,10 @@ jobs:
         cmake --build build
         
     - name: Prepare artifact
-      if: ${{ inputs.deploymode == 'release' }}
       run: mv bin/Cemu_* bin/Cemu
               
     - name: Upload artifact
       uses: actions/upload-artifact@v3
-      if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-linux-x64-${{ matrix.build }}
         path: ./bin/Cemu
