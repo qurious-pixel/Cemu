@@ -433,12 +433,12 @@ bool CemuApp::SelectMLCPath(wxWindow* parent)
 
 wxString CemuApp::GetMLCPath()
 {
-	return ActiveSettings::GetMlcPath().generic_wstring();
+	return ActiveSettings::GetMLCPath().generic_wstring();
 }
 
 wxString CemuApp::GetMLCPath(const wxString& cat)
 {
-	return ActiveSettings::GetMlcPath(cat.ToStdString()).generic_wstring();
+	return ActiveSettings::GetMLCPath(cat.ToStdString()).generic_wstring();
 }
 
 wxString CemuApp::GetConfigPath()
