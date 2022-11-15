@@ -314,7 +314,7 @@ bool iosuCrypto_loadCertificate(uint32 id, std::wstring_view mlcSubpath, std::ws
 {
 	X509* cert = nullptr;
 	// load cert data
-	const auto certPath = ActiveSettings::GetMlcPath(mlcSubpath);
+	const auto certPath = ActiveSettings::GetMLCPath(mlcSubpath);
 	auto certData = FileStream::LoadIntoMemory(certPath);
 	if (!certData)
 		return false; // file missing
@@ -322,7 +322,7 @@ bool iosuCrypto_loadCertificate(uint32 id, std::wstring_view mlcSubpath, std::ws
 	std::optional<std::vector<uint8>> pkeyData;
 	if (!pkeyMlcSubpath.empty())
 	{
-		const auto pkeyPath = ActiveSettings::GetMlcPath(pkeyMlcSubpath);
+		const auto pkeyPath = ActiveSettings::GetMLCPath(pkeyMlcSubpath);
 		pkeyData = FileStream::LoadIntoMemory(pkeyPath);
 		if (!pkeyData || pkeyData->empty())
 		{
