@@ -1902,7 +1902,7 @@ void GeneralSettings2::OnMLCPathSelect(wxCommandEvent& event)
 	if (!CemuApp::SelectMLCPath(this))
 		return;
 	
-	m_mlc_path->SetValue(ActiveSettings::GetMlcPath().generic_string());
+	m_mlc_path->SetValue(ActiveSettings::GetMLCPath().generic_string());
 	m_reload_gamelist = true;
 	m_mlc_modified = true;
 }
@@ -1919,7 +1919,7 @@ void GeneralSettings2::OnMLCPathChar(wxKeyEvent& event)
 		{
 			const auto res = wxMessageBox(_("The default MLC path is inaccessible.\nDo you want to select a different path?"), _("Error"), wxYES_NO | wxCENTRE | wxICON_ERROR);
 			if (res == wxYES && CemuApp::SelectMLCPath(this))
-				newPath = ActiveSettings::GetMlcPath().wstring();
+				newPath = ActiveSettings::GetMLCPath().wstring();
 			else
 				return;
 		}
