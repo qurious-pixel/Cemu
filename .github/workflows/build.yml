@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        build: [Release,Debug]
+        build: [Release] #,Debug]
     name: Ubuntu ${{ matrix.build }}
     runs-on: ubuntu-20.04
     steps:
