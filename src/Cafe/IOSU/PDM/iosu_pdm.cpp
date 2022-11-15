@@ -22,7 +22,7 @@ namespace iosu
 		fs::path GetPDFile(const char* filename)
 		{
 			// todo - support for per-account tracking
-			return ActiveSettings::GetMlcPath(fmt::format("usr/save/system/pdm/80000001/{}", filename));
+			return ActiveSettings::GetMLCPath(fmt::format("usr/save/system/pdm/80000001/{}", filename));
 		}
 
 		void MakeDirectory()
