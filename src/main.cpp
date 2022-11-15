@@ -115,7 +115,7 @@ void infoLog_cemuStartup()
 {
 	cemuLog_force("------- Init {} -------", BUILD_VERSION_WITH_NAME_STRING);
 	cemuLog_force("Init Wii U memory space (base: 0x{:016x})", (size_t)memory_base);
-	cemuLog_force(u8"mlc01 path: {}", ActiveSettings::GetMlcPath().generic_u8string());
+	cemuLog_force(u8"mlc01 path: {}", ActiveSettings::GetMLCPath().generic_u8string());
 	// check for wine version
 	checkForWine();
 	// CPU and RAM info
@@ -272,7 +272,7 @@ int mainEmulatorHLE()
 	CafeTitleList::Initialize(ActiveSettings::GetUserDataPath("title_list_cache.xml"));
 	for (auto& it : GetConfig().game_paths)
 		CafeTitleList::AddScanPath(it);
-	fs::path mlcPath = ActiveSettings::GetMlcPath();
+	fs::path mlcPath = ActiveSettings::GetMLCPath();
 	if (!mlcPath.empty())
 		CafeTitleList::SetMLCPath(mlcPath);
 	CafeTitleList::Refresh();
