@@ -81,7 +81,7 @@ DownloadManager::TitleInstallState::TitleInstallState(DownloadManager* dlMgr, ui
 	// todo - avoid file reads here due to stalling the UI thread
 	if (TitleIdParser(titleId).GetType() == TitleIdParser::TITLE_TYPE::AOC)
 	{
-		const auto ticketPath = ActiveSettings::GetMlcPath(L"usr/title/{:08x}/{:08x}/code/title.tik", (uint32)(titleId >> 32), (uint32)(titleId & 0xFFFFFFFF));
+		const auto ticketPath = ActiveSettings::GetMLCPath(L"usr/title/{:08x}/{:08x}/code/title.tik", (uint32)(titleId >> 32), (uint32)(titleId & 0xFFFFFFFF));
 		uint32 tikFileSize = 0;
 		FileStream* fileStream = FileStream::openFile2(ticketPath);
 		if (fileStream)
@@ -572,7 +572,7 @@ bool DownloadManager::syncTicketCache()
 
 void DownloadManager::searchForIncompleteDownloads()
 {
-	const fs::path packagePath = ActiveSettings::GetMlcPath("usr/packages/title/");
+	const fs::path packagePath = ActiveSettings::GetMLCPath("usr/packages/title/");
 	if (!fs::exists(packagePath))
 		return;
 	
@@ -806,7 +806,7 @@ DownloadManager::Package* DownloadManager::getPackage(uint64 titleId, uint16 ver
 
 fs::path DownloadManager::getPackageDownloadPath(Package* package)
 {
-	return ActiveSettings::GetMlcPath(fmt::format("usr/packages/title/cemu_{:016x}_v{}/", package->titleId, package->version));
+	return ActiveSettings::GetMLCPath(fmt::format("usr/packages/title/cemu_{:016x}_v{}/", package->titleId, package->version));
 }
 
 fs::path DownloadManager::getPackageInstallPath(Package* package)
@@ -816,7 +816,7 @@ fs::path DownloadManager::getPackageInstallPath(Package* package)
 	const char* titleBasePath = "usr/title/";
 	if(tParser.IsSystemTitle())
 		titleBasePath = "sys/title/";
-	return ActiveSettings::GetMlcPath(fmt::format("{}{:08x}/{:08x}/", titleBasePath, (uint32)(package->titleId>>32), (uint32)package->titleId));
+	return ActiveSettings::GetMLCPath(fmt::format("{}{:08x}/{:08x}/", titleBasePath, (uint32)(package->titleId>>32), (uint32)package->titleId));
 }
 
 // called when a package becomes active (queued to downloading) or when any of it's async download operations finishes
