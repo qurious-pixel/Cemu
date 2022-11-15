@@ -212,12 +212,12 @@ namespace save
 		{
 			bool copiedUser = false, copiedCommon = false;
 
-			const auto sourceSavePath = ActiveSettings::GetMlcPath("emulatorSave/{:08x}", CafeSystem::GetRPXHashBase());
+			const auto sourceSavePath = ActiveSettings::GetMLCPath("emulatorSave/{:08x}", CafeSystem::GetRPXHashBase());
 			sourcePath = sourceSavePath;
 
 			if (fs::exists(sourceSavePath) && is_directory(sourceSavePath))
 			{
-				targetPath = ActiveSettings::GetMlcPath("usr/save/{:08x}/{:08x}/user/{:08x}", GetTitleIdHigh(titleId), GetTitleIdLow(titleId), 0x80000001);
+				targetPath = ActiveSettings::GetMLCPath("usr/save/{:08x}/{:08x}/user/{:08x}", GetTitleIdHigh(titleId), GetTitleIdLow(titleId), 0x80000001);
 				fs::create_directories(targetPath);
 				copy(sourceSavePath, targetPath, fs::copy_options::overwrite_existing | fs::copy_options::recursive);
 				copiedUser = true;
