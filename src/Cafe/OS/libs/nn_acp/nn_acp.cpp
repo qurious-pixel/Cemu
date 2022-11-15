@@ -50,7 +50,7 @@ namespace acp
 		uint32 low = GetTitleIdLow(titleId);
 
 		// mount save path
-		const auto mlc = ActiveSettings::GetMlcPath("usr/save/{:08x}/{:08x}/user/", high, low);
+		const auto mlc = ActiveSettings::GetMLCPath("usr/save/{:08x}/{:08x}/user/", high, low);
 		FSCDeviceHostFS_Mount("/vol/save/", _pathToUtf8(mlc), FSC_PRIORITY_BASE);
 		nnResult mountResult = BUILD_NN_RESULT(NN_RESULT_LEVEL_SUCCESS, NN_RESULT_MODULE_NN_ACP, 0);
 		return _ACPConvertResultToACPStatus(&mountResult, "ACPMountSaveDir", 0x60);
@@ -69,7 +69,7 @@ namespace acp
 		}
 
 		// create or modify the saveinfo
-		const auto saveinfoPath = ActiveSettings::GetMlcPath("usr/save/{:08x}/{:08x}/meta/saveinfo.xml", GetTitleIdHigh(titleId), GetTitleIdLow(titleId));
+		const auto saveinfoPath = ActiveSettings::GetMLCPath("usr/save/{:08x}/{:08x}/meta/saveinfo.xml", GetTitleIdHigh(titleId), GetTitleIdLow(titleId));
 		auto saveinfoData = FileStream::LoadIntoMemory(saveinfoPath);
 		if (saveinfoData && !saveinfoData->empty())
 		{
