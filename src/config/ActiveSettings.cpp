@@ -238,7 +238,7 @@ bool ActiveSettings::ForceSamplerRoundToPrecision()
 	return false;
 }
 
-fs::path ActiveSettings::GetMlcPath()
+fs::path ActiveSettings::GetMLCPath()
 {
 	if(const auto launch_mlc = LaunchSettings::GetMLCPath(); launch_mlc.has_value())
 		return launch_mlc.value();
