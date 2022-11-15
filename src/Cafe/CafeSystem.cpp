@@ -189,7 +189,7 @@ void LoadMainExecutable()
 fs::path getTitleSavePath()
 {
 	const uint64 titleId = CafeSystem::GetForegroundTitleId();
-	return ActiveSettings::GetMlcPath("usr/save/{:08X}/{:08X}/user/", (uint32)(titleId >> 32), (uint32)(titleId & 0xFFFFFFFF));
+	return ActiveSettings::GetMLCPath("usr/save/{:08X}/{:08X}/user/", (uint32)(titleId >> 32), (uint32)(titleId & 0xFFFFFFFF));
 }
 
 void InfoLog_TitleLoaded()
@@ -289,7 +289,7 @@ uint32 loadSharedData()
 	bool hasAllShareddataFiles = true;
 	for (sint32 i = 0; i < sizeof(shareddataDef) / sizeof(shareddataDef[0]); i++)
 	{
-		bool existsInMLC = fs::exists(ActiveSettings::GetMlcPath(shareddataDef[i].mlcPath));
+		bool existsInMLC = fs::exists(ActiveSettings::GetMLCPath(shareddataDef[i].mlcPath));
 		bool existsInResources = fs::exists(ActiveSettings::GetDataPath(shareddataDef[i].resourcePath));
 
 		if (!existsInMLC && !existsInResources)
