@@ -111,7 +111,7 @@ public:
 
 	fs::path GetSaveFolder()
 	{
-		return ActiveSettings::GetMlcPath(fmt::format("usr/save/{:08x}/{:08x}", (GetBaseTitleId() >> 32), GetBaseTitleId() & 0xFFFFFFFF));
+		return ActiveSettings::GetMLCPath(fmt::format("usr/save/{:08x}/{:08x}", (GetBaseTitleId() >> 32), GetBaseTitleId() & 0xFFFFFFFF));
 	}
 
 private:
