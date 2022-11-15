@@ -475,7 +475,7 @@ void TitleManager::OnSaveOpenDirectory(wxCommandEvent& event)
 
 	const auto persistent_id = (uint32)(uintptr_t)m_save_account_list->GetClientData(selection);
 
-	const fs::path target = ActiveSettings::GetMlcPath("usr/save/{:08x}/{:08x}/user/{:08x}", (uint32)(entry->title_id >> 32), (uint32)(entry->title_id & 0xFFFFFFFF), persistent_id);
+	const fs::path target = ActiveSettings::GetMLCPath("usr/save/{:08x}/{:08x}/user/{:08x}", (uint32)(entry->title_id >> 32), (uint32)(entry->title_id & 0xFFFFFFFF), persistent_id);
 	if (!fs::exists(target) || !fs::is_directory(target))
 		return;
 
