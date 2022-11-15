@@ -340,7 +340,7 @@ const std::vector<Account>& Account::RefreshAccounts()
 void Account::UpdatePersisidDat()
 {
 	const auto max_id = std::max(kMinPersistendId, GetNextPersistentId() - 1);
-	const auto file = ActiveSettings::GetMlcPath("usr/save/system/act/persisid.dat");
+	const auto file = ActiveSettings::GetMLCPath("usr/save/system/act/persisid.dat");
 	std::ofstream f(file);
 	if(f.is_open())
 	{
@@ -384,7 +384,7 @@ const Account& Account::GetCurrentAccount()
 uint32 Account::GetNextPersistentId()
 {
 	uint32 result = kMinPersistendId;
-	const auto file = ActiveSettings::GetMlcPath("usr/save/system/act/persisid.dat");
+	const auto file = ActiveSettings::GetMLCPath("usr/save/system/act/persisid.dat");
 	if(fs::exists(file))
 	{
 		std::ifstream f(file);
@@ -442,14 +442,14 @@ OnlineValidator Account::ValidateOnlineFiles() const
 
 	for(const auto& v : iosuCrypt_getCertificateKeys())
 	{
-		const auto p = ActiveSettings::GetMlcPath(L"sys/title/0005001b/10054000/content/{}", v);
+		const auto p = ActiveSettings::GetMLCPath(L"sys/title/0005001b/10054000/content/{}", v);
 		if (!fs::exists(p) || !fs::is_regular_file(p))
 			result.missing_files.emplace_back(p.generic_wstring());
 	}
 
 	for (const auto& v : iosuCrypt_getCertificateNames())
 	{
-		const auto p = ActiveSettings::GetMlcPath(L"sys/title/0005001b/10054000/content/{}", v);
+		const auto p = ActiveSettings::GetMLCPath(L"sys/title/0005001b/10054000/content/{}", v);
 		if (!fs::exists(p) || !fs::is_regular_file(p))
 			result.missing_files.emplace_back(p.generic_wstring());
 	}
