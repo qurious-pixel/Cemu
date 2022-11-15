@@ -165,7 +165,7 @@ void SaveImportWindow::OnImport(wxCommandEvent& event)
 
 	}
 
-	fs::path target_path = ActiveSettings::GetMlcPath("usr/save/{:08x}/{:08x}/user/{:08x}", (uint32)(m_title_id >> 32), (uint32)(m_title_id & 0xFFFFFFFF), target_id);
+	fs::path target_path = ActiveSettings::GetMLCPath("usr/save/{:08x}/{:08x}/user/{:08x}", (uint32)(m_title_id >> 32), (uint32)(m_title_id & 0xFFFFFFFF), target_id);
 	if (fs::exists(target_path))
 	{
 		if (!fs::is_directory(target_path))
@@ -281,7 +281,7 @@ void SaveImportWindow::OnImport(wxCommandEvent& event)
 	// extracted all files to tmp_source
 
 	// edit meta saveinfo.xml
-	fs::path saveinfo = ActiveSettings::GetMlcPath("usr/save/{:08x}/{:08x}/meta/saveinfo.xml", (uint32)(m_title_id >> 32), (uint32)(m_title_id & 0xFFFFFFFF));
+	fs::path saveinfo = ActiveSettings::GetMLCPath("usr/save/{:08x}/{:08x}/meta/saveinfo.xml", (uint32)(m_title_id >> 32), (uint32)(m_title_id & 0xFFFFFFFF));
 	if (fs::exists(saveinfo) || fs::is_regular_file(saveinfo))
 	{
 		pugi::xml_document doc;
