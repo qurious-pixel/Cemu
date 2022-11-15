@@ -170,7 +170,7 @@ namespace acp
 			fsc_readFile(fscFile, fileContent.get(), fileSize);
 			fsc_close(fscFile);
 
-			const auto outPath = ActiveSettings::GetMlcPath("usr/save/{:08x}/{:08x}/meta/meta.xml", GetTitleIdHigh(titleId), GetTitleIdLow(titleId));
+			const auto outPath = ActiveSettings::GetMLCPath("usr/save/{:08x}/{:08x}/meta/meta.xml", GetTitleIdHigh(titleId), GetTitleIdLow(titleId));
 
 			std::ofstream myFile(outPath, std::ios::out | std::ios::binary);
 			myFile.write((char*)fileContent.get(), fileSize);
@@ -186,7 +186,7 @@ namespace acp
 			fsc_readFile(fscFile, fileContent.get(), fileSize);
 			fsc_close(fscFile);
 
-			const auto outPath = ActiveSettings::GetMlcPath("usr/save/{:08x}/{:08x}/meta/iconTex.tga", GetTitleIdHigh(titleId), GetTitleIdLow(titleId));
+			const auto outPath = ActiveSettings::GetMLCPath("usr/save/{:08x}/{:08x}/meta/iconTex.tga", GetTitleIdHigh(titleId), GetTitleIdLow(titleId));
 
 			std::ofstream myFile(outPath, std::ios::out | std::ios::binary);
 			myFile.write((char*)fileContent.get(), fileSize);
