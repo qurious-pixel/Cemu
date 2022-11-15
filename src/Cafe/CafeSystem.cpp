@@ -310,7 +310,7 @@ uint32 loadSharedData()
 		for (sint32 i = 0; i < numEntries; i++)
 		{
 			// try to read font from MLC first
-			auto path = ActiveSettings::GetMlcPath(shareddataDef[i].mlcPath);
+			auto path = ActiveSettings::GetMLCPath(shareddataDef[i].mlcPath);
 			FileStream* fontFile = FileStream::openFile2(path);
 			// alternatively fall back to our shared fonts
 			if (!fontFile)
