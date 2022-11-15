@@ -111,7 +111,7 @@ namespace nn
 		{
 			// open ticket file
 			// on an actual Wii U they get stored to SLC but the download manager places these in the code folder currently
-			const auto ticketPath = ActiveSettings::GetMlcPath(L"usr/title/{:08x}/{:08x}/code/title.tik", (uint32)(titleId >> 32), (uint32)(titleId & 0xFFFFFFFF));
+			const auto ticketPath = ActiveSettings::GetMLCPath(L"usr/title/{:08x}/{:08x}/code/title.tik", (uint32)(titleId >> 32), (uint32)(titleId & 0xFFFFFFFF));
 			uint32 tikFileSize = 0;
 			std::unique_ptr<FileStream> fileStream(FileStream::openFile2(ticketPath));
 			std::vector<uint8> tikData;
