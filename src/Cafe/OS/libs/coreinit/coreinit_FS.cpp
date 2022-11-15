@@ -150,7 +150,7 @@ namespace coreinit
 			if (_mlc01Mounted)
 				return FS_RESULT::ERR_PLACEHOLDER;
 
-			if (!FSCDeviceHostFS_Mount(mountPathOut, _pathToUtf8(ActiveSettings::GetMlcPath()), FSC_PRIORITY_BASE))
+			if (!FSCDeviceHostFS_Mount(mountPathOut, _pathToUtf8(ActiveSettings::GetMLCPath()), FSC_PRIORITY_BASE))
 				return FS_RESULT::ERR_PLACEHOLDER;
 			_mlc01Mounted = true;
 		}
