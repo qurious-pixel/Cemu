@@ -41,7 +41,7 @@ bool GameUpdateWindow::ParseUpdate(const fs::path& metaPath)
 	m_title_info = TitleInfo(metaPath);
 	if (!m_title_info.IsValid())
 		return false;
-	fs::path target_location = ActiveSettings::GetMlcPath(m_title_info.GetInstallPath());
+	fs::path target_location = ActiveSettings::GetMLCPath(m_title_info.GetInstallPath());
 	std::error_code ec;
 	if (fs::exists(target_location, ec))
 	{
