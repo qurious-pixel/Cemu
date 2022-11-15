@@ -617,7 +617,7 @@ void iosuCrypto_init()
 
 bool iosuCrypto_checkRequirementMLCFile(std::string_view mlcSubpath, std::wstring& additionalErrorInfo_filePath)
 {
-	const auto path = ActiveSettings::GetMlcPath(mlcSubpath);
+	const auto path = ActiveSettings::GetMLCPath(mlcSubpath);
 	additionalErrorInfo_filePath = path.generic_wstring();
 	sint32 fileDataSize = 0;
 	auto fileData = FileStream::LoadIntoMemory(path);
