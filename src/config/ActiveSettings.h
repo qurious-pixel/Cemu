@@ -51,10 +51,10 @@ public:
 	template <typename ...TArgs>
 	[[nodiscard]] static fs::path GetDataPath(TArgs&&... args){ return GetPath(s_data_path, std::forward<TArgs>(args)...); };
 
-	[[nodiscard]] static fs::path GetMlcPath();
+	[[nodiscard]] static fs::path GetMLCPath();
 
 	template <typename ...TArgs>
-	[[nodiscard]] static fs::path GetMlcPath(TArgs&&... args){ return GetPath(GetMlcPath(), std::forward<TArgs>(args)...); };
+	[[nodiscard]] static fs::path GetMLCPath(TArgs&&... args){ return GetPath(GetMLCPath(), std::forward<TArgs>(args)...); };
 
 	// get mlc path to default cemu root dir/mlc01
 	[[nodiscard]] static fs::path GetDefaultMLCPath();
