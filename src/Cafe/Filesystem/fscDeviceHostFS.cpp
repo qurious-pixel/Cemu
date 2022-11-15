@@ -292,7 +292,7 @@ public:
 
 void fscDeviceHostFS_mapBaseDirectories_deprecated()
 {
-	const auto mlc = ActiveSettings::GetMlcPath();
+	const auto mlc = ActiveSettings::GetMLCPath();
 	fsc_mount("/cemuBossStorage/", _pathToUtf8(mlc / "usr/boss/"), &fscDeviceHostFSC::instance(), NULL, FSC_PRIORITY_BASE);
 	fsc_mount("/vol/storage_mlc01/", _pathToUtf8(mlc / ""), &fscDeviceHostFSC::instance(), NULL, FSC_PRIORITY_BASE);
 }
