@@ -18,7 +18,7 @@ std::string SaveInfo::GetStorageSubpathByTitleId(TitleId titleId)
 
 fs::path SaveInfo::GetSavePath(TitleId titleId)
 {
-	return ActiveSettings::GetMlcPath(GetStorageSubpathByTitleId(titleId));
+	return ActiveSettings::GetMLCPath(GetStorageSubpathByTitleId(titleId));
 }
 
 bool SaveInfo::ParseMetaData()
