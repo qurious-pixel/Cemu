@@ -131,7 +131,7 @@ bool GameUpdateWindow::ParseUpdate(const fs::path& metaPath)
 	}
 
 	// checking size is buggy on Wine (on Steam Deck this would return values too small to install bigger updates) - we therefore skip this step
-	if(!IsRunningInWine())
+	if(IsRunningInWine()) // if(!IsRunningInWine())
 	{
 		const fs::space_info targetSpace = fs::space(target_location);
 		if (targetSpace.free <= m_required_size)
