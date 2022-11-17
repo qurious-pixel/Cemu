@@ -367,9 +367,9 @@ void TitleManager::OnRefreshButton(wxCommandEvent& event)
 
 void TitleManager::OnInstallTitle(wxCommandEvent& event)
 {
-	#ifdef __WXOSX__
-    		wxSystemOptions::SetOption(wxOSX_FILEDIALOG_ALWAYS_SHOW_TYPES, 1) ).
-	#endif
+#ifdef __WXOSX__
+	wxSystemOptions::SetOption(wxOSX_FILEDIALOG_ALWAYS_SHOW_TYPES, 1);
+#endif
 	wxFileDialog openFileDialog(this, _("Select title to install"), "", "", "meta.xml|meta.xml", wxFD_OPEN | wxFD_FILE_MUST_EXIST);
 	if (openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
