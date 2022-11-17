@@ -82,17 +82,10 @@ jobs:
       with:
         submodules: "recursive"
     - name: Setup release mode parameters (for deploy)
-      if: ${{ inputs.deploymode == 'release' }}
       run: |
         echo "BUILD_MODE=release" >> $GITHUB_ENV
         echo "BUILD_FLAGS=" >> $GITHUB_ENV
         echo "Build mode is release"
-    - name: Setup debug mode parameters (for continous build)
-      if: ${{ inputs.deploymode != 'release' }}
-      run: |
-        echo "BUILD_MODE=debug" >> $GITHUB_ENV
-        echo "BUILD_FLAGS=" >> $GITHUB_ENV
-        echo "Build mode is debug"
         
     - name: Setup version for experimental
       if: ${{ inputs.experimentalversion != '' }}
@@ -131,7 +124,6 @@ jobs:
       run: |
         cmake --build build
     - name: Prepare artifact
-      if: ${{ inputs.deploymode == 'release' }}
       run: |
         mkdir bin/Cemu_app
         mv bin/Cemu_release.app bin/Cemu_app/Cemu.app
@@ -145,7 +137,6 @@ jobs:
               
     - name: Upload artifact
       uses: actions/upload-artifact@v3
-      if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-macos-x64
         path: ./bin/Cemu.dmg
