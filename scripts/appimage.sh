@@ -15,7 +15,7 @@ if [[ ! -e /usr/lib/x86_64-linux-gnu ]]; then
 	sed -i 's#lib\/x86_64-linux-gnu#lib64#g' linuxdeploy-plugin-gtk.sh
 fi
 
-mkdir -p AppDir/usr/
+mkdir -p AppDir/usr/bin
 cp dist/linux/{info.cemu.Cemu.desktop,info.cemu.Cemu.png} AppDir/
 
 mkdir -p AppDir/usr/share/applications 
