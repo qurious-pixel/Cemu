@@ -161,19 +161,10 @@ bool gui_isPadWindowOpen()
 }
 
 #if BOOST_OS_LINUX
-#include <wx/nativewin.h>
-#include <dlfcn.h>
-
-typedef void GdkDisplay;
-namespace
-{
-const char* (*gdk_keyval_name)(unsigned int keyval);
-}
 std::string gui_gtkRawKeyCodeToString(uint32 keyCode)
 {
 	return gdk_keyval_name(keyCode);
 }
-
 #endif
 
 void gui_initHandleContextFromWxWidgetsWindow(WindowHandleInfo& handleInfoOut, class wxWindow* wxw)
