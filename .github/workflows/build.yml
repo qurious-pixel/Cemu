@@ -2,8 +2,6 @@ name: Build Cemu
 
 on:
   push:
-    branches:
-      - main
       
 env:
   VCPKG_ROOT: "${{github.workspace}}/dependencies/vcpkg"
