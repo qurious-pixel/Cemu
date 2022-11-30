@@ -502,6 +502,10 @@ target_link_libraries(CemuCafe PRIVATE
 	zstd::zstd
 )
 
+if(UNIX AND NOT APPLE)
+	target_include_directories(CemuCafe PRIVATE ${WAYLAND_CLIENT_INCLUDE_DIR})
+endif()
+
 if (ENABLE_WXWIDGETS)
 	target_link_libraries(CemuCafe PRIVATE wx::base wx::core)
 endif()
