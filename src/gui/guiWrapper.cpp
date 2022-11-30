@@ -164,6 +164,7 @@ bool gui_isPadWindowOpen()
 #include <wx/nativewin.h>
 #include <dlfcn.h>
 
+typedef void GdkDisplay;
 namespace
 {
 const char* (*gdk_keyval_name)(unsigned int keyval);
