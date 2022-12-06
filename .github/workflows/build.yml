@@ -42,6 +42,7 @@ jobs:
         sudo meson --prefix /usr _build
         sudo ninja -C _build
         sudo ninja -C _build install
+        glib-compile-schemas /usr/share/glib-2.0/schemas
     - name: "Bootstrap vcpkg"
       run: |
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
