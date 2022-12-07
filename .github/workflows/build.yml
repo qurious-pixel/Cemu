@@ -62,7 +62,7 @@ jobs:
         sudo meson --prefix /usr _build
         sudo ninja -C _build
         sudo ninja -C _build install
-        gtk-launch --version
+        #gtk-launch --version
     - name: "Bootstrap vcpkg"
       run: |
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
