@@ -32,7 +32,7 @@ jobs:
     - name: "Install system dependencies"
       run: |
         sudo apt update -qq
-        sudo apt install -y clang-12 cmake freeglut3-dev libgcrypt20-dev libgtk-3-dev libpulse-dev libsecret-1-dev libsystemd-dev nasm ninja-build
+        sudo apt install -y clang-12 cmake freeglut3-dev libgcrypt20-dev libgstreamer-plugins-bad1.0-dev libpulse-dev libsecret-1-dev libsystemd-dev nasm ninja-build
         sudo python3 -m pip install meson
     - name: Setup wayland
       #if: ${{ matrix.build == '20.04' }}
@@ -43,15 +43,6 @@ jobs:
         sudo ninja -C _build
         sudo ninja -C _build install
         wayland-scanner --version    
-    - name: Setup gtk-3
-      #if: ${{ matrix.build == '20.04' }}
-      run: |
-        git clone https://gitlab.gnome.org/GNOME/gtk.git
-        cd gtk
-        sudo meson --prefix /usr _build
-        sudo ninja -C _build
-        sudo ninja -C _build install
-        gtk-launch --version
     - name: Setup glib-2.0
       #if: ${{ matrix.build == '20.04' }}
       run: |
@@ -61,6 +52,15 @@ jobs:
         sudo ninja -C _build
         sudo ninja -C _build install
         glib-compile-schemas /usr/share/glib-2.0/schemas
+    - name: Setup gtk-3
+      #if: ${{ matrix.build == '20.04' }}
+      run: |
+        git clone https://gitlab.gnome.org/GNOME/gtk.git
+        cd gtk
+        sudo meson --prefix /usr _build
+        sudo ninja -C _build
+        sudo ninja -C _build install
+        gtk-launch --version
     - name: "Bootstrap vcpkg"
       run: |
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
