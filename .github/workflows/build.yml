@@ -63,7 +63,9 @@ jobs:
         sudo meson --prefix /usr _build
         sudo ninja -C _build
         sudo ninja -C _build install
-        #gtk-launch --version
+        IMMODULES=/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules
+        ls $IMMODULES
+        if [ -e $IMMODULES/im-broadway.so ]; then sudo rm $IMMODULES/im-broadway.so; fi
     - name: "Bootstrap vcpkg"
       run: |
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
