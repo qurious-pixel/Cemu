@@ -10,6 +10,8 @@ env:
 jobs:
   build-ubuntu:
     runs-on: ubuntu-20.04
+    env:
+      CACHEDIR: ~/.ccache
     steps:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
@@ -17,18 +19,28 @@ jobs:
         repository: SSimco/Cemu # cemu-project/Cemu 
         ref: wayland # main # 
         submodules: recursive
+
     - name: Checkout AppImage Repo
       uses: actions/checkout@v3
       with:
           clean: false
           path: ci
+
+    - name: cache
+      uses: actions/cache@v2
+      with:
+        path: ${{ env.CACHEDIR }}
+        key: build-ccache-${{ env.GITHUB_RUN_ID }}
+        restore-keys: |
+          build-ccache
+
     - name: Setup release mode parameters (for deploy)
       #if: ${{ inputs.deploymode == 'release' }}
       run: |
         echo "BUILD_MODE=release" >> $GITHUB_ENV
         echo "BUILD_FLAGS=" >> $GITHUB_ENV
         echo "Build mode is release"
-        
+
     - name: "Install system dependencies"
       run: |
         sudo apt update -qq
@@ -37,24 +49,7 @@ jobs:
         #libxcursor-dev libxinerama-dev libxdamage-dev libxext-dev libharfbuzz-dev wayland-protocols \
         #libatk1.0-dev libatk-bridge2.0-dev libpango1.0-dev libxcomposite-dev libxkbcommon-dev libxrandr-dev
         sudo python3 -m pip install meson
-    #- name: Setup wayland
-    #  #if: ${{ matrix.build == '20.04' }}
-    #  run: |
-    #    git clone https://gitlab.freedesktop.org/wayland/wayland.git
-    #    cd wayland
-    #    sudo meson --prefix /usr --buildtype=release -Ddocumentation=false _build
-    #    sudo ninja -C _build
-    #    sudo ninja -C _build install
-    #    wayland-scanner --version    
-    #- name: Setup glib-2.0
-    #  #if: ${{ matrix.build == '20.04' }}
-    #  run: |
-    #    git clone https://gitlab.gnome.org/GNOME/glib.git
-    #    cd glib
-    #    sudo meson --prefix /usr _build
-    #    sudo ninja -C _build
-    #    sudo ninja -C _build install
-    #    glib-compile-schemas /usr/share/glib-2.0/schemas
+
     - name: Setup gsettings-desktop-schemas
       #if: ${{ matrix.build == '20.04' }}
       run: |
@@ -65,20 +60,27 @@ jobs:
         sudo ninja -C _build install
         glib-compile-schemas /usr/share/glib-2.0/schemas
         cat /usr/share/glib-2.0/schemas/org.gnome.desktop.interface.gschema.xml | grep "font-a"
-    #- name: Setup gtk-3
-    #  #if: ${{ matrix.build == '20.04' }}
-    #  run: |
-    #    git clone --single-branch -b gtk-3-24 https://gitlab.gnome.org/GNOME/gtk.git
-    #    cd gtk
-    #    sudo meson --prefix /usr _build
-    #    sudo ninja -C _build
-    #    sudo ninja -C _build install
-    #    IMMODULES=/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules
-    #    ls $IMMODULES
-    #    if [ -e $IMMODULES/im-broadway.so ]; then sudo rm $IMMODULES/im-broadway.so; fi
+
+    - name: Setup SDL2
+      #if: ${{ matrix.build == '20.04' }}
+      run: |
+        SDL2VER=2.26.1
+        sed '18d' vcpkg.json
+        cd ${{ env.CACHEDIR }}
+        if [[ ! -e SDL2-${SDL2VER} ]]; then
+          curl -sLO https://libsdl.org/release/SDL2-${SDL2VER}.tar.gz
+          tar -xzf SDL2-${SDL2VER}.tar.gz
+          cd SDL2-${SDL2VER}
+          ./configure --prefix=/usr
+          make && cd ../
+          rm SDL2-${SDL2VER}.tar.gz
+        fi
+        sudo make -C SDL2-${SDL2VER} install
+
     - name: "Bootstrap vcpkg"
       run: |
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
+
     - name: 'Setup NuGet Credentials for vcpkg'
       shell: 'bash'
       run: |
@@ -92,18 +94,18 @@ jobs:
         mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
         setapikey "${{ secrets.GITHUB_TOKEN }}" \
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
-        
+
     - name: "cmake"
       run: |
         cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DPORTABLE=OFF -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
-        
+
     - name: "Build Cemu"
       run: |
         cmake --build build
-        
+
     - name: Prepare artifact
       run: mv bin/Cemu_* bin/Cemu
-              
+
     - name: "Build AppImage"
       run: |
         cp ci/scripts/appimage.sh dist/linux/
