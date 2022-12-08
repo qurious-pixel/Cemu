@@ -34,8 +34,8 @@ jobs:
         sudo apt update -qq
         sudo apt install -y clang-12 cmake freeglut3-dev libgcrypt20-dev libgstreamer-plugins-bad1.0-dev libpulse-dev \
         libsecret-1-dev libsystemd-dev nasm ninja-build # libxkbcommon-dev libxrandr-dev libx11-dev libxi-dev \
-        libxcursor-dev libxinerama-dev libxdamage-dev libxext-dev libharfbuzz-dev wayland-protocols \
-        libatk1.0-dev libatk-bridge2.0-dev libpango1.0-dev libgirepository1.0-dev libxcomposite-dev
+        #libxcursor-dev libxinerama-dev libxdamage-dev libxext-dev libharfbuzz-dev wayland-protocols \
+        #libatk1.0-dev libatk-bridge2.0-dev libpango1.0-dev libgirepository1.0-dev libxcomposite-dev
         sudo python3 -m pip install meson
     #- name: Setup wayland
     #  #if: ${{ matrix.build == '20.04' }}
