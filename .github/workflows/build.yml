@@ -65,7 +65,8 @@ jobs:
       #if: ${{ matrix.build == '20.04' }}
       run: |
         SDL2VER=2.26.1
-        sed '18d' vcpkg.json
+        sed -i '18d' vcpkg.json
+        if [[ ! -e ${{ env.CACHEDIR }} ]]; then mkdir ${{ env.CACHEDIR }}; fi 
         cd ${{ env.CACHEDIR }}
         if [[ ! -e SDL2-${SDL2VER} ]]; then
           curl -sLO https://libsdl.org/release/SDL2-${SDL2VER}.tar.gz
