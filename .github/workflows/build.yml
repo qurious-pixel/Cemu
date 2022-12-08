@@ -55,17 +55,27 @@ jobs:
         sudo ninja -C _build
         sudo ninja -C _build install
         glib-compile-schemas /usr/share/glib-2.0/schemas
-    - name: Setup gtk-3
+    - name: Setup gsettings-desktop-schemas
       #if: ${{ matrix.build == '20.04' }}
       run: |
-        git clone --single-branch -b gtk-3-24 https://gitlab.gnome.org/GNOME/gtk.git
-        cd gtk
+        git clone https://gitlab.gnome.org/GNOME/gsettings-desktop-schemas.git
+        cd gsettings-desktop-schemas
         sudo meson --prefix /usr _build
         sudo ninja -C _build
         sudo ninja -C _build install
-        IMMODULES=/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules
-        ls $IMMODULES
-        if [ -e $IMMODULES/im-broadway.so ]; then sudo rm $IMMODULES/im-broadway.so; fi
+        glib-compile-schemas /usr/share/glib-2.0/schemas
+        cat /usr/share/glib-2.0/schemas/org.gnome.desktop.interface.gschema.xml | grep "font-a"
+    #- name: Setup gtk-3
+    #  #if: ${{ matrix.build == '20.04' }}
+    #  run: |
+    #    git clone --single-branch -b gtk-3-24 https://gitlab.gnome.org/GNOME/gtk.git
+    #    cd gtk
+    #    sudo meson --prefix /usr _build
+    #    sudo ninja -C _build
+    #    sudo ninja -C _build install
+    #    IMMODULES=/usr/lib/x86_64-linux-gnu/gtk-3.0/3.0.0/immodules
+    #    ls $IMMODULES
+    #    if [ -e $IMMODULES/im-broadway.so ]; then sudo rm $IMMODULES/im-broadway.so; fi
     - name: "Bootstrap vcpkg"
       run: |
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
