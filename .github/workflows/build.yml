@@ -34,7 +34,7 @@ jobs:
         sudo apt update -qq
         sudo apt install -y clang-12 cmake freeglut3-dev libgcrypt20-dev libgstreamer-plugins-bad1.0-dev libpulse-dev \
         libsecret-1-dev libsystemd-dev nasm ninja-build libxkbcommon-dev libxrandr-dev libx11-dev libxi-dev \
-        libxcursor-dev libxinerama-dev libxdamage-dev libxext-dev libharfbuzz-dev wayland-protocols
+        libxcursor-dev libxinerama-dev libxdamage-dev libxext-dev libharfbuzz-dev wayland-protocols libatk-bridge-2.0-0-udeb
         sudo python3 -m pip install meson
     - name: Setup wayland
       #if: ${{ matrix.build == '20.04' }}
@@ -45,15 +45,15 @@ jobs:
         sudo ninja -C _build
         sudo ninja -C _build install
         wayland-scanner --version    
-    - name: Setup glib-2.0
-      #if: ${{ matrix.build == '20.04' }}
-      run: |
-        git clone https://gitlab.gnome.org/GNOME/glib.git
-        cd glib
-        sudo meson --prefix /usr _build
-        sudo ninja -C _build
-        sudo ninja -C _build install
-        glib-compile-schemas /usr/share/glib-2.0/schemas
+    #- name: Setup glib-2.0
+    #  #if: ${{ matrix.build == '20.04' }}
+    #  run: |
+    #    git clone https://gitlab.gnome.org/GNOME/glib.git
+    #    cd glib
+    #    sudo meson --prefix /usr _build
+    #    sudo ninja -C _build
+    #    sudo ninja -C _build install
+    #    glib-compile-schemas /usr/share/glib-2.0/schemas
     - name: Setup gtk-3
       #if: ${{ matrix.build == '20.04' }}
       run: |
