@@ -23,6 +23,7 @@ if (ENABLE_VCPKG)
 	# Set this so that all the various find_package() calls don't need an explicit
 	# CONFIG option
 	set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
+	set(VCPKG_LIBRARY_LINKAGE dynamic)
 	if (WIN32)
 		set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
 	endif()
