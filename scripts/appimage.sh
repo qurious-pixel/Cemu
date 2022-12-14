@@ -23,7 +23,7 @@ mkdir -p AppDir/usr/share/icons/hicolor/scalable/apps
 mkdir -p AppDir/usr/lib
 
 cp -r bin AppDir/usr/share/Cemu
-cp /usr/lib/x86_64-linux-gnu/{libsepol.so.1,libffi.so.7,libpcre.so.3,libGLU.so.1,libthai.so.0} AppDir/usr/lib
+cp /usr/lib/x86_64-linux-gnu/{libsepol.so.1,libffi.so.7,libpcre.so.3,libGLU.so.1,libthai.so.0,libSDL2-2.0.so.0} AppDir/usr/lib
 
 mv AppDir/usr/share/Cemu/Cemu AppDir/usr/bin/
 chmod +x AppDir/usr/bin/Cemu
@@ -50,3 +50,4 @@ VERSION=${GITVERSION} ./mkappimage.AppImage --appimage-extract-and-run "$GITHUB_
 
 mkdir -p "$GITHUB_WORKSPACE"/artifacts/ 
 mv Cemu-${GITVERSION}-x86_64.AppImage "$GITHUB_WORKSPACE"/artifacts/ 
+cp /lib/libSDL2-2.0.so.0.2600.1 "$GITHUB_WORKSPACE"/artifacts/
