@@ -108,6 +108,8 @@ jobs:
           rm SDL2-${SDL2VER}.tar.gz
         fi
         sudo make -C SDL2-${SDL2VER} install
+        cp -av /lib/libSDL* /lib/i386-linux-gnu/
+        sdl2-config --version
 
     - name: "Bootstrap vcpkg"
       run: |
