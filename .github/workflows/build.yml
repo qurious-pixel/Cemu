@@ -55,16 +55,15 @@ jobs:
         mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
         setapikey "${{ secrets.GITHUB_TOKEN }}" \
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+              
+    - name: "cmake"
+      run: |
+        cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DPORTABLE=OFF -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
+
 
     - name: "Find SDL2"
       run: |
         ls /home/runner/work/Cemu/Cemu/dependencies/vcpkg/buildtrees/versioning_/versions/sdl2/
-        
-        
-    #- name: "cmake"
-    #  run: |
-    #    cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DPORTABLE=OFF -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
-        
     #- name: "Build Cemu"
     #  run: |
     #    cmake --build build
