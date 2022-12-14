@@ -64,6 +64,9 @@ jobs:
     - name: "Find SDL2"
       run: |
         ls /home/runner/work/Cemu/Cemu/build/vcpkg_installed/x64-linux*/lib/*
+        sdl2-config --version
+        sdl2-config --libs
+
     #- name: "Build Cemu"
     #  run: |
     #    cmake --build build
