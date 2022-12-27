@@ -95,6 +95,7 @@ jobs:
     - name: Setup SDL2
       #if: ${{ matrix.build == '20.04' }}
       run: |
+        set -x
         SDL2VER=2.26.1
         sed -i '18d' vcpkg.json
         if [[ ! -e ${{ env.CACHEDIR }} ]]; then mkdir ${{ env.CACHEDIR }}; fi 
@@ -103,7 +104,7 @@ jobs:
           curl -sLO https://libsdl.org/release/SDL2-${SDL2VER}.tar.gz
           tar -xzf SDL2-${SDL2VER}.tar.gz
           cd SDL2-${SDL2VER}
-          ./configure --prefix=/usr --enable_hidapi_libusb
+          ./configure --prefix=/usr --enable-hidapi-libusb
           make && cd ../
           rm SDL2-${SDL2VER}.tar.gz
         fi
