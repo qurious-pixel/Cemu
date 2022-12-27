@@ -99,11 +99,11 @@ jobs:
         sed -i '18d' vcpkg.json
         if [[ ! -e ${{ env.CACHEDIR }} ]]; then mkdir ${{ env.CACHEDIR }}; fi 
         cd ${{ env.CACHEDIR }}
-        if [[ ! -e SDL2-${SDL2VER} ]]; then
+        if [[ -e SDL2-${SDL2VER} ]]; then # if [[ ! -e SDL2-${SDL2VER} ]]; then
           curl -sLO https://libsdl.org/release/SDL2-${SDL2VER}.tar.gz
           tar -xzf SDL2-${SDL2VER}.tar.gz
           cd SDL2-${SDL2VER}
-          ./configure --prefix=/usr
+          ./configure --prefix=/usr --enable_hidapi_libusb
           make && cd ../
           rm SDL2-${SDL2VER}.tar.gz
         fi
