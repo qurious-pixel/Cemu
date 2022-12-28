@@ -62,7 +62,7 @@ jobs:
     - name: "Install system dependencies"
       run: |
         sudo apt update -qq
-        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev nasm ${{ matrix.deb }} libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5
+        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev nasm ${{ matrix.deb }} libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5 libudev-dev
         
     - name: "Create cache dir"
       run: |
