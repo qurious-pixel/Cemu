@@ -102,7 +102,7 @@ jobs:
     - name: "Install system dependencies"
       run: |
         sudo apt update -qq
-        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm gcc-11 g++-11 libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5 libvulkan-dev
+        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm gcc-11 g++-11 libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5 libvulkan-dev libudev-dev
         
     - name: "Build AppImage"
       run: chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
