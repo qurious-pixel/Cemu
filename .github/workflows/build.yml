@@ -45,8 +45,8 @@ jobs:
       run: |
         sudo apt update -qq
         sudo apt install -y clang-12 cmake freeglut3-dev libgcrypt20-dev libgstreamer-plugins-bad1.0-dev libpulse-dev \
-        libsecret-1-dev libsystemd-dev nasm ninja-build libgirepository1.0-dev libx11-dev libxi-dev  \
-        libxcursor-dev libxinerama-dev libxdamage-dev libxext-dev libharfbuzz-dev wayland-protocols \
+        libsecret-1-dev libsystemd-dev nasm ninja-build libgirepository1.0-dev libx11-dev libxi-dev libusb-dev \
+        libxcursor-dev libxinerama-dev libxdamage-dev libxext-dev libharfbuzz-dev wayland-protocols libhidapi-dev \
         libatk1.0-dev libatk-bridge2.0-dev libpango1.0-dev libxcomposite-dev libxkbcommon-dev libxrandr-dev # libgtk-3-dev
         sudo python3 -m pip install meson
 
@@ -100,14 +100,14 @@ jobs:
         sed -i '18d' vcpkg.json
         if [[ ! -e ${{ env.CACHEDIR }} ]]; then mkdir ${{ env.CACHEDIR }}; fi 
         cd ${{ env.CACHEDIR }}
-        if [[ ! -e SDL2-${SDL2VER} ]]; then
+        #if [[ ! -e SDL2-${SDL2VER} ]]; then
           curl -sLO https://libsdl.org/release/SDL2-${SDL2VER}.tar.gz
           tar -xzf SDL2-${SDL2VER}.tar.gz
           cd SDL2-${SDL2VER}
           ./configure --prefix=/usr --enable-hidapi-libusb
           make && cd ../
           rm SDL2-${SDL2VER}.tar.gz
-        fi
+        #fi
         sudo make -C SDL2-${SDL2VER} install
         sudo cp -av /lib/libSDL* /lib/x86_64-linux-gnu/
         sdl2-config --version
