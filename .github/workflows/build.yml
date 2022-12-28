@@ -98,7 +98,7 @@ jobs:
       run: |
         mkdir -p build
         cd build
-        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DENABLE_CUBEB=ON -DSYSTEM_DATA_PATH=~/.config/cemu -DCMAKE_C_COMPILER=${{ matrix.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} -G Ninja
+        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DENABLE_WAYLAND=OFF -DSYSTEM_DATA_PATH=~/.config/cemu -DCMAKE_C_COMPILER=${{ matrix.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} -G Ninja
         ccache -s
         
     - name: "Build Cemu"
