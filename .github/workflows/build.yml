@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         compiler: [clang++-12] # [g++-11, clang++-12] # [g++-11] # 
-        build: [Release,Debug]
+        build: [Release] # [Release,Debug]
         include:
            #- compiler: g++-11
            #  cc: gcc-11
@@ -74,7 +74,7 @@ jobs:
         echo "Linux Fixes"
         #sed -i 's|Exec=cemu|Exec=Cemu|g' dist/linux/info.cemu.Cemu.desktop ## wayland build
         #git apply ci/scripts/xdg.patch
-        sed -i 40,43d src/CMakeLists.txt
+        #sed -i 40,43d src/CMakeLists.txt
 
     - name: "Bootstrap vcpkg"
       run: |
