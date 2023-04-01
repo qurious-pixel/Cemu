@@ -16,8 +16,8 @@ jobs:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
-        repository: SSimco/Cemu # cemu-project/Cemu 
-        ref: wayland # main # 
+        repository: cemu-project/Cemu 
+        ref: main 
         submodules: recursive
 
     - name: Checkout AppImage Repo
