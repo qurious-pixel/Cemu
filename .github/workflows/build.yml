@@ -89,29 +89,29 @@ jobs:
       if: ${{ inputs.deploymode == 'release' }}
       run: mv bin/Cemu_release bin/Cemu
               
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      if: ${{ inputs.deploymode == 'release' }}
-      with:
-        name: cemu-bin-linux-x64
-        path: ./bin/Cemu
+    #- name: Upload artifact
+    #  uses: actions/upload-artifact@v3
+    #  if: ${{ inputs.deploymode == 'release' }}
+    #  with:
+    #    name: cemu-bin-linux-x64
+    #    path: ./bin/Cemu
         
-  build-appimage:
-    runs-on: ubuntu-22.04
-    needs: build-ubuntu
-    steps:
-    - name: Checkout Upstream Repo
-      uses: actions/checkout@v3
+  #build-appimage:
+  #  runs-on: ubuntu-22.04
+  #  needs: build-ubuntu
+  #  steps:
+  #  - name: Checkout Upstream Repo
+  #    uses: actions/checkout@v3
           
-    - uses: actions/download-artifact@v3
-      with:
-        name: cemu-bin-linux-x64
-        path: bin
+    #- uses: actions/download-artifact@v3
+    #  with:
+    #    name: cemu-bin-linux-x64
+    #    path: bin
           
-    - name: "Install system dependencies"
-      run: |
-        sudo apt update -qq
-        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm gcc-11 g++-11 libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5 libvulkan-dev
+    #- name: "Install system dependencies"
+    #  run: |
+    #    sudo apt update -qq
+    #    sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm gcc-11 g++-11 libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5 libvulkan-dev
         
     - name: "Build AppImage"
       run: chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
