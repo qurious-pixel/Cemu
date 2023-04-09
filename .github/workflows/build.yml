@@ -1,14 +1,7 @@
 name: Build Cemu
 
 on:
-  workflow_call:
-    inputs:
-      deploymode:
-        required: false
-        type: string
-      experimentalversion:
-        required: false
-        type: string
+  push
 
 env:
   VCPKG_ROOT: "${{github.workspace}}/dependencies/vcpkg"
