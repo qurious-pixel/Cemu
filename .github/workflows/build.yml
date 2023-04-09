@@ -81,8 +81,7 @@ jobs:
       run: cmake --build build
 
     - name: Prepare artifact
-      if: ${{ inputs.deploymode == 'release' }}
-      run: mv bin/Cemu_release bin/Cemu
+      run: mv bin/Cemu* bin/Cemu
               
     #- name: Upload artifact
     #  uses: actions/upload-artifact@v3
