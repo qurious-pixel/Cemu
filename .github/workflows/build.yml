@@ -15,7 +15,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: cemu-project/Cemu
-        ref: main
+        ref: 55e1551cc700662e3979873a27dc51d8c04066df # main # 
         submodules: "recursive"
         fetch-depth: 0
 
