@@ -45,33 +45,34 @@ jobs:
         chmod +x dist/linux/dependencies.sh
         dist/linux/dependencies.sh
               
-    - name: "cmake"
-      run: |
-        cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \ 
-        -DPORTABLE=OFF -DENABLE_VCPKG=OFF -DCMAKE_CXX_LINK_EXECUTABLE="-ldl" \ 
-        -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 \ 
-        -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
+    #- name: "cmake"
+    #  run: |
+    #    cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \
+    #    -DPORTABLE=OFF -DENABLE_VCPKG=OFF \
+    #    -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 \
+    #    -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
+    #    # -DCMAKE_CXX_LINK_EXECUTABLE="-ldl" 
         
-    - name: "Build Cemu"
-      run: |
-        cmake --build build
+    #- name: "Build Cemu"
+    #  run: |
+    #    cmake --build build
         
-    - name: Prepare artifact
-      run: mv bin/Cemu_release bin/Cemu
+    #- name: Prepare artifact
+    #  run: mv bin/Cemu_release bin/Cemu
               
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: cemu-bin-linux-x64
-        path: ./bin/Cemu
+    #- name: Upload artifact
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: cemu-bin-linux-x64
+    #    path: ./bin/Cemu
 
-    - name: "Build AppImage"
-      run: |
-        dist/linux/appimage.sh
+    #- name: "Build AppImage"
+    #  run: |
+    #    dist/linux/appimage.sh
 
-    - name: Upload AppImage artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: cemu-appimage-x64
-        path: artifacts
+    #- name: Upload AppImage artifact
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: cemu-appimage-x64
+    #    path: artifacts
 
