@@ -77,18 +77,6 @@ jobs:
         name: cemu-bin-linux-x64
         path: ./bin/Cemu
 
-  build-appimage:
-    runs-on: ubuntu-20.04
-    needs: build-ubuntu
-    steps:
-    - name: Checkout Upstream Repo
-      uses: actions/checkout@v3
-
-    - uses: actions/download-artifact@v3
-      with:
-        name: cemu-bin-linux-x64
-        path: bin
-
     - name: "Build AppImage"
       run: |
         dist/linux/appimage.sh
