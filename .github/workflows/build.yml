@@ -45,13 +45,13 @@ jobs:
         chmod +x dist/linux/dependencies.sh
         dist/linux/dependencies.sh
               
-    #- name: "cmake"
-    #  run: |
-    #    cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \
-    #    -DPORTABLE=OFF -DENABLE_VCPKG=OFF \
-    #    -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 \
-    #    -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
-    #    # -DCMAKE_CXX_LINK_EXECUTABLE="-ldl" 
+    - name: "cmake"
+      run: |
+        cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \
+        -DPORTABLE=OFF -DENABLE_VCPKG=OFF \
+        -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 \
+        -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
+        # -DCMAKE_CXX_LINK_EXECUTABLE="-ldl" 
         
     #- name: "Build Cemu"
     #  run: |
