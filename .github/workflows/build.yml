@@ -53,18 +53,18 @@ jobs:
         -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
         # -DCMAKE_CXX_LINK_EXECUTABLE="-ldl" 
         
-    #- name: "Build Cemu"
-    #  run: |
-    #    cmake --build build
+    - name: "Build Cemu"
+      run: |
+        cmake --build build
         
-    #- name: Prepare artifact
-    #  run: mv bin/Cemu_release bin/Cemu
+    - name: Prepare artifact
+      run: mv bin/Cemu_release bin/Cemu
               
-    #- name: Upload artifact
-    #  uses: actions/upload-artifact@v3
-    #  with:
-    #    name: cemu-bin-linux-x64
-    #    path: ./bin/Cemu
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: cemu-bin-linux-x64
+        path: ./bin/Cemu
 
     #- name: "Build AppImage"
     #  run: |
