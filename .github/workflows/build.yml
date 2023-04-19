@@ -11,7 +11,7 @@ jobs:
   build-ubuntu:
     runs-on: ubuntu-20.04
     env:
-      CACHEDIR: dependencies/linux_submodules
+      CACHEDIR: "${{github.workspace}}/dependencies/linux_submodules"
       CC: clang-12
       CXX: clang++-12
     steps:
