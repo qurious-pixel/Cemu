@@ -1,15 +1,14 @@
 name: Build Cemu
 
 on:
-  push:
-  #workflow_call:
-  #  inputs:
-  #    deploymode:
-  #      required: false
-  #      type: string
-  #    experimentalversion:
-  #      required: false
-  #      type: string
+  workflow_call:
+    inputs:
+      deploymode:
+        required: false
+        type: string
+      experimentalversion:
+        required: false
+        type: string
 
 env:
   VCPKG_ROOT: "${{github.workspace}}/dependencies/vcpkg"
@@ -19,7 +18,9 @@ jobs:
   build-ubuntu:
     runs-on: ubuntu-20.04
     env:
-      CACHEDIR: dependencies/linux_submodules
+      CACHEDIR: "${{github.workspace}}/dependencies/linux_submodules"
+      CC: clang-12
+      CXX: clang++-12
     steps:
     - name: "Checkout repo"
       uses: actions/checkout@v3
@@ -31,22 +32,22 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.CACHEDIR }}
-        key: build-${{ hashFiles('dependencies/linux_submodules/dependencies.sh') }}
-        restore-keys: build-${{ hashFiles('dependencies/linux_submodules/dependencies.sh') }}
+        key: build-${{ hashFiles('dist/linux/dependencies.sh') }}
+        restore-keys: build-${{ hashFiles('dist/linux/dependencies.sh') }}
 
     - name: Setup release mode parameters (for deploy)
-      #if: ${{ inputs.deploymode == 'release' }}
+      if: ${{ inputs.deploymode == 'release' }}
       run: |
         echo "BUILD_MODE=release" >> $GITHUB_ENV
         echo "BUILD_FLAGS=" >> $GITHUB_ENV
         echo "Build mode is release"
 
-    #- name: Setup debug mode parameters (for continous build)
-    #  if: ${{ inputs.deploymode != 'release' }}
-    #  run: |
-    #    echo "BUILD_MODE=debug" >> $GITHUB_ENV
-    #    echo "BUILD_FLAGS=" >> $GITHUB_ENV
-    #    echo "Build mode is debug"
+    - name: Setup debug mode parameters (for continous build)
+      if: ${{ inputs.deploymode != 'release' }}
+      run: |
+        echo "BUILD_MODE=debug" >> $GITHUB_ENV
+        echo "BUILD_FLAGS=" >> $GITHUB_ENV
+        echo "Build mode is debug"
 
     - name: Setup version for experimental
       if: ${{ inputs.experimentalversion != '' }}
@@ -56,33 +57,39 @@ jobs:
 
     - name: "Install system dependencies"
       run: | 
-        chmod +x dist/linux/dependencies.sh
         dist/linux/dependencies.sh
               
     - name: "cmake"
       run: |
-        cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \ 
-        -DPORTABLE=OFF -DENABLE_VCPKG=OFF -DCMAKE_CXX_LINK_EXECUTABLE="-ldl" \ 
-        -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 \ 
-        -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
+        cmake -S . -B build ${{ env.BUILD_FLAGS }} \
+        -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \
+        -DPORTABLE=OFF \
+        -DENABLE_VCPKG=OFF \
+        -DCMAKE_CXX_FLAGS="-ldl -Wno-unused-command-line-argument" \
+        -DCMAKE_C_COMPILER=/usr/bin/clang-12 \
+        -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 \
+        -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja \
+        -G Ninja
         
     - name: "Build Cemu"
       run: |
         cmake --build build
         
     - name: Prepare artifact
-      #if: ${{ inputs.deploymode == 'release' }}
+      if: ${{ inputs.deploymode == 'release' }}
       run: mv bin/Cemu_release bin/Cemu
               
     - name: Upload artifact
       uses: actions/upload-artifact@v3
-      #if: ${{ inputs.deploymode == 'release' }}
+      if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-linux-x64
         path: ./bin/Cemu
 
     - name: "Build AppImage"
       run: |
+        export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
+        export DEPLOY_GTK_VERSION=3
         dist/linux/appimage.sh
 
     - name: Upload AppImage artifact
