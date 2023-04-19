@@ -25,8 +25,8 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.CACHEDIR }}
-        key: build-${{ hashFiles('dependencies/linux_submodules/dependencies.sh') }}
-        restore-keys: build-${{ hashFiles('dependencies/linux_submodules/dependencies.sh') }}
+        key: build-${{ hashFiles('dist/linux/dependencies.sh') }}
+        restore-keys: build-${{ hashFiles('dist/linux/dependencies.sh') }}
 
     - name: Setup release mode parameters (for deploy)
       run: |
