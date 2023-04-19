@@ -166,7 +166,7 @@ if [[ ! -e boost_${BOOSTVER} ]]; then
     tar xf boost_${BOOSTVER}.tar.gz
     rm boost_${BOOSTVER}.tar.gz
     cd boost_${BOOSTVER}
-    ./bootstrap.sh --prefix=/usr --with-libraries=container,program_options,nowide,random,filesystem
+    ./bootstrap.sh --prefix=/usr --with-toolset=clang --with-libraries=container,program_options,nowide,random,filesystem
     cd ..
 fi
 cd boost_${BOOSTVER}
