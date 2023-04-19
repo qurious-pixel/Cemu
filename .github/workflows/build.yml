@@ -14,7 +14,7 @@ jobs:
       CACHEDIR: "${{github.workspace}}/dependencies/linux_submodules"
       CC: clang-12
       CXX: clang++-12
-      VCPKG: ON
+      VCPKG: OFF
     steps:
     - name: "Checkout repo"
       uses: actions/checkout@v3
@@ -76,7 +76,7 @@ jobs:
     - name: "cmake"
       run: |
         cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \
-        -DPORTABLE=OFF -DENABLE_VCPKG=${{ env.VCPKG }} -DCEMU_CXX_FLAGS="-ldl -Wno-unused-command-line-argument" \
+        -DPORTABLE=OFF -DENABLE_VCPKG=${{ env.VCPKG }} -DCMAKE_CXX_FLAGS="-ldl -Wno-unused-command-line-argument" \
         -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 \
         -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
         
