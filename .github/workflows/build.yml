@@ -64,9 +64,11 @@ jobs:
       with:
         name: cemu-bin-linux-x64
         path: ./bin/Cemu
-
+        
     - name: "Build AppImage"
       run: |
+        export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
+        export DEPLOY_GTK_VERSION=3
         dist/linux/appimage.sh
 
     - name: Upload AppImage artifact
