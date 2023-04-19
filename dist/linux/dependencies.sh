@@ -13,9 +13,6 @@ BOOSTVER=1_81_0
 
 sudo apt update -qq
 sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm libpugixml-dev libcurl4-openssl-dev libglm-dev rapidjson-dev libzstd-dev lld appstream
-wget https://sdk.lunarg.com/sdk/download/${install_vulkan_version}/linux/vulkansdk-linux-x86_64-${install_vulkan_version}.tar.gz -q -O vulkansdk.tar.gz
-mkdir -p "${install_vulkan_folder}"
-tar -xf vulkansdk.tar.gz --directory ${install_vulkan_folder}
 
 
 ####################
