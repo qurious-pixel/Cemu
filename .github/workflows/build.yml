@@ -52,18 +52,18 @@ jobs:
         -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 \
         -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
         
-    - name: "Build Cemu"
-      run: |
-        cmake --build build
+    #- name: "Build Cemu"
+    #  run: |
+    #    cmake --build build
         
-    - name: Prepare artifact
-      run: mv bin/Cemu_release bin/Cemu
+    #- name: Prepare artifact
+    #  run: mv bin/Cemu_release bin/Cemu
               
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: cemu-bin-linux-x64
-        path: ./bin/Cemu
+    #- name: Upload artifact
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: cemu-bin-linux-x64
+    #    path: ./bin/Cemu
 
     #- name: "Build AppImage"
     #  run: |
