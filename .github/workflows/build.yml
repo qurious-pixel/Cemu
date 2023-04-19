@@ -65,13 +65,13 @@ jobs:
         name: cemu-bin-linux-x64
         path: ./bin/Cemu
 
-    #- name: "Build AppImage"
-    #  run: |
-    #    dist/linux/appimage.sh
+    - name: "Build AppImage"
+      run: |
+        dist/linux/appimage.sh
 
-    #- name: Upload AppImage artifact
-    #  uses: actions/upload-artifact@v3
-    #  with:
-    #    name: cemu-appimage-x64
-    #    path: artifacts
+    - name: Upload AppImage artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: cemu-appimage-x64
+        path: artifacts
 
