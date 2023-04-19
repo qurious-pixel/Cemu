@@ -14,7 +14,7 @@ BOOSTVER=1_81_0
 sudo apt update -qq
 sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm libpugixml-dev libcurl4-openssl-dev libglm-dev rapidjson-dev libzstd-dev lld appstream
 wget https://sdk.lunarg.com/sdk/download/${install_vulkan_version}/linux/vulkansdk-linux-x86_64-${install_vulkan_version}.tar.gz -q -O vulkansdk.tar.gz
-mkdir -p "${{ install_vulkan_folder }}"
+mkdir -p "${install_vulkan_folder}"
 tar -xf vulkansdk.tar.gz --directory ${install_vulkan_folder}
 
 
@@ -25,7 +25,7 @@ ls -al ${CACHEDIR}
 
 ####################
 # "Install cubeb"
-cd ${{ CACHEDIR }}
+cd ${CACHEDIR}
 if [[ ! -e cubeb-${CUBEBHASH} ]]; then
 	rm -r cubeb-*/
 	git clone https://github.com/mozilla/cubeb cubeb-${CUBEBHASH}   
@@ -40,7 +40,7 @@ sudo make -C cubeb-${CUBEBHASH}/build install
 
 ####################
 # "Install ZSTD"
-cd ${{ CACHEDIR }}
+cd ${CACHEDIR}
 if [[ ! -e zstd-${ZSTDVER} ]]; then
 	rm -r zstd-*/
     curl -sSfLO https://github.com/facebook/zstd/releases/download/v${ZSTDVER}/zstd-${ZSTDVER}.tar.gz
@@ -49,13 +49,13 @@ if [[ ! -e zstd-${ZSTDVER} ]]; then
     cd zstd-${ZSTDVER}/build/cmake
     mkdir builddir && cd builddir
     cmake .. -DCMAKE_INSTALL_PREFIX="/usr"
-    make && cd ${{ CACHEDIR }}
+    make && cd ${CACHEDIR}
 fi
 sudo make -C zstd-${ZSTDVER} install
 
 ####################
 # "Install PugiXML"
-cd ${{ CACHEDIR }}
+cd ${CACHEDIR}
 if [[ ! -e pugixml-${PugiXMLVER} ]]; then
 	rm -r pugixml-*/
     curl -sSfLO https://github.com/zeux/pugixml/releases/download/v${PugiXMLVER}/pugixml-${PugiXMLVER}.tar.gz
@@ -70,7 +70,7 @@ sudo make -C pugixml-${PugiXMLVER}/build install
 
 ####################
 # "Install imgui"
-cd ${{ CACHEDIR }}
+cd ${CACHEDIR}
 if [[ ! -e imgui-${IMGUIVER} ]]; then
 	rm -r imgui-*/
     curl -sSfL https://codeload.github.com/ocornut/imgui/tar.gz/v${IMGUIVER} -o imgui-${IMGUIVER}
@@ -87,7 +87,7 @@ sudo make -C imgui-${IMGUIVER}/cmake-build-shared install
 
 ####################
 # "Install SDL2"
-cd ${{ CACHEDIR }}
+cd ${CACHEDIR}
 if [[ ! -e SDL2-${SDL2VER} ]]; then
 	rm -r SDL2-*/
     curl -sLO https://libsdl.org/release/SDL2-${SDL2VER}.tar.gz
@@ -102,7 +102,7 @@ sdl2-config --version
 
 ####################
 # "Install glslang"
-cd ${{ CACHEDIR }}
+cd ${CACHEDIR}
 if [[ ! -e glslang-${GLSLANGVER} ]]; then
 	rm -r glslang-*/
     curl -sSfL https://github.com/KhronosGroup/glslang/archive/refs/tags/${GLSLANGVER}.tar.gz -o glslang-${GLSLANGVER}
@@ -117,7 +117,7 @@ glslangValidator --version
 
 ####################
 # "Install Libzip"
-cd ${{ CACHEDIR }}
+cd ${CACHEDIR}
 if [[ ! -e libzip-${LIBZIPVER} ]]; then
 	rm -r libzip-*/
     curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
@@ -132,7 +132,7 @@ sudo make -C libzip-${LIBZIPVER}/build install
 
 ####################
 # "Install wxWidgets"
-cd ${{ CACHEDIR }}
+cd ${CACHEDIR}
 if [[ ! -e wxWidgets-${WXVER} ]]; then
 	rm -r wxWidgets-*/
     curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${WXVER}/wxWidgets-${WXVER}.tar.bz2
@@ -147,7 +147,7 @@ sudo make -C wxWidgets-${WXVER}/build-gtk3 install
 
 ####################
 # "Install fmt"
-cd ${{ CACHEDIR }}
+cd ${CACHEDIR}
 if [[ ! -e fmt-${FMTVER} ]]; then
 	rm -r fmt-*/
     curl -sSfL https://github.com/fmtlib/fmt/archive/refs/tags/${FMTVER}.tar.gz -o fmt-${FMTVER}
@@ -161,7 +161,7 @@ sudo ninja -C fmt-${FMTVER}/build install
 
 ####################
 # "Install Boost"
-cd ${{ CACHEDIR }}
+cd ${CACHEDIR}
 if [[ ! -e boost_${BOOSTVER} ]]; then
 	rm -r boost_*/
     curl -sSfLO https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_${BOOSTVER}.tar.gz
