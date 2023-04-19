@@ -13,9 +13,6 @@ BOOSTVER=1_81_0
 
 sudo apt update -qq
 sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm libpugixml-dev libcurl4-openssl-dev libglm-dev rapidjson-dev libzstd-dev lld appstream
-wget https://sdk.lunarg.com/sdk/download/${install_vulkan_version}/linux/vulkansdk-linux-x86_64-${install_vulkan_version}.tar.gz -q -O vulkansdk.tar.gz
-mkdir -p "${install_vulkan_folder}"
-tar -xf vulkansdk.tar.gz --directory ${install_vulkan_folder}
 
 
 ####################
@@ -25,7 +22,7 @@ ls -al ${CACHEDIR}
 
 ####################
 # "Install cubeb"
-cd ${{CACHEDIR}}
+cd ${CACHEDIR}
 if [[ ! -e cubeb-${CUBEBHASH} ]]; then
 	rm -r cubeb-*/
 	git clone https://github.com/mozilla/cubeb cubeb-${CUBEBHASH}   
@@ -163,12 +160,13 @@ sudo ninja -C fmt-${FMTVER}/build install
 # "Install Boost"
 cd ${CACHEDIR}
 if [[ ! -e boost_${BOOSTVER} ]]; then
-	rm -r boost_*/
-    curl -sSfLO https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_${BOOSTVER}.tar.gz
+    rm -r boost_*/
+    BOOSTVER2=$(echo ${BOOSTVER} | sed s/\_/./g)
+    curl -sSfLO https://boostorg.jfrog.io/artifactory/main/release/${BOOSTVER2}/source/boost_${BOOSTVER}.tar.gz
     tar xf boost_${BOOSTVER}.tar.gz
     rm boost_${BOOSTVER}.tar.gz
     cd boost_${BOOSTVER}
-    ./bootstrap.sh --prefix=/usr --with-libraries=container,program_options,nowide,random,filesystem
+    ./bootstrap.sh --prefix=/usr --with-toolset=clang --with-libraries=container,program_options,nowide,random,filesystem
     cd ..
 fi
 cd boost_${BOOSTVER}
