@@ -160,8 +160,9 @@ sudo ninja -C fmt-${FMTVER}/build install
 # "Install Boost"
 cd ${CACHEDIR}
 if [[ ! -e boost_${BOOSTVER} ]]; then
-	rm -r boost_*/
-    curl -sSfLO https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_${BOOSTVER}.tar.gz
+    rm -r boost_*/
+    BOOSTVER2=$(echo ${BOOSTVER} | sed s/\_/./g)
+    curl -sSfLO https://boostorg.jfrog.io/artifactory/main/release/${BOOSTVER2}/source/boost_${BOOSTVER}.tar.gz
     tar xf boost_${BOOSTVER}.tar.gz
     rm boost_${BOOSTVER}.tar.gz
     cd boost_${BOOSTVER}
