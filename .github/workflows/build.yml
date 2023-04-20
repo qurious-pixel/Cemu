@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       CACHEDIR: "${{github.workspace}}/dependencies/linux_submodules"
-      CC: clang-12
-      CXX: clang++-12
+      CC: clang-16
+      CXX: clang++-16
       VCPKG: OFF
     steps:
     - name: "Checkout repo"
