@@ -77,7 +77,7 @@ jobs:
       run: |
         cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \
         -DPORTABLE=OFF -DENABLE_VCPKG=${{ env.VCPKG }} -DCMAKE_CXX_FLAGS="-ldl -Wno-unused-command-line-argument" \
-        -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 \
+        -DCMAKE_C_COMPILER=/usr/bin/${{ env.CC }} -DCMAKE_CXX_COMPILER=/usr/bin/${{ env.CXX }} \
         -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
         
     - name: "Build Cemu"
