@@ -14,7 +14,7 @@ jobs:
       CACHEDIR: "${{github.workspace}}/dependencies/linux_submodules"
       CC: clang-17
       CXX: clang++-17
-      LLVM: ''
+      LLVM: -15
       VCPKG: OFF
     steps:
     - name: "Checkout repo"
