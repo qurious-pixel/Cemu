@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       CACHEDIR: "${{github.workspace}}/dependencies/linux_submodules"
-      CC: clang-17
-      CXX: clang++-17
+      CC: clang-15
+      CXX: clang++-15
       LLVM: -15
       VCPKG: OFF
     steps:
