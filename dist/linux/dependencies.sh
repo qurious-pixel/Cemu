@@ -11,14 +11,6 @@ WXVER=3.2.2.1
 FMTVER=9.1.0
 BOOSTVER=1_81_0
 
-CODENAME=$(lsb_release -c | awk '{ print $2 }')
-echo $CODENAME
-sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-curl -Lvs https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
-sudo add-apt-repository -y "deb http://apt.llvm.org/$CODENAME/ llvm-toolchain-$CODENAME$LLVM main"
-sudo apt update -qq
-sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev ${CC} nasm libpugixml-dev libcurl4-openssl-dev libglm-dev rapidjson-dev libzstd-dev libstdc++-11-dev lld appstream
-
 
 ####################
 # "Create cache dir"
