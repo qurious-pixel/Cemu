@@ -20,7 +20,7 @@ jobs:
       CC: clang-16
       CXX: clang++-16
       LLVM: -16
-      VCPKG: ON
+      VCPKG: OFF
     steps:
     - name: "Checkout repo"
       uses: actions/checkout@v3
