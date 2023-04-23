@@ -56,7 +56,7 @@ if [[ ! -e pugixml-${PugiXMLVER} ]]; then
     tar xf pugixml-${PugiXMLVER}.tar.gz
     rm pugixml-${PugiXMLVER}.tar.gz
     cd pugixml-${PugiXMLVER}
-    cmake -S . -B build -DCMAKE_CXX_FLAGS="-stdlib=libc++"
+    cmake -S . -B build
     cmake --build build
     cd ..
 fi
