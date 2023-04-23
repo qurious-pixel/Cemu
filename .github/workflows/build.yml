@@ -9,12 +9,17 @@ env:
 
 jobs:
   build-ubuntu:
+    strategy:
+      fail-fast: false
+      matrix:
+        STDLIB: [libc++,libstdc++]
+    name: llvm ${{ matrix.STDLIB }}  
     runs-on: ubuntu-20.04
     env:
       CACHEDIR: "${{github.workspace}}/dependencies/linux_submodules"
-      CC: clang-15
-      CXX: clang++-15
-      LLVM: -15
+      CC: clang-16
+      CXX: clang++-16
+      LLVM: -16
       VCPKG: ON
     steps:
     - name: "Checkout repo"
@@ -77,7 +82,7 @@ jobs:
     - name: "cmake"
       run: |
         cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \
-        -DPORTABLE=OFF -DENABLE_VCPKG=${{ env.VCPKG }} -DCMAKE_CXX_FLAGS="-ldl -Wno-unused-command-line-argument" \
+        -DPORTABLE=OFF -DENABLE_VCPKG=${{ env.VCPKG }} -DCMAKE_CXX_FLAGS="-ldl -Wno-unused-command-line-argument -stdlib=${{ matrix.STDLIB }}" \
         -DCMAKE_C_COMPILER=/usr/bin/${{ env.CC }} -DCMAKE_CXX_COMPILER=/usr/bin/${{ env.CXX }} \
         -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
         
@@ -103,6 +108,6 @@ jobs:
     - name: Upload AppImage artifact
       uses: actions/upload-artifact@v3
       with:
-        name: cemu-appimage-x64
+        name: cemu-appimage-x64-${{ matrix.STDLIB }}
         path: artifacts
 
