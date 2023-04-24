@@ -71,7 +71,14 @@ jobs:
     - name: "Apply patches"
       run: |
         echo patches
-        sed -i 's/gamemode_client.h/<gamemode_client.h>/g' src/gui/CemuApp.cpp
+        #sed -i 's/gamemode_client.h/<gamemode_client.h>/g' src/gui/CemuApp.cpp
+        cat << FERAL >> src/gui/CMakeLists.txt
+
+        if(ENABLE_FERAL_GAMEMODE)
+            target_link_libraries(CemuGui PRIVATE gamemode)
+        endif()
+        FERAL
+
         
       
     - name: "cmake"
