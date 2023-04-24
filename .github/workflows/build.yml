@@ -14,7 +14,7 @@ jobs:
     - name: "Checkout repo"
       uses: actions/checkout@v3
       with:
-        repository: rluxv:linux-gamemode # cemu-project/Cemu
+        repository: rluxv/Cemu # cemu-project/Cemu
         ref: linux-gamemode # main # 
         submodules: "recursive"
         fetch-depth: 0
