@@ -74,7 +74,7 @@ jobs:
         #sed -i 's/gamemode_client.h/<gamemode_client.h>/g' src/gui/CemuApp.cpp
         cat << FERAL >> src/gui/CMakeLists.txt
 
-        if(ENABLE_FERAL_GAMEMODE)
+        if(ENABLE_FERAL_GAMEMODE AND LINUX)
             target_link_libraries(CemuGui PRIVATE gamemode)
         endif()
         FERAL
