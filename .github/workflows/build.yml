@@ -95,7 +95,7 @@ jobs:
         cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \
         -DPORTABLE=OFF -DENABLE_VCPKG=${{ env.VCPKG }} -DCMAKE_CXX_FLAGS="-ldl -Wno-unused-command-line-argument -stdlib=${{ matrix.STDLIB }}" \
         -DCMAKE_C_COMPILER=/usr/bin/${{ env.CC }} -DCMAKE_CXX_COMPILER=/usr/bin/${{ env.CXX }} \
-        -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -DCMAKE_EXE_LINKER_FLAGS="-nodefaultlibs -lc++ -lc++abi -lm -lc -lgcc_s -lgcc"
+        -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja # -DCMAKE_EXE_LINKER_FLAGS="-nodefaultlibs -lc++ -lc++abi -lm -lc -lgcc_s -lgcc"
         
     - name: "Build Cemu"
       run: |
