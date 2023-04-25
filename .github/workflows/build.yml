@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        STDLIB: [libc++] # ,libstdc++]
+        STDLIB: [libstdc++] # [libc++,libstdc++]
     name: llvm ${{ matrix.STDLIB }}  
     runs-on: ubuntu-20.04
     env:
