@@ -90,35 +90,35 @@ jobs:
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
       if: ${{ env.VCPKG == 'ON' }}
               
-    #- name: "cmake"
-    #  run: |
-    #    cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \
-    #    -DPORTABLE=OFF -DENABLE_VCPKG=${{ env.VCPKG }} -DCMAKE_CXX_FLAGS="-ldl -Wno-unused-command-line-argument -stdlib=${{ matrix.STDLIB }}" \
-    #    -DCMAKE_C_COMPILER=/usr/bin/${{ env.CC }} -DCMAKE_CXX_COMPILER=/usr/bin/${{ env.CXX }} \
-    #    -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja # -DCMAKE_EXE_LINKER_FLAGS="-nodefaultlibs -lc++ -lc++abi -lm -lc -lgcc_s -lgcc"
+    - name: "cmake"
+      run: |
+        cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \
+        -DPORTABLE=OFF -DENABLE_VCPKG=${{ env.VCPKG }} -DCMAKE_CXX_FLAGS="-ldl -Wno-unused-command-line-argument -stdlib=${{ matrix.STDLIB }}" \
+        -DCMAKE_C_COMPILER=/usr/bin/${{ env.CC }} -DCMAKE_CXX_COMPILER=/usr/bin/${{ env.CXX }} \
+        -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja # -DCMAKE_EXE_LINKER_FLAGS="-nodefaultlibs -lc++ -lc++abi -lm -lc -lgcc_s -lgcc"
         
-    #- name: "Build Cemu"
-    #  run: |
-    #    cmake --build build
+    - name: "Build Cemu"
+      run: |
+        cmake --build build
         
-    #- name: Prepare artifact
-    #  run: mv bin/Cemu_release bin/Cemu
+    - name: Prepare artifact
+      run: mv bin/Cemu_release bin/Cemu
               
-    #- name: Upload artifact
-    #  uses: actions/upload-artifact@v3
-    #  with:
-    #    name: cemu-bin-linux-x64
-    #    path: ./bin/Cemu
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: cemu-bin-linux-x64
+        path: ./bin/Cemu
         
-    #- name: "Build AppImage"
-    #  run: |
-    #    export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
-    #    export DEPLOY_GTK_VERSION=3
-    #    dist/linux/appimage.sh
+    - name: "Build AppImage"
+      run: |
+        export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
+        export DEPLOY_GTK_VERSION=3
+        dist/linux/appimage.sh
 
-    #- name: Upload AppImage artifact
-    #  uses: actions/upload-artifact@v3
-    #  with:
-    #    name: cemu-appimage-x64-${{ matrix.STDLIB }}
-    #    path: artifacts
+    - name: Upload AppImage artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: cemu-appimage-x64-${{ matrix.STDLIB }}
+        path: artifacts
 
