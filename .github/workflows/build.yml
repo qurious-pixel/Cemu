@@ -64,24 +64,6 @@ jobs:
         sudo apt update -qq
         sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev nasm libpugixml-dev libcurl4-openssl-dev libglm-dev rapidjson-dev libzstd-dev lld appstream # ${CC} libstdc++-11-dev libc++$LLVM-dev libc++abi$LLVM-dev 
 
-    - name: "Install LLVM_VER=16.0.2"
-      run: | 
-        STATIC_LLVM_VER=16.0.2
-        unset CC & unset CXX
-        curl -sSfLO https://github.com/llvm/llvm-project/releases/download/llvmorg-${STATIC_LLVM_VER}/llvm-project-${STATIC_LLVM_VER}.src.tar.xz && \
-        tar -xf llvm-*.tar.xz && \
-        cd llvm-*/llvm && \
-        mkdir build && cd build && \
-        CXXFLAGS="-msse -msse2" cmake .. -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=/usr  \
-          -DLLVM_ENABLE_CXX1Y=ON -DLLVM_TARGETS_TO_BUILD="X86" -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_INTEL_JITEVENTS=ON -DLLVM_USE_PERF=ON \
-          -DLLVM_BUILD_RUNTIME=OFF -DLLVM_BUILD_TOOLS=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=OFF \
-          -DLLVM_INCLUDE_UTILS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DWITH_POLLY=OFF -DLLVM_ENABLE_Z3_SOLVER=OFF && \
-        ninja && \
-        ninja install && \
-        cd ../../.. && \
-        rm ./*.tar.xz && \
-        rm -r llvm-*
-
     - name: "Install system submodules"
       run: | 
         chmod +x dist/linux/dependencies.sh
@@ -108,35 +90,35 @@ jobs:
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
       if: ${{ env.VCPKG == 'ON' }}
               
-    - name: "cmake"
-      run: |
-        cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \
-        -DPORTABLE=OFF -DENABLE_VCPKG=${{ env.VCPKG }} -DCMAKE_CXX_FLAGS="-ldl -Wno-unused-command-line-argument -stdlib=${{ matrix.STDLIB }}" \
-        -DCMAKE_C_COMPILER=/usr/bin/${{ env.CC }} -DCMAKE_CXX_COMPILER=/usr/bin/${{ env.CXX }} \
-        -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja # -DCMAKE_EXE_LINKER_FLAGS="-nodefaultlibs -lc++ -lc++abi -lm -lc -lgcc_s -lgcc"
+    #- name: "cmake"
+    #  run: |
+    #    cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} \
+    #    -DPORTABLE=OFF -DENABLE_VCPKG=${{ env.VCPKG }} -DCMAKE_CXX_FLAGS="-ldl -Wno-unused-command-line-argument -stdlib=${{ matrix.STDLIB }}" \
+    #    -DCMAKE_C_COMPILER=/usr/bin/${{ env.CC }} -DCMAKE_CXX_COMPILER=/usr/bin/${{ env.CXX }} \
+    #    -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja # -DCMAKE_EXE_LINKER_FLAGS="-nodefaultlibs -lc++ -lc++abi -lm -lc -lgcc_s -lgcc"
         
-    - name: "Build Cemu"
-      run: |
-        cmake --build build
+    #- name: "Build Cemu"
+    #  run: |
+    #    cmake --build build
         
-    - name: Prepare artifact
-      run: mv bin/Cemu_release bin/Cemu
+    #- name: Prepare artifact
+    #  run: mv bin/Cemu_release bin/Cemu
               
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: cemu-bin-linux-x64
-        path: ./bin/Cemu
+    #- name: Upload artifact
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: cemu-bin-linux-x64
+    #    path: ./bin/Cemu
         
-    - name: "Build AppImage"
-      run: |
-        export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
-        export DEPLOY_GTK_VERSION=3
-        dist/linux/appimage.sh
+    #- name: "Build AppImage"
+    #  run: |
+    #    export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
+    #    export DEPLOY_GTK_VERSION=3
+    #    dist/linux/appimage.sh
 
-    - name: Upload AppImage artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: cemu-appimage-x64-${{ matrix.STDLIB }}
-        path: artifacts
+    #- name: Upload AppImage artifact
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: cemu-appimage-x64-${{ matrix.STDLIB }}
+    #    path: artifacts
 
