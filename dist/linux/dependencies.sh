@@ -54,7 +54,7 @@ sudo make -C cubeb-${CUBEBHASH}/build install
 # "Install ZSTD"
 cd ${CACHEDIR}
 if [[ ! -e zstd-${ZSTDVER} ]]; then
-	rm -r zstd-*/
+    rm -r zstd-*/
     curl -sSfLO https://github.com/facebook/zstd/releases/download/v${ZSTDVER}/zstd-${ZSTDVER}.tar.gz
     tar xf zstd-${ZSTDVER}.tar.gz
     rm zstd-${ZSTDVER}.tar.gz
@@ -69,7 +69,7 @@ sudo make -C zstd-${ZSTDVER} install
 # "Install PugiXML"
 cd ${CACHEDIR}
 if [[ ! -e pugixml-${PugiXMLVER} ]]; then
-	rm -r pugixml-*/
+    rm -r pugixml-*/
     curl -sSfLO https://github.com/zeux/pugixml/releases/download/v${PugiXMLVER}/pugixml-${PugiXMLVER}.tar.gz
     tar xf pugixml-${PugiXMLVER}.tar.gz
     rm pugixml-${PugiXMLVER}.tar.gz
@@ -84,7 +84,7 @@ sudo make -C pugixml-${PugiXMLVER}/build install
 # "Install imgui"
 cd ${CACHEDIR}
 if [[ ! -e imgui-${IMGUIVER} ]]; then
-	rm -r imgui-*/
+    rm -r imgui-*/
     curl -sSfL https://codeload.github.com/ocornut/imgui/tar.gz/v${IMGUIVER} -o imgui-${IMGUIVER}
     curl -sSfL https://github.com/ocornut/imgui/archive/v${IMGUIVER}.tar.gz -o imgui-${IMGUIVER}
     tar xf imgui-${IMGUIVER}
@@ -101,13 +101,13 @@ sudo make -C imgui-${IMGUIVER}/cmake-build-shared install
 # "Install SDL2"
 cd ${CACHEDIR}
 if [[ ! -e SDL2-${SDL2VER} ]]; then
-	rm -r SDL2-*/
+    rm -r SDL2-*/
     curl -sLO https://libsdl.org/release/SDL2-${SDL2VER}.tar.gz
     tar -xzf SDL2-${SDL2VER}.tar.gz
+    rm SDL2-${SDL2VER}.tar.gz
     cd SDL2-${SDL2VER}
     ./configure --prefix=/usr
     make && cd ../
-    rm SDL2-${SDL2VER}.tar.gz
 fi  
 sudo make -C SDL2-${SDL2VER} install
 sdl2-config --version
@@ -116,7 +116,7 @@ sdl2-config --version
 # "Install glslang"
 cd ${CACHEDIR}
 if [[ ! -e glslang-${GLSLANGVER} ]]; then
-	rm -r glslang-*/
+    rm -r glslang-*/
     curl -sSfL https://github.com/KhronosGroup/glslang/archive/refs/tags/${GLSLANGVER}.tar.gz -o glslang-${GLSLANGVER}
     tar xf glslang-${GLSLANGVER}
     cd glslang-${GLSLANGVER}
@@ -134,11 +134,11 @@ if [[ ! -e libzip-${LIBZIPVER} ]]; then
 	rm -r libzip-*/
     curl -sSfLO https://libzip.org/download/libzip-${LIBZIPVER}.tar.gz
     tar -xf libzip-${LIBZIPVER}.tar.gz
+    rm libzip-${LIBZIPVER}.tar.gz
     cd libzip-${LIBZIPVER}
     mkdir build && cd build
     cmake .. -DCMAKE_INSTALL_PREFIX=/usr
     make && cd ../../
-    rm libzip-${LIBZIPVER}.tar.gz
 fi
 sudo make -C libzip-${LIBZIPVER}/build install
 
@@ -146,14 +146,14 @@ sudo make -C libzip-${LIBZIPVER}/build install
 # "Install wxWidgets"
 cd ${CACHEDIR}
 if [[ ! -e wxWidgets-${WXVER} ]]; then
-	rm -r wxWidgets-*/
+    rm -r wxWidgets-*/
     curl -sSfLO https://github.com/wxWidgets/wxWidgets/releases/download/v${WXVER}/wxWidgets-${WXVER}.tar.bz2
     tar xf wxWidgets-${WXVER}.tar.bz2
+    rm wxWidgets-${WXVER}.tar.bz2
     cd wxWidgets-${WXVER}
     mkdir build-gtk3 && cd build-gtk3
     cmake ..
     make && cd ../../
-    rm wxWidgets-${WXVER}.tar.bz2
 fi
 sudo make -C wxWidgets-${WXVER}/build-gtk3 install
 
@@ -161,7 +161,7 @@ sudo make -C wxWidgets-${WXVER}/build-gtk3 install
 # "Install fmt"
 cd ${CACHEDIR}
 if [[ ! -e fmt-${FMTVER} ]]; then
-	rm -r fmt-*/
+    rm -r fmt-*/
     curl -sSfL https://github.com/fmtlib/fmt/archive/refs/tags/${FMTVER}.tar.gz -o fmt-${FMTVER}
     tar xf fmt-${FMTVER}
     cd fmt-${FMTVER}
