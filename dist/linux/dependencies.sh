@@ -10,12 +10,30 @@ LIBZIPVER=1.9.2
 WXVER=3.2.2.1
 FMTVER=9.1.0
 BOOSTVER=1_81_0
+STATIC_LLVM_VER=16.0.2
 
 
 ####################
 # "Create cache dir"
 if [[ ! -e ${CACHEDIR} ]]; then mkdir ${CACHEDIR}; fi
 ls -al ${CACHEDIR}
+
+####################
+# "Install llvm"
+cd ${CACHEDIR}
+if [[ ! -e llvm-project-${STATIC_LLVM_VER}.src ]]; then
+	rm -r llvm-*/
+	curl -sSfLO https://github.com/llvm/llvm-project/releases/download/llvmorg-${STATIC_LLVM_VER}/llvm-project-${STATIC_LLVM_VER}.src.tar.xz
+	tar -xf llvm-project-${STATIC_LLVM_VER}.src.tar.xz
+	rm llvm-project-${STATIC_LLVM_VER}.src.tar.xz
+	cd llvm-project-${STATIC_LLVM_VER}.src/llvm
+	cmake -S . -B build -GNinja -DLLVM_ENABLE_CXX1Y=ON -DLLVM_TARGETS_TO_BUILD="X86" -DCMAKE_BUILD_TYPE=Release -DLLVM_USE_INTEL_JITEVENTS=ON -DLLVM_USE_PERF=ON \
+		-DLLVM_BUILD_RUNTIME=OFF -DLLVM_BUILD_TOOLS=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=OFF \
+		-DLLVM_INCLUDE_UTILS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DWITH_POLLY=OFF -DLLVM_ENABLE_Z3_SOLVER=OFF
+	cmake --build build
+	cd ${CACHEDIR} 
+fi
+sudo ninja -C llvm-project-${STATIC_LLVM_VER}.src/llvm/build install
 
 ####################
 # "Install cubeb"
