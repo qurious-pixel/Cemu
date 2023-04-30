@@ -33,7 +33,7 @@ jobs:
       with:
         path: ${{ env.CACHEDIR }}
         key: build-${{ hashFiles('dist/linux/dependencies.sh') }}
-        #restore-keys: build-${{ hashFiles('dist/linux/dependencies.sh') }}
+        restore-keys: build-${{ hashFiles('dist/linux/dependencies.sh') }}
 
     - name: "Fetch full history for vcpkg submodule"
       run: |
