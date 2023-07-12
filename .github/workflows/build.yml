@@ -34,8 +34,8 @@ jobs:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
-        repository: cemu-project/Cemu # jambonmcyeah/Cemu # 
-        ref: main # wayland #  
+        repository: SSimco/Cemu/
+        ref: android  
         submodules: recursive
     - name: Checkout AppImage Repo
       uses: actions/checkout@v3
@@ -62,16 +62,20 @@ jobs:
     - name: "Install system dependencies"
       run: |
         sudo apt update -qq
-        sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev nasm ${{ matrix.deb }} libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5 libudev-dev
-        
+        sudo apt install -y ccache ninja-build cmake apksigner libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev nasm ${{ matrix.deb }} libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5 libudev-dev
+    - uses: actions/setup-java@v3
+      with:
+        distribution: 'oracle'
+        java-version: '17'
+          
     - name: "Create cache dir"
       run: |
         if [[ ! -e ${{ env.CACHEDIR }} ]]; then mkdir ${{ env.CACHEDIR }}; fi
         ls -al ${{ env.CACHEDIR }}
 
-    - name: "Linux Fixes"
+    - name: Fixes (Android)
       run: |
-        echo "Linux Fixes"
+        echo "Android Fixes"
         #sed -i 's|Exec=cemu|Exec=Cemu|g' dist/linux/info.cemu.Cemu.desktop ## wayland build
         #git apply ci/scripts/xdg.patch
         #sed -i 40,43d src/CMakeLists.txt
@@ -93,33 +97,19 @@ jobs:
         mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
         setapikey "${{ secrets.GITHUB_TOKEN }}" \
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
-        
-    - name: "cmake"
-      run: |
-        mkdir -p build
-        cd build
-        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DENABLE_WAYLAND=OFF -DPORTABLE=OFF -DCMAKE_C_COMPILER=${{ matrix.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.compiler }} -G Ninja
-        ccache -s
-        
+                
     - name: "Build Cemu"
       run: |
-        cd build
-        ninja
-        ccache -s
-        ls -al ../bin/
-        mv ../bin/Cemu* ../bin/Cemu
+        cd src/android
+        chmod +x ./gradlew
+        ./gradlew assembleRelease
+        ./gradlew bundleRelease
 
-        
-    - name: "Build AppImage"
-      run: |
-        cp ci/scripts/cemu.png dist/linux/info.cemu.Cemu.png
-        chmod +x ci/scripts/appimage.sh && ci/scripts/appimage.sh
-        
-    - name: Upload artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: cemu-bin-linux-x64-${{ matrix.build }}
-        path: |
-          artifacts
+    #- name: Upload artifact
+    #  uses: actions/upload-artifact@v3
+    #  with:
+    #    name: cemu-android
+    #    path: |
+    #      artifacts
         
  
