@@ -113,7 +113,7 @@ jobs:
     - name: "Prepare artifact"
       run: |
         if [ ! -z ${{ secrets.SECRETS_FILE_CONTENTS }} ]; then
-          echo "Secrets file valid
+          echo "Secrets file valid"
         fi
         cd src/android
         base64 --decode <<< "${{ secrets.SECRETS_FILE_CONTENTS }}" > ks.jks
