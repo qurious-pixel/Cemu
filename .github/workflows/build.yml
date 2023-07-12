@@ -62,12 +62,18 @@ jobs:
     - name: "Install system dependencies"
       run: |
         sudo apt update -qq
-        sudo apt install -y ccache ninja-build cmake apksigner libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev nasm ${{ matrix.deb }} libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5 libudev-dev
+        sudo apt install -y ccache apksigner zipalign
     - uses: actions/setup-java@v3
       with:
         distribution: 'oracle'
         java-version: '17'
-          
+
+    - name: "Fetch full history for vcpkg submodule"
+      run: |
+        cd dependencies/vcpkg
+        git fetch --unshallow
+        git pull --all
+    
     - name: "Create cache dir"
       run: |
         if [[ ! -e ${{ env.CACHEDIR }} ]]; then mkdir ${{ env.CACHEDIR }}; fi
@@ -103,7 +109,6 @@ jobs:
         cd src/android
         chmod +x ./gradlew
         ./gradlew assembleRelease
-        ./gradlew bundleRelease
 
     #- name: Upload artifact
     #  uses: actions/upload-artifact@v3
