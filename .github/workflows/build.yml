@@ -34,7 +34,7 @@ jobs:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
-        repository: SSimco/Cemu/
+        repository: SSimco/Cemu
         ref: android  
         submodules: recursive
     - name: Checkout AppImage Repo
