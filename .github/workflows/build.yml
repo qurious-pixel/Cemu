@@ -109,12 +109,22 @@ jobs:
         cd src/android
         chmod +x ./gradlew
         ./gradlew assembleRelease
-
-    #- name: Upload artifact
-    #  uses: actions/upload-artifact@v3
-    #  with:
-    #    name: cemu-android
-    #    path: |
-    #      artifacts
+        
+    - name: "Prepare artifact"
+      run: |
+        if [ ! -z ${{ secrets.SECRETS_FILE_CONTENTS }} ]; then
+          echo "Secrets file valid
+        fi
+        cd src/android
+        base64 --decode <<< "${{ secrets.SECRETS_FILE_CONTENTS }}" > ks.jks
+        mkdir -p ${{ github.workspace }}/artifacts
+        cp ./app/build/outputs/apk/release/app-release-unsigned.apk ${{ github.workspace }}/artifacts/cemu-release.apk
+ 
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: cemu-android
+        path: |
+          artifacts
         
  
