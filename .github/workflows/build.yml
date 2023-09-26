@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-rpcsx:
+  build-cemu:
     runs-on: ubuntu-latest
     container:
       image: fedora:latest
