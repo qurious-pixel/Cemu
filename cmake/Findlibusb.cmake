@@ -1,20 +1,16 @@
-# SPDX-FileCopyrightText: 2022 Andrea Pappacoda <andrea@pappacoda.it>
-# SPDX-License-Identifier: ISC
+# SPDX-FileCopyrightText: 2022 Alexandre Bouvier <contact@amb.tf>
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
 
-find_package(libusb CONFIG)
-if (NOT libusb_FOUND)
-    find_package(PkgConfig)
-    if (PKG_CONFIG_FOUND)
-        pkg_search_module(libusb IMPORTED_TARGET GLOBAL libusb-1.0 libusb)
-        if (libusb_FOUND)
-            add_library(libusb::libusb ALIAS PkgConfig::libusb)
-        endif ()
-    endif ()
-endif ()
+find_package(PkgConfig QUIET)
+pkg_search_module(LIBUSB QUIET IMPORTED_TARGET libusb-1.0)
 
+include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(libusb
-        REQUIRED_VARS
-        libusb_LINK_LIBRARIES
-        libusb_FOUND
-        VERSION_VAR libusb_VERSION
+    REQUIRED_VARS LIBUSB_LINK_LIBRARIES
+    VERSION_VAR LIBUSB_VERSION
 )
+
+if (libusb_FOUND AND NOT TARGET libusb::usb)
+    add_library(libusb::usb ALIAS PkgConfig::LIBUSB)
+endif()
