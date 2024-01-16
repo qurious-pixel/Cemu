@@ -46,7 +46,7 @@
     },
     {
       "name": "libusb",
-      "platform": "!osx"
+      "platform": "osx"
     }
   ]
 }
