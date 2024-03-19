@@ -102,7 +102,7 @@ bool CemuUpdateWindow::QueryUpdateInfo(std::string& downloadUrlOut, std::string&
 {
 	std::string buffer;
 	//std::string urlStr("https://cemu.info/api2/version.php?v=");
-	std::string urlStr("UPDATE|https%3A%2F%2Fgithub.com%2Fcemu-project%2FCemu%2Freleases%2Fdownload%2Fv2.0-72%2Fcemu-2.0-72-windows-x64.zip|https%3A%2F%2Fcemu.info");
+	std::string urlStr("UPDATE|https://github.com/cemu-project/Cemu/releases/download/v2.0-72/cemu-2.0-72-windows-x64.zip|https://cemu.info");
 	auto* curl = curl_easy_init();
 	//urlStr.append(_curlUrlEscape(curl, BUILD_VERSION_STRING));
 //#if BOOST_OS_LINUX
