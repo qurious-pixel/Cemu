@@ -112,6 +112,9 @@ bool CemuUpdateWindow::QueryUpdateInfo(std::string& downloadUrlOut, std::string&
 	urlStr.append("&platform=macos_x86");
 #elif
 
+// Print urlStr
+	std::cout << urlStr;
+	
 #error Name for current platform is missing
 #endif
 
