@@ -166,7 +166,7 @@ wxPanel* GeneralSettings2::AddGeneralPage(wxNotebook* notebook)
 			m_auto_update = new wxCheckBox(box, wxID_ANY, _("Automatically check for updates"));
 			m_auto_update->SetToolTip(_("Automatically checks for new cemu versions on startup"));
 			second_row->Add(m_auto_update, 0, botflag, 5);
-#if BOOST_OS_LINUX || BOOST_OS_MACOS
+#if BOOST_OS_MACOS // BOOST_OS_LINUX || 
 			m_auto_update->Disable();
 #endif
 			second_row->AddSpacer(10);
