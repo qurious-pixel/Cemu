@@ -2288,7 +2288,7 @@ void MainWindow::RecreateMenu()
 	// help menu
 	wxMenu* helpMenu = new wxMenu();
 	m_check_update_menu = helpMenu->Append(MAINFRAME_MENU_ID_HELP_UPDATE, _("&Check for updates"));
-#if BOOST_OS_LINUX || BOOST_OS_MACOS
+#if BOOST_OS_MACOS // BOOST_OS_LINUX || 
 	m_check_update_menu->Enable(false);
 #endif
 	helpMenu->Append(MAINFRAME_MENU_ID_HELP_GETTING_STARTED, _("&Getting started"));
