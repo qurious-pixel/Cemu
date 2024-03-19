@@ -114,7 +114,7 @@ bool CemuUpdateWindow::QueryUpdateInfo(std::string& downloadUrlOut, std::string&
 //#elif
 
 // Print urlStr
-	wxLogMessage(urlStr);
+	//wxLogMessage(urlStr);
 	//std::cout << urlStr;
 	
 //#error Name for current platform is missing
