@@ -101,23 +101,24 @@ std::string _curlUrlUnescape(CURL* curl, std::string_view input)
 bool CemuUpdateWindow::QueryUpdateInfo(std::string& downloadUrlOut, std::string& changelogUrlOut)
 {
 	std::string buffer;
-	std::string urlStr("https://cemu.info/api2/version.php?v=");
+	//std::string urlStr("https://cemu.info/api2/version.php?v=");
+	std::string urlStr("UPDATE|https%3A%2F%2Fgithub.com%2Fcemu-project%2FCemu%2Freleases%2Fdownload%2Fv2.0-72%2Fcemu-2.0-72-windows-x64.zip|https%3A%2F%2Fcemu.info");
 	auto* curl = curl_easy_init();
-	urlStr.append(_curlUrlEscape(curl, BUILD_VERSION_STRING));
-#if BOOST_OS_LINUX
-	urlStr.append("&platform=linux");
-#elif BOOST_OS_WINDOWS
-	urlStr.append("&platform=windows");
-#elif BOOST_OS_MACOS
-	urlStr.append("&platform=macos_x86");
-#elif
+	//urlStr.append(_curlUrlEscape(curl, BUILD_VERSION_STRING));
+//#if BOOST_OS_LINUX
+//	urlStr.append("&platform=linux");
+//#elif BOOST_OS_WINDOWS
+//	urlStr.append("&platform=windows");
+//#elif BOOST_OS_MACOS
+//	urlStr.append("&platform=macos_x86");
+//#elif
 
 // Print urlStr
 	wxLogMessage(urlStr);
 	//std::cout << urlStr;
 	
-#error Name for current platform is missing
-#endif
+//#error Name for current platform is missing
+//#endif
 
 	curl_easy_setopt(curl, CURLOPT_URL, urlStr.c_str());
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
