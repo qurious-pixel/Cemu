@@ -40,8 +40,8 @@ jobs:
 
     - name: Setup version for experimental
       run: |
-        echo "[INFO] Experimental version ${{ inputs.experimentalversion }}"
-        echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEXPERIMENTAL_VERSION=${{ inputs.experimentalversion }}" >> $GITHUB_ENV
+        echo "[INFO] Experimental version 40"
+        echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEXPERIMENTAL_VERSION=40" >> $GITHUB_ENV
 
     - name: "Install system dependencies"
       run: |
