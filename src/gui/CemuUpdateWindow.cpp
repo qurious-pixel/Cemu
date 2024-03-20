@@ -105,7 +105,8 @@ bool CemuUpdateWindow::QueryUpdateInfo(std::string& downloadUrlOut, std::string&
 	auto* curl = curl_easy_init();
 	urlStr.append(_curlUrlEscape(curl, BUILD_VERSION_STRING));
 #if BOOST_OS_LINUX
-	urlStr.append("&platform=linux_appimage_x86");
+	//urlStr.append("&platform=linux_appimage_x86");
+	urlStr.append("&platform=linux_ubuntu_x86");
 #elif BOOST_OS_WINDOWS
 	urlStr.append("&platform=windows");
 #elif BOOST_OS_MACOS
