@@ -155,14 +155,15 @@ bool CemuUpdateWindow::QueryUpdateInfo(std::string& downloadUrlOut, std::string&
 	return result;
 
 #elif BOOST_OS_LINUX
-	
+	bool result = false;
 	std::string urlStr("https://github.com/cemu-project/Cemu/releases/download/");
 	urlStr.append(("v{1}/cemu-{1}-x86_64.AppImage"), BUILD_VERSION_STRING);
 	downloadUrlOut = urlStr;
 	changelogUrlOut = ("https://cemu.info");
 	if (!downloadUrlOut.empty() && !changelogUrlOut.empty())
 		result = true;
-
+	return result;
+	
 #elif BOOST_OS_MACOS
 	urlStr.append("&platform=macos_x86");
 #elif
