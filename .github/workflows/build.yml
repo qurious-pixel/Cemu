@@ -38,6 +38,11 @@ jobs:
         echo "BUILD_FLAGS=" >> $GITHUB_ENV
         echo "Build mode is release"
 
+    - name: Setup version for experimental
+      run: |
+        echo "[INFO] Experimental version ${{ inputs.experimentalversion }}"
+        echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEXPERIMENTAL_VERSION=${{ inputs.experimentalversion }}" >> $GITHUB_ENV
+
     - name: "Install system dependencies"
       run: |
         sudo apt update -qq
