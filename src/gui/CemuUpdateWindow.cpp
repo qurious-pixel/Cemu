@@ -100,25 +100,13 @@ std::string _curlUrlUnescape(CURL* curl, std::string_view input)
 // returns true if update is available and sets output parameters
 bool CemuUpdateWindow::QueryUpdateInfo(std::string& downloadUrlOut, std::string& changelogUrlOut)
 {
+#if BOOST_OS_WINDOWS
 	std::string buffer;
-	//std::string urlStr("https://cemu.info/api2/version.php?v=");
-	std::string urlStr("UPDATE|https://github.com/cemu-project/Cemu/releases/download/v2.0-72/cemu-2.0-72-windows-x64.zip|https://cemu.info");
+	std::string urlStr("https://cemu.info/api2/version.php?v=");
+	//std::string urlStr("UPDATE|https://github.com/cemu-project/Cemu/releases/download/v2.0-72/cemu-2.0-72-windows-x64.zip|https://cemu.info");
 	auto* curl = curl_easy_init();
-	//urlStr.append(_curlUrlEscape(curl, BUILD_VERSION_STRING));
-//#if BOOST_OS_LINUX
-//	urlStr.append("&platform=linux");
-//#elif BOOST_OS_WINDOWS
-//	urlStr.append("&platform=windows");
-//#elif BOOST_OS_MACOS
-//	urlStr.append("&platform=macos_x86");
-//#elif
-
-// Print urlStr
-	//wxLogMessage(urlStr);
-	//std::cout << urlStr;
-	
-//#error Name for current platform is missing
-//#endif
+	urlStr.append(_curlUrlEscape(curl, BUILD_VERSION_STRING));
+	urlStr.append("&platform=windows");
 
 	curl_easy_setopt(curl, CURLOPT_URL, urlStr.c_str());
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
@@ -165,6 +153,23 @@ bool CemuUpdateWindow::QueryUpdateInfo(std::string& downloadUrlOut, std::string&
 
 	curl_easy_cleanup(curl);
 	return result;
+
+#elif BOOST_OS_LINUX
+	
+	std::string urlStr("https://github.com/cemu-project/Cemu/releases/download/");
+	urlStr.append(("v{1}/cemu-{1}-x86_64.AppImage"), BUILD_VERSION_STRING);
+	downloadUrlOut = urlStr;
+	changelogUrlOut = ("https://cemu.info");
+	if (!downloadUrlOut.empty() && !changelogUrlOut.empty())
+		result = true;
+
+#elif BOOST_OS_MACOS
+	urlStr.append("&platform=macos_x86");
+#elif
+
+#error Name for current platform is missing
+#endif
+	
 }
 
 std::future<bool> CemuUpdateWindow::IsUpdateAvailableAsync()
@@ -196,6 +201,7 @@ bool CemuUpdateWindow::DownloadCemuZip(const std::string& url, const fs::path& f
 		return false;
 
 	bool result = false;
+//#if BOOST_OS_WINDOWS
 	auto* curl = curl_easy_init();
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
@@ -257,6 +263,10 @@ bool CemuUpdateWindow::DownloadCemuZip(const std::string& url, const fs::path& f
 		cemuLog_log(LogType::Force, "Cemu zip download failed with error {}", r);
 		curl_easy_cleanup(curl);
 	}
+
+//#elif BOOST_OS_LINUX || BOOST_OS_MACOS
+	
+//#endif
 
 	if (!result && fs::exists(filename))
 	{
