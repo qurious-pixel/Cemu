@@ -32,24 +32,12 @@ jobs:
         git checkout 431eb6bda0950874c8d4ed929cc66e15d8aae46f     
         
     - name: Setup release mode parameters (for deploy)
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       run: |
         echo "BUILD_MODE=release" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         echo "BUILD_FLAGS=" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         echo "Build mode is release"
         
-    - name: Setup debug mode parameters (for continous build)
-      if: ${{ inputs.deploymode != 'release' }}
-      run: |
-        echo "BUILD_MODE=debug" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-        echo "BUILD_FLAGS=" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-        echo "Build mode is debug"
-    - name: Setup version for experimental
-      if: ${{ inputs.experimentalversion != '' }}
-      run: |
-        echo "[INFO] Experimental version ${{ inputs.experimentalversion }}"
-        echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEXPERIMENTAL_VERSION=${{ inputs.experimentalversion }}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-
     - name: "Bootstrap vcpkg"
       run: |
         ./dependencies/vcpkg/bootstrap-vcpkg.bat
