@@ -484,7 +484,11 @@ void CemuUpdateWindow::WorkerThread()
 
 				// get exe name
 				const auto exec = ActiveSettings::GetExecutablePath();
+#if BOOST_OS_WINDOWS
 				const auto target_exe = fs::path(exec).replace_extension("exe.backup");
+#elif BOOST_OS_LINUX
+				const auto target_exe = fs::path(exec).replace_extension(".backup");
+#endif	
 				fs::rename(exec, target_exe);
 				m_restartFile = exec;
 
@@ -503,7 +507,11 @@ void CemuUpdateWindow::WorkerThread()
 						}
 						else
 						{
+#if BOOST_OS_WINDOWS
 							if (it.path().filename() == L"Cemu.exe")
+#elif BOOST_OS_LINUX
+							if (it.path().filename() == L"Cemu")
+#endif						
 								fs::rename(it.path(), fs::path(target_file).replace_filename(exec.filename()));
 							else
 								fs::rename(it.path(), target_file);
