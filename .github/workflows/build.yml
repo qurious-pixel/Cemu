@@ -82,12 +82,12 @@ jobs:
         cmake --build . --config ${{ env.BUILD_MODE }}
 
     - name: Prepare artifact
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
       
     - name: Upload artifact
       uses: actions/upload-artifact@v3
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-windows-x64
         path: ./bin/Cemu.exe
