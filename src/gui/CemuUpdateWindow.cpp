@@ -421,8 +421,8 @@ void CemuUpdateWindow::WorkerThread()
 				const auto update_file = tmppath / L"update.zip";
 #elif BOOST_OS_LINUX
 				const auto update_file = tmppath / L"Cemu.AppImage";
-
-
+#elif BOOST_OS_MACOS
+				const auto update_file = tmppath / L"cemu.dmg";
 #endif				
 				if (DownloadCemuZip(url, update_file))
 				{
@@ -501,24 +501,19 @@ void CemuUpdateWindow::WorkerThread()
 				fs::rename(exec, target_exe);
 				m_restartFile = exec;				
 #elif BOOST_OS_LINUX
-
+				if (std::getenv("APPIMAGE"))
+				{
 				std::string target_directory = exePath.parent_path().generic_string();
-
-				// get exe name
-				//wxString appImagePath;
-				//if (wxGetEnv(("APPIMAGE"), &appImagePath))
-					//exePath = wxHelper::MakeFSPath(appImagePath);
-					//exePath = "/home/ubuntu/Downloads/Cemu.AppImage";
-					//fs::path exePath = ActiveSettings::GetExecutablePath();
 				const auto exec = exePath;
 				const auto target_exe = fs::path(exePath).replace_extension("AppImage.backup");
 				const char* filePath = update_file.c_str();
 				mode_t permissions = S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
-				//chmod(update_file.c_str(), permissions);
 				fs::rename(exec, target_exe);
 				m_restartFile = exec;
 				chmod(filePath, permissions);
 				wxCopyFile (wxT("/tmp/cemu_update/Cemu.AppImage"), wxT("/home/ubuntu/Downloads/Cemu.AppImage"));
+				}
+#elif BOOST_OS_MACOS
 				
 #endif	
 
@@ -613,7 +608,7 @@ void CemuUpdateWindow::OnClose(wxCloseEvent& event)
 
 		exit(0);
 	}
-#else
+#elif BOOST_OS_LINUX
 	if (m_restartRequired && !m_restartFile.empty() && fs::exists(m_restartFile))
 	{
 		fs::path exePath = ActiveSettings::GetExecutablePath();
@@ -624,6 +619,8 @@ void CemuUpdateWindow::OnClose(wxCloseEvent& event)
 
 		exit(0);
 	}
+#elif BOOST_OS_MACOS
+
 #endif
 }
 
