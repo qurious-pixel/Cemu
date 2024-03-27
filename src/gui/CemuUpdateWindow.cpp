@@ -13,8 +13,7 @@
 #include <wx/stdpaths.h>
 #include <wx/utils.h>
 
-#include <wx/process.h>
-#include <boost/filesystem.hpp>
+#include <unistd.h>
 #include <sys/stat.h>
 
 #include <curl/curl.h>
@@ -621,9 +620,7 @@ void CemuUpdateWindow::OnClose(wxCloseEvent& event)
 		const char* appimage_path = std::getenv("APPIMAGE");
 		const auto tmppath = fs::temp_directory_path() / L"cemu_update";
 		std::string target_exe = (exePath);
-
-		wxExecute(target_exe.c_str(), wxEXEC_ASYNC);
-		//wxKill(pid, wxSIGKILL, NULL, wxKILL_CHILDREN);
+		execlp(target_exe.c_str(), target_exe.c_str(), (char *)NULL);
 
 		exit(0);
 	}
