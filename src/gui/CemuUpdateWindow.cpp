@@ -11,6 +11,11 @@
 #include <wx/button.h>
 #include <wx/msgdlg.h>
 #include <wx/stdpaths.h>
+#include <wx/utils.h>
+
+#include <wx/process.h>
+#include <boost/filesystem.hpp>
+#include <sys/stat.h>
 
 #include <curl/curl.h>
 #include <zip.h>
@@ -105,8 +110,8 @@ bool CemuUpdateWindow::QueryUpdateInfo(std::string& downloadUrlOut, std::string&
 	auto* curl = curl_easy_init();
 	urlStr.append(_curlUrlEscape(curl, BUILD_VERSION_STRING));
 #if BOOST_OS_LINUX
-	//urlStr.append("&platform=linux_appimage_x86");
-	urlStr.append("&platform=linux_ubuntu_x86");
+	urlStr.append("&platform=linux_appimage_x86");
+	//urlStr.append("&platform=linux_ubuntu_x86");
 #elif BOOST_OS_WINDOWS
 	urlStr.append("&platform=windows");
 #elif BOOST_OS_MACOS
@@ -413,7 +418,13 @@ void CemuUpdateWindow::WorkerThread()
 				if (!exists(tmppath))
 					create_directory(tmppath);
 
+#if BOOST_OS_WINDOWS
 				const auto update_file = tmppath / L"update.zip";
+#elif BOOST_OS_LINUX
+				const auto update_file = tmppath / L"Cemu.AppImage";
+
+
+#endif				
 				if (DownloadCemuZip(url, update_file))
 				{
 					auto* event = new wxCommandEvent(wxEVT_RESULT);
@@ -433,6 +444,7 @@ void CemuUpdateWindow::WorkerThread()
 
 				// extract
 				std::string cemuFolderName;
+#if BOOST_OS_WINDOWS				
 				if (!ExtractUpdate(update_file, tmppath, cemuFolderName))
 				{
 					cemuLog_log(LogType::Force, "Extracting Cemu zip failed");
@@ -443,7 +455,7 @@ void CemuUpdateWindow::WorkerThread()
 					cemuLog_log(LogType::Force, "Cemu folder not found in zip");
 					break;
 				}
-
+#endif
 				const auto expected_path = tmppath / cemuFolderName;
 				if (exists(expected_path))
 				{
@@ -478,25 +490,46 @@ void CemuUpdateWindow::WorkerThread()
 
 				// apply update
 				fs::path exePath = ActiveSettings::GetExecutablePath();
+#if BOOST_OS_WINDOWS
+
 				std::wstring target_directory = exePath.parent_path().generic_wstring();
 				if (target_directory[target_directory.size() - 1] == '/')
 					target_directory = target_directory.substr(0, target_directory.size() - 1); // remove trailing /
 
 				// get exe name
 				const auto exec = ActiveSettings::GetExecutablePath();
-#if BOOST_OS_WINDOWS
 				const auto target_exe = fs::path(exec).replace_extension("exe.backup");
+				fs::rename(exec, target_exe);
+				m_restartFile = exec;				
 #elif BOOST_OS_LINUX
-				const auto target_exe = fs::path(exec).replace_extension(".backup");
-#endif	
+
+				std::string target_directory = exePath.parent_path().generic_string();
+
+				// get exe name
+				//wxString appImagePath;
+				//if (wxGetEnv(("APPIMAGE"), &appImagePath))
+					//exePath = wxHelper::MakeFSPath(appImagePath);
+					//exePath = "/home/ubuntu/Downloads/Cemu.AppImage";
+					//fs::path exePath = ActiveSettings::GetExecutablePath();
+				const auto exec = exePath;
+				const auto target_exe = fs::path(exePath).replace_extension("AppImage.backup");
+				const char* filePath = update_file.c_str();
+				mode_t permissions = S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
+				//chmod(update_file.c_str(), permissions);
 				fs::rename(exec, target_exe);
 				m_restartFile = exec;
+				chmod(filePath, permissions);
+				wxCopyFile (wxT("/tmp/cemu_update/Cemu.AppImage"), wxT("/home/ubuntu/Downloads/Cemu.AppImage"));
+				
+#endif	
 
-				const auto index = expected_path.wstring().size();
+// Testing Wstring to string
+#if BOOST_OS_WINDOWS
+				const auto index = expected_path.string().size();
 				int counter = 0;
 				for (const auto& it : fs::recursive_directory_iterator(expected_path))
 				{
-					const auto filename = it.path().wstring().substr(index);
+					const auto filename = it.path().string().substr(index);
 					auto target_file = target_directory + filename;
 					try
 					{
@@ -506,17 +539,19 @@ void CemuUpdateWindow::WorkerThread()
 								fs::create_directory(target_file);
 						}
 						else
+//  END replace string						
 						{
-#if BOOST_OS_WINDOWS
+
 							if (it.path().filename() == L"Cemu.exe")
-#elif BOOST_OS_LINUX
-							if (it.path().filename() == L"Cemu")
-#endif						
+//#elif BOOST_OS_LINUX
+							//if (it.path().filename() == L"Cemu.AppImage")
+						
 								fs::rename(it.path(), fs::path(target_file).replace_filename(exec.filename()));
 							else
-								fs::rename(it.path(), target_file);
-						}
+								fs::rename(it.path(), target_file);				
+						}						
 					}
+					
 					catch (const std::exception& ex)
 					{
 						SystemException sys(ex);
@@ -530,7 +565,7 @@ void CemuUpdateWindow::WorkerThread()
 						wxQueueEvent(this, event);
 					}
 				}
-
+#endif
 				auto* event = new wxCommandEvent(wxEVT_PROGRESS);
 				event->SetInt(m_gaugeMaxValue);
 				wxQueueEvent(this, event);
@@ -569,7 +604,7 @@ void CemuUpdateWindow::OnClose(wxCloseEvent& event)
 		STARTUPINFO si{};
 		si.cb = sizeof(si);
 
-		std::wstring cmdline = GetCommandLineW();
+		 cmdline = GetCommandLineW();
 		const auto index = cmdline.find('"', 1);
 		cemu_assert_debug(index != std::wstring::npos);
 		cmdline = L"\"" + m_restartFile.wstring() + L"\"" + cmdline.substr(index + 1);
@@ -580,7 +615,18 @@ void CemuUpdateWindow::OnClose(wxCloseEvent& event)
 		exit(0);
 	}
 #else
-	cemuLog_log(LogType::Force, "unimplemented - restart on update");
+	if (m_restartRequired && !m_restartFile.empty() && fs::exists(m_restartFile))
+	{
+		fs::path exePath = ActiveSettings::GetExecutablePath();
+		const char* appimage_path = std::getenv("APPIMAGE");
+		const auto tmppath = fs::temp_directory_path() / L"cemu_update";
+		std::string target_exe = (exePath);
+
+		wxExecute(target_exe.c_str(), wxEXEC_ASYNC);
+		//wxKill(pid, wxSIGKILL, NULL, wxKILL_CHILDREN);
+
+		exit(0);
+	}
 #endif
 }
 
