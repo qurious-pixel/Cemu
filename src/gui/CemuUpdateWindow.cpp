@@ -622,7 +622,27 @@ void CemuUpdateWindow::OnClose(wxCloseEvent& event)
 		exit(0);
 	}
 #elif BOOST_OS_MACOS
-
+	if (m_restartRequired)
+	{
+	    const auto tmppath = fs::temp_directory_path() / L"cemu_update/Cemu.dmg";
+	    if (fork() == 0 ) {
+		execlp("hdiutil", "hdiutil", "attach", tmppath.c_str(), NULL);
+	    } else {
+		wait(NULL);
+	    }
+	    if (fork() == 0 ) {
+		execlp("cp", "cp", "-rf", "/Volumes/Cemu/Cemu.app", "/Users/macdeveloper/Desktop/new/", NULL);
+	    } else {
+		wait(NULL);
+	    }   
+	    if (fork() == 0 ) {
+		execlp("hdiutil", "hdiutil", "detach", "/Volumes/Cemu/", NULL);
+	    } else {
+		wait(NULL);
+	    }
+	    execlp("open", "open", "-n", "/Users/macdeveloper/Desktop/new/Cemu.app", NULL);
+        exit(0);
+	}
 #endif
 }
 
