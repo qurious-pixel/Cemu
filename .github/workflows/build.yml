@@ -174,20 +174,20 @@ jobs:
         cd build
         echo "[INFO] BUILD_FLAGS: ${{ env.BUILD_FLAGS }}"
         echo "[INFO] BUILD_MODE: ${{ env.BUILD_MODE }}"
-        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DVCPKG_INSTALL_OPTIONS="--clean-after-build"
+        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=Release -DVCPKG_INSTALL_OPTIONS="--clean-after-build"
         
     - name: "Build Cemu"
       run: |
         cd build
-        cmake --build . --config ${{ env.BUILD_MODE }}
+        cmake --build . --config Release
 
     - name: Prepare artifact
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
       
     - name: Upload artifact
       uses: actions/upload-artifact@v3
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-windows-x64
         path: ./bin/Cemu.exe
