@@ -262,7 +262,7 @@ jobs:
         cmake --build build
 
     - name: Prepare artifact
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       run: |
         mkdir bin/Cemu_app
         mv bin/Cemu_release.app bin/Cemu_app/Cemu.app
@@ -276,7 +276,7 @@ jobs:
               
     - name: Upload artifact
       uses: actions/upload-artifact@v3
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-macos-x64
         path: ./bin/Cemu.dmg
