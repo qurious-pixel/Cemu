@@ -525,7 +525,7 @@ void CemuUpdateWindow::WorkerThread()
 				int counter = 0;
 				for (const auto& it : fs::recursive_directory_iterator(expected_path))
 				{
-					const auto filename = it.path().string().substr(index);
+					const auto filename = it.path().wstring().substr(index);
 					auto target_file = target_directory + filename;
 					try
 					{
