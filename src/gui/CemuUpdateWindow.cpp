@@ -503,18 +503,15 @@ void CemuUpdateWindow::WorkerThread()
 				fs::rename(exec, target_exe);
 				m_restartFile = exec;				
 #elif BOOST_OS_LINUX
-				if (std::getenv("APPIMAGE"))
-				{
-				std::string target_directory = exePath.parent_path().generic_string();
-				const auto exec = exePath;
-				const auto target_exe = fs::path(exePath).replace_extension("AppImage.backup");
+				const char* appimage_path = std::getenv("APPIMAGE");
+				const auto target_exe = fs::path(appimage_path).replace_extension("AppImage.backup");
 				const char* filePath = update_file.c_str();
 				mode_t permissions = S_IRUSR | S_IWUSR | S_IXUSR | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
-				fs::rename(exec, target_exe);
-				m_restartFile = exec;
+				fs::rename(appimage_path, target_exe);
+				m_restartFile = appimage_path;
 				chmod(filePath, permissions);
-				wxCopyFile (wxT("/tmp/cemu_update/Cemu.AppImage"), wxT("/home/ubuntu/Downloads/Cemu.AppImage"));
-				}
+				wxString wxAppPath = wxString::FromUTF8(appimage_path);
+				wxCopyFile (wxT("/tmp/cemu_update/Cemu.AppImage"), wxT(wxAppPath));
 #elif BOOST_OS_MACOS
 				
 #endif	
