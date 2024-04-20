@@ -214,7 +214,7 @@ jobs:
         echo "Build mode is release"
         
     - name: Setup version for experimental
-      if: ${{ inputs.experimentalversion != '' }}
+      #if: ${{ inputs.experimentalversion != '' }}
       run: |
         echo "[INFO] Experimental version 40"
         echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEXPERIMENTAL_VERSION=40" >> $GITHUB_ENV
