@@ -1,6 +1,7 @@
 name: Build Cemu
 
 on:
+  push:
   workflow_call:
     inputs:
       deploymode:
@@ -31,24 +32,16 @@ jobs:
         git checkout 431eb6bda0950874c8d4ed929cc66e15d8aae46f
 
     - name: Setup release mode parameters (for deploy)
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       run: |
         echo "BUILD_MODE=release" >> $GITHUB_ENV
         echo "BUILD_FLAGS=" >> $GITHUB_ENV
         echo "Build mode is release"
 
-    - name: Setup debug mode parameters (for continous build)
-      if: ${{ inputs.deploymode != 'release' }}
-      run: |
-        echo "BUILD_MODE=debug" >> $GITHUB_ENV
-        echo "BUILD_FLAGS=" >> $GITHUB_ENV
-        echo "Build mode is debug"
-
     - name: Setup version for experimental
-      if: ${{ inputs.experimentalversion != '' }}
       run: |
-        echo "[INFO] Experimental version ${{ inputs.experimentalversion }}"
-        echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEXPERIMENTAL_VERSION=${{ inputs.experimentalversion }}" >> $GITHUB_ENV
+        echo "[INFO] Experimental version 40"
+        echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEXPERIMENTAL_VERSION=40" >> $GITHUB_ENV
 
     - name: "Install system dependencies"
       run: |
@@ -87,12 +80,12 @@ jobs:
         cmake --build build
         
     - name: Prepare artifact
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       run: mv bin/Cemu_release bin/Cemu
               
     - name: Upload artifact
       uses: actions/upload-artifact@v3
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-linux-x64
         path: ./bin/Cemu
@@ -141,23 +134,16 @@ jobs:
         git checkout 431eb6bda0950874c8d4ed929cc66e15d8aae46f     
         
     - name: Setup release mode parameters (for deploy)
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       run: |
         echo "BUILD_MODE=release" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         echo "BUILD_FLAGS=" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         echo "Build mode is release"
         
-    - name: Setup debug mode parameters (for continous build)
-      if: ${{ inputs.deploymode != 'release' }}
-      run: |
-        echo "BUILD_MODE=debug" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-        echo "BUILD_FLAGS=" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-        echo "Build mode is debug"
     - name: Setup version for experimental
-      if: ${{ inputs.experimentalversion != '' }}
       run: |
-        echo "[INFO] Experimental version ${{ inputs.experimentalversion }}"
-        echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEXPERIMENTAL_VERSION=${{ inputs.experimentalversion }}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        echo "[INFO] Experimental version 40"
+        echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEXPERIMENTAL_VERSION=40" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
 
     - name: "Setup cmake"
       uses: jwlawson/actions-setup-cmake@v2
@@ -188,20 +174,20 @@ jobs:
         cd build
         echo "[INFO] BUILD_FLAGS: ${{ env.BUILD_FLAGS }}"
         echo "[INFO] BUILD_MODE: ${{ env.BUILD_MODE }}"
-        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DVCPKG_INSTALL_OPTIONS="--clean-after-build"
+        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=Release -DVCPKG_INSTALL_OPTIONS="--clean-after-build"
         
     - name: "Build Cemu"
       run: |
         cd build
-        cmake --build . --config ${{ env.BUILD_MODE }}
+        cmake --build . --config Release
 
     - name: Prepare artifact
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
       
     - name: Upload artifact
       uses: actions/upload-artifact@v3
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-windows-x64
         path: ./bin/Cemu.exe
@@ -221,23 +207,17 @@ jobs:
         git pull --all        
         
     - name: Setup release mode parameters (for deploy)
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       run: |
         echo "BUILD_MODE=release" >> $GITHUB_ENV
         echo "BUILD_FLAGS=" >> $GITHUB_ENV
         echo "Build mode is release"
-    - name: Setup debug mode parameters (for continous build)
-      if: ${{ inputs.deploymode != 'release' }}
-      run: |
-        echo "BUILD_MODE=debug" >> $GITHUB_ENV
-        echo "BUILD_FLAGS=" >> $GITHUB_ENV
-        echo "Build mode is debug"
         
     - name: Setup version for experimental
       if: ${{ inputs.experimentalversion != '' }}
       run: |
-        echo "[INFO] Experimental version ${{ inputs.experimentalversion }}"
-        echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEXPERIMENTAL_VERSION=${{ inputs.experimentalversion }}" >> $GITHUB_ENV
+        echo "[INFO] Experimental version 40"
+        echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEXPERIMENTAL_VERSION=40" >> $GITHUB_ENV
         
     - name: "Install system dependencies"
       run: |
@@ -283,7 +263,7 @@ jobs:
         cmake --build build
 
     - name: Prepare artifact
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       run: |
         mkdir bin/Cemu_app
         mv bin/Cemu_release.app bin/Cemu_app/Cemu.app
@@ -297,7 +277,7 @@ jobs:
               
     - name: Upload artifact
       uses: actions/upload-artifact@v3
-      if: ${{ inputs.deploymode == 'release' }}
+      #if: ${{ inputs.deploymode == 'release' }}
       with:
         name: cemu-bin-macos-x64
         path: ./bin/Cemu.dmg
