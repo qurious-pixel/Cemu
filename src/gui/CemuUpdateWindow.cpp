@@ -511,7 +511,7 @@ void CemuUpdateWindow::WorkerThread()
 				m_restartFile = appimage_path;
 				chmod(filePath, permissions);
 				wxString wxAppPath = wxString::FromUTF8(appimage_path);
-				wxCopyFile (wxT("/tmp/cemu_update/Cemu.AppImage"), wxT(wxAppPath));
+				wxCopyFile (wxT("/tmp/cemu_update/Cemu.AppImage"), wxAppPath);
 #elif BOOST_OS_MACOS
 				
 #endif	
