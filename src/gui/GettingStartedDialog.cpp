@@ -146,8 +146,10 @@ wxPanel* GettingStartedDialog::CreatePage2()
 
 		m_update = new wxCheckBox(sizer->GetStaticBox(), wxID_ANY, _("Automatically check for updates"));
 		option_sizer->Add(m_update, 0, wxALL, 5);
-#if BOOST_OS_MACOS // BOOST_OS_LINUX || 
-		m_update->Disable();
+#if BOOST_OS_LINUX 
+			if (!std::getenv("APPIMAGE")) {
+				m_auto_update->Disable();
+			} 
 #endif
 
 		sizer->Add(option_sizer, 1, wxEXPAND, 5);
