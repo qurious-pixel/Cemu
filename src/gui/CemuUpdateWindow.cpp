@@ -610,11 +610,11 @@ void CemuUpdateWindow::OnClose(wxCloseEvent& event)
 #elif BOOST_OS_LINUX
 	if (m_restartRequired && !m_restartFile.empty() && fs::exists(m_restartFile))
 	{
-		fs::path exePath = ActiveSettings::GetExecutablePath();
+		//fs::path exePath = ActiveSettings::GetExecutablePath();
 		const char* appimage_path = std::getenv("APPIMAGE");
-		const auto tmppath = fs::temp_directory_path() / L"cemu_update";
-		std::string target_exe = (exePath);
-		execlp(target_exe.c_str(), target_exe.c_str(), (char *)NULL);
+		//const auto tmppath = fs::temp_directory_path() / L"cemu_update";
+		//std::string target_exe = (exePath);
+		execlp(appimage_path, appimage_path, (char *)NULL);
 
 		exit(0);
 	}
