@@ -35,7 +35,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: SSimco/Cemu
-        ref: 9dbc01db13cb9ac87c495432af4a16d328918b8c
+        ref: 2607f069f679fe04d647f8b0cb620ef1eba9ba0f
         submodules: recursive
     - name: Checkout AppImage Repo
       uses: actions/checkout@v3
@@ -126,5 +126,5 @@ jobs:
         name: cemu-android
         path: |
           artifacts
-        
+        if-no-files-found: warn
  
