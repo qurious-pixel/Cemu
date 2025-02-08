@@ -32,19 +32,19 @@ jobs:
       CACHEDIR: ~/.ccache
     steps:
     - name: Checkout Upstream Repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: SSimco/Cemu
         ref: 2607f069f679fe04d647f8b0cb620ef1eba9ba0f
         submodules: recursive
     - name: Checkout AppImage Repo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
           clean: false
           path: ci
 
     - name: cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.ccache
@@ -63,7 +63,7 @@ jobs:
       run: |
         sudo apt update -qq
         sudo apt install -y ccache apksigner zipalign
-    - uses: actions/setup-java@v3
+    - uses: actions/setup-java@v4
       with:
         distribution: 'oracle'
         java-version: '17'
@@ -121,7 +121,7 @@ jobs:
         cp ./app/build/outputs/apk/release/app-release-unsigned.apk ${{ github.workspace }}/artifacts/cemu-release.apk
  
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: cemu-android
         path: |
