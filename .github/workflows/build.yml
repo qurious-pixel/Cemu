@@ -89,10 +89,10 @@ jobs:
         git config --file .gitmodules --name-only --get-regexp path
         git submodule update --init --recursive
         go install github.com/klauspost/cpuid/v2/cmd/cpuid@latest
-        pkg-config --list-all
+        #pkg-config --list-all
         #sed -i 's|Exec=cemu|Exec=Cemu|g' dist/linux/info.cemu.Cemu.desktop ## wayland build
         #git apply ci/scripts/xdg.patch
-        #sed -i 40,43d src/CMakeLists.txt
+        sed -i 251d CMakeLists.txt
 
     - name: "Bootstrap vcpkg"
       run: |
