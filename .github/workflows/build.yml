@@ -84,15 +84,15 @@ jobs:
         echo "Android Fixes"
         set -x
         cp -a ci/.gitmodules .gitmodules
-        git status
+        #git status
         git add .gitmodules
-        git status
+        #git status
         #git rm --force dependencies/cpuid
         git rm --cached dependencies/cpuid
         #git submodule deinit -f dependencies/cpuid
         git config --file .gitmodules --name-only --get-regexp path
         git submodule update --init --recursive
-        git pull --recurse-submodules
+        #git pull --recurse-submodules
         go install github.com/klauspost/cpuid/v2/cmd/cpuid@latest
         #sed -i 's|Exec=cemu|Exec=Cemu|g' dist/linux/info.cemu.Cemu.desktop ## wayland build
         #git apply ci/scripts/xdg.patch
