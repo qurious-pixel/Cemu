@@ -36,7 +36,7 @@ jobs:
       with:
         repository: SSimco/Cemu
         ref: 2607f069f679fe04d647f8b0cb620ef1eba9ba0f
-        submodules: recursive
+        #submodules: recursive
     - name: Checkout AppImage Repo
       uses: actions/checkout@v4
       with:
@@ -82,6 +82,10 @@ jobs:
     - name: Fixes (Android)
       run: |
         echo "Android Fixes"
+        cp -a ci/.gitmodules .gitmodules
+        git submodule update --init --recursive
+        git pull --recurse-submodules
+        go install github.com/klauspost/cpuid/v2/cmd/cpuid@latest
         #sed -i 's|Exec=cemu|Exec=Cemu|g' dist/linux/info.cemu.Cemu.desktop ## wayland build
         #git apply ci/scripts/xdg.patch
         #sed -i 40,43d src/CMakeLists.txt
