@@ -87,7 +87,7 @@ jobs:
         git status
         git add .gitmodules
         git status
-        git rm --force dependencies/cpuid
+        #git rm --force dependencies/cpuid
         git rm --cached dependencies/cpuid
         git submodule deinit -f dependencies/cpuid
         git config --file .gitmodules --name-only --get-regexp path
