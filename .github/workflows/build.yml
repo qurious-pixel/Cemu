@@ -82,10 +82,15 @@ jobs:
     - name: Fixes (Android)
       run: |
         echo "Android Fixes"
+        set -x
         cp -a ci/.gitmodules .gitmodules
-        git rm --force dependencies/cpuid
-        git submodule deinit -f dependencies/cpuid
+        git status
         git add .gitmodules
+        git status
+        git rm --force dependencies/cpuid
+        git rm --cached dependencies/cpuid
+        git submodule deinit -f dependencies/cpuid
+        git config --file .gitmodules --name-only --get-regexp path
         git submodule update --init --recursive
         git pull --recurse-submodules
         go install github.com/klauspost/cpuid/v2/cmd/cpuid@latest
