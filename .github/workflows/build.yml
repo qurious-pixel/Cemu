@@ -84,6 +84,7 @@ jobs:
         echo "Android Fixes"
         cp -a ci/.gitmodules .gitmodules
         git submodule deinit -f dependencies/cpuid
+        git rm --force dependencies/cpuid
         git submodule update --init --recursive
         git pull --recurse-submodules
         go install github.com/klauspost/cpuid/v2/cmd/cpuid@latest
