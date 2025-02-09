@@ -83,6 +83,7 @@ jobs:
       run: |
         echo "Android Fixes"
         cp -a ci/.gitmodules .gitmodules
+        cat .gitmodules
         git submodule update --init --recursive
         git pull --recurse-submodules
         go install github.com/klauspost/cpuid/v2/cmd/cpuid@latest
