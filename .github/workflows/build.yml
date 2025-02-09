@@ -68,11 +68,11 @@ jobs:
         distribution: 'oracle'
         java-version: '17'
 
-    - name: "Fetch full history for vcpkg submodule"
-      run: |
-        cd dependencies/vcpkg
-        git fetch --unshallow
-        git pull --all
+    #- name: "Fetch full history for vcpkg submodule"
+    #  run: |
+    #    cd dependencies/vcpkg
+    #    git fetch --unshallow
+    #    git pull --all
     
     - name: "Create cache dir"
       run: |
