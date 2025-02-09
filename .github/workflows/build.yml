@@ -89,7 +89,7 @@ jobs:
         git status
         #git rm --force dependencies/cpuid
         git rm --cached dependencies/cpuid
-        git submodule deinit -f dependencies/cpuid
+        #git submodule deinit -f dependencies/cpuid
         git config --file .gitmodules --name-only --get-regexp path
         git submodule update --init --recursive
         git pull --recurse-submodules
