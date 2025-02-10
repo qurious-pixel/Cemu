@@ -35,7 +35,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: SSimco/Cemu
-        ref: 2607f069f679fe04d647f8b0cb620ef1eba9ba0f
+        ref: da7af728a933450324fef6fd7019130cd9c5a4d1
         #submodules: recursive
     - name: Checkout AppImage Repo
       uses: actions/checkout@v4
