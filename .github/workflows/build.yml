@@ -85,7 +85,7 @@ jobs:
         set -x
         cp -a ci/.gitmodules .gitmodules
         git add .gitmodules
-        git rm --cached dependencies/cpuid
+        #git rm --cached dependencies/cpuid
         git config --file .gitmodules --name-only --get-regexp path
         git submodule update --init --recursive
         go install github.com/klauspost/cpuid/v2/cmd/cpuid@latest
