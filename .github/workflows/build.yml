@@ -126,13 +126,9 @@ jobs:
         cd src/android
         base64 --decode <<< "${{ secrets.SECRETS_FILE_CONTENTS }}" > ks.jks
         mkdir -p ${{ github.workspace }}/artifacts
-        echo build
-        ls ${{ github.workspace }}/src/android/app/build/
-        echo outputs
-        ls ${{ github.workspace }}/src/android/app/build/outputs/
-        echo apk
-        ls ${{ github.workspace }}/src/android/app/build/outputs/apk/
-        cp ./src/android/app/build/outputs/apk/release/*.apk ${{ github.workspace }}/artifacts/cemu-release.apk
+        echo '"release"'
+        ls ${{ github.workspace }}/src/android/app/build/outputs/apk/release/
+        cp ${{ github.workspace }}/src/android/app/build/outputs/apk/release/*.apk ${{ github.workspace }}/artifacts/cemu-release.apk
  
     - name: Upload artifact
       uses: actions/upload-artifact@v4
