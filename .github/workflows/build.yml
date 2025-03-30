@@ -30,8 +30,8 @@ jobs:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
-        repository: goeiecool9999/Cemu # cemu-project/Cemu # 
-        ref: colourfixes # main
+        repository: capitalistspz/Cemu # cemu-project/Cemu # 
+        ref: camera # main
         submodules: recursive
 
     - name: cache
@@ -110,8 +110,8 @@ jobs:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v3
       with:
-        repository: cemu-project/Cemu
-        ref: main
+        repository: capitalistspz/Cemu
+        ref: camera
         submodules: false
     - name: Checkout AppImage Repo
       uses: actions/checkout@v3
@@ -135,6 +135,14 @@ jobs:
         sudo apt update -qq
         sudo apt install -y ccache ninja-build cmake libgtk-3-dev libsecret-1-dev libgcrypt20-dev libsystemd-dev freeglut3-dev clang-12 nasm gcc-11 g++-11 libpng-dev libpulse-dev libwxgtk-webview3.0-gtk3-0v5 libvulkan-dev
 
+    - name: "Install openpnp-capture dependencies"
+      run: |
+        mkdir -p dependencies/openpnp-capture/build
+        cd dependencies/openpnp-capture/build
+        cmake -DCMAKE_BUILD_TYPE=Release cmake ..
+        make
+        sudo make install
+        
     - name: "Build AppImage"
       run: |
         chmod +x dist/linux/appimage.sh && dist/linux/appimage.sh
