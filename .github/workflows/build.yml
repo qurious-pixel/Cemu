@@ -136,11 +136,10 @@ jobs:
 
     - name: "Install openpnp-capture dependencies"
       run: |
-        mkdir -p dependencies/openpnp-capture/build
-        cd dependencies/openpnp-capture/build
-        cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -GNinja
-        make
-        sudo make install
+        cd dependencies/openpnp-capture/
+        cmake -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr -GNinja
+        cmake --build build
+        sudo ninja install -C build
         
     - name: "Build AppImage"
       run: |
