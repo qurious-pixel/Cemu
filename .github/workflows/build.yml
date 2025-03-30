@@ -138,7 +138,7 @@ jobs:
       run: |
         mkdir -p dependencies/openpnp-capture/build
         cd dependencies/openpnp-capture/build
-        cmake -DCMAKE_BUILD_TYPE=Release cmake ..
+        cmake .. -DCMAKE_BUILD_TYPE=Release
         make
         sudo make install
         
