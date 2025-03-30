@@ -96,7 +96,7 @@ jobs:
         
     - name: "cmake"
       run: |
-        cmake -S . -B build  ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DPORTABLE=OFF -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -G Ninja
+        cmake -S . -B build  ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DPORTABLE=OFF -DCMAKE_C_COMPILER=/usr/bin/clang-15 -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER=/usr/bin/clang++-15 -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -G Ninja
     - name: "Build Cemu"
       run: |
         cmake --build build
