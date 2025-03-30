@@ -117,7 +117,7 @@ jobs:
       with:
         repository: capitalistspz/Cemu
         ref: camera
-        submodules: false
+        submodules: recursive
     - name: Checkout AppImage Repo
       uses: actions/checkout@v4
       with:
