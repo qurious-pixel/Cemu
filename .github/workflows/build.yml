@@ -56,7 +56,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: cemu-bin-linux-x64
+        name: cemu-bin-fedora-x64
         path: ./bin/Cemu
 
   build-ubuntu:
