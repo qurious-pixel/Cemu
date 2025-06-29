@@ -6,7 +6,7 @@ git config --global --add safe.directory '*'
 
 
 apt update -qq
-apt install -y autoconf clang cmake freeglut3-dev git libbluetooth-dev libgcrypt20-dev libglm-dev libgtk-3-dev libpulse-dev libsecret-1-dev libsystemd-dev libudev-dev nasm ninja-build zip
+apt install -y autoconf clang cmake freeglut3-dev git libbluetooth-dev libgcrypt20-dev libglm-dev libgtk-3-dev libltdl-dev libpulse-dev libsecret-1-dev libsystemd-dev libudev-dev nasm ninja-build zip
 
 cd /cemu/dependencies/vcpkg
 git remote update
