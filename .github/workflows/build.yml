@@ -32,10 +32,11 @@ jobs:
         echo "BUILD_FLAGS=" >> $GITHUB_ENV
         echo "Build mode is release"
 
-    #- name: "Fetch full history for vcpkg submodule"
-    #  run: |
-    #    cd dependencies/vcpkg
-    #    git pull --all
+    - name: "Fetch full history for vcpkg submodule"
+      run: |
+        cd dependencies/vcpkg
+        git fetch
+        git pull --all
         
     - name: "cmake"
       run: |
