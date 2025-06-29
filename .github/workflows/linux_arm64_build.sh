@@ -11,10 +11,8 @@ apt install -y autoconf clang cmake freeglut3-dev git libbluetooth-dev libgcrypt
 cd /cemu/dependencies/vcpkg
 git remote update
 git pull origin master
-vcpkg update
+./bootstrap-vcpkg.sh
 cd /cemu
-
-bash /cemu/dependencies/vcpkg/bootstrap-vcpkg.sh
 
 cmake -S . -B build  -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
 cmake --build build
