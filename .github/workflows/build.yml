@@ -90,6 +90,12 @@ jobs:
       with:
         cmake-version: '3.29.0'
 
+    - name: "Fetch full history for vcpkg submodule"
+      run: |
+        cd dependencies/vcpkg
+        git fetch --unshallow
+        git checkout 0cb95c860ea83aafc1b24350510b30dec535989a
+        
     - name: "Bootstrap vcpkg"
       run: |
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
@@ -179,6 +185,12 @@ jobs:
       with:
         cmake-version: '3.29.0'
 
+    - name: "Fetch full history for vcpkg submodule"
+      run: |
+        cd dependencies/vcpkg
+        git fetch --unshallow
+        git checkout 0cb95c860ea83aafc1b24350510b30dec535989a
+        
     - name: "Bootstrap vcpkg"
       run: |
         ./dependencies/vcpkg/bootstrap-vcpkg.bat
@@ -259,6 +271,12 @@ jobs:
       with:
         cmake-version: '3.29.0'
 
+    - name: "Fetch full history for vcpkg submodule"
+      run: |
+        cd dependencies/vcpkg
+        git fetch --unshallow
+        git checkout 0cb95c860ea83aafc1b24350510b30dec535989a
+        
     - name: "Bootstrap vcpkg"
       run: |
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
