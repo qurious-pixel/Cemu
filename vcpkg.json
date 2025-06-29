@@ -55,8 +55,8 @@
   "overrides": [
     {
       "name": "glslang",
-      "default-features": false,
-      "version": "15.1.0"
+      "version": "15.1.0",
+      "default-features": false
     },
     {
       "name": "sdl2",
