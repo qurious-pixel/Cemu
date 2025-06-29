@@ -36,7 +36,7 @@ jobs:
       run: |
         cd dependencies/vcpkg
         git remote update
-        git pull --all
+        git pull origin master
         
     - name: "cmake"
       run: |
