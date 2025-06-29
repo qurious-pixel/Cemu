@@ -16,7 +16,7 @@ jobs:
     steps:
     - name: Setup dependencies
       run: |
-        sudo dnf install -y bison clang cmake cubeb-devel findutils freeglut-devel git glm-devel gtk3-devel kernel-headers libgcrypt-devel libsecret-devel libtool libudev-devel libusb1-devel mono-complete nasm ninja-build python3-pip perl-open perl-FindBin perl-File-Compare perl-File-Copy perl-IPC-Cmd rsync systemd-devel vcpkg vim-enhanced wayland-protocols-devel wget zip zlib-devel zlib-ng-compat-static
+        sudo dnf install -y bison bluez-libs-devel clang cmake cubeb-devel findutils freeglut-devel git glm-devel gtk3-devel kernel-headers libgcrypt-devel libsecret-devel libtool libudev-devel libusb1-devel mono-complete nasm ninja-build python3-pip perl-open perl-FindBin perl-File-Compare perl-File-Copy perl-IPC-Cmd rsync systemd-devel vcpkg vim-enhanced wayland-protocols-devel wget zip zlib-devel zlib-ng-compat-static
         pip3 install jinja2 passlib
         git config --global --add safe.directory '*'
 
