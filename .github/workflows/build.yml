@@ -13,6 +13,7 @@ jobs:
       with:
         submodules: "recursive"
         fetch-depth: 0
+        ref: c8ffff8f41212098fb76734d2a065e247ea3e0f9
 
     - name: Docker setup and build
       run: |
