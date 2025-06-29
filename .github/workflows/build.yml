@@ -8,23 +8,56 @@ jobs:
   build-fedora:
     runs-on: ubuntu-latest
     container:
-      image: fedora:latest
+      image: rpcs3/rpcs3-ci-jammy-aarch64:1.6
     steps:
-    - name: "Checkout repo"
+    - name: Checkout
       uses: actions/checkout@v4
       with:
         submodules: "recursive"
         fetch-depth: 0
 
-    - name: Docker setup and build
+    - name: Setup release mode parameters
       run: |
-          chmod +x linux_arm64_build.sh
-          docker pull --quiet rpcs3/rpcs3-ci-jammy-aarch64:1.6
-          docker run \
-            -v $PWD:/cemu \
-            --env-file .ci/docker.env \
-            rpcs3/rpcs3-ci-jammy-aarch64:1.6 \
-            ./linux_arm64_build.sh
+        echo "BUILD_MODE=release" >> $GITHUB_ENV
+        echo "BUILD_FLAGS=" >> $GITHUB_ENV
+        echo "Build mode is release"
+        
+    - name: "Fetch full history for vcpkg submodule"
+      run: |
+        cd dependencies/vcpkg
+        git remote update
+        git pull origin master
+        
+    - name: "Bootstrap vcpkg"
+      run: |
+        bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
+        
+    - name: "cmake"
+      run: |
+        cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -DCMAKE_AR=/usr/bin/ar
+        
+    - name: "Build Cemu"
+      run: |
+        cmake --build build
+        
+    - name: Prepare artifact
+      run: mv bin/Cemu_release bin/Cemu
+              
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: cemu-bin-fedora-x64
+        path: ./bin/Cemu
+
+   # - name: Docker setup and build
+   #   run: |
+   #       chmod +x linux_arm64_build.sh
+   #       docker pull --quiet rpcs3/rpcs3-ci-jammy-aarch64:1.6
+   #       docker run \
+   #         -v $PWD:/cemu \
+   #         --env-file .ci/docker.env \
+   #         rpcs3/rpcs3-ci-jammy-aarch64:1.6 \
+   #         ./linux_arm64_build.sh
          
    # - name: Upload artifact
    #   uses: actions/upload-artifact@v4
