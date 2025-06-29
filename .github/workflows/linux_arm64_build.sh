@@ -8,6 +8,10 @@ git config --global --add safe.directory '*'
 apt update -qq
 apt install -y git clang cmake freeglut3-dev libgcrypt20-dev libglm-dev libgtk-3-dev libpulse-dev libsecret-1-dev libsystemd-dev libudev-dev nasm ninja-build libbluetooth-dev
 
+cd /cemu/dependencies/vcpkg
+git remote update
+git pull origin master
+cd /cemu
 
 bash /cemu/dependencies/vcpkg/bootstrap-vcpkg.sh
 
