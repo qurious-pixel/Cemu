@@ -16,12 +16,12 @@ jobs:
 
     - name: Docker setup and build
       run: |
-          chmod +x .github/linux_arm64_build.sh
+          chmod +x .github/workflows/linux_arm64_build.sh
           docker pull --quiet rpcs3/rpcs3-ci-jammy-aarch64:1.6
           docker run \
             -v $PWD:/cemu \
             rpcs3/rpcs3-ci-jammy-aarch64:1.6 \
-            .github/linux_arm64_build.sh
+            .github/workflows/linux_arm64_build.sh
          
    # - name: Upload artifact
    #   uses: actions/upload-artifact@v4
