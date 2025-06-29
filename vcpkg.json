@@ -29,6 +29,10 @@
     "hidapi",
     "libpng",
     "glm",
+    {
+      "name": "glslang",
+      "default-features": false
+    },
     "zstd",
     {
       "name": "wxwidgets",
@@ -55,8 +59,7 @@
   "overrides": [
     {
       "name": "glslang",
-      "version": "15.1.0",
-      "default-features": false
+      "version": "15.1.0"
     },
     {
       "name": "sdl2",
