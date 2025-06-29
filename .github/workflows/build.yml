@@ -21,7 +21,7 @@ jobs:
           docker run \
             -v $PWD:/cemu \
             rpcs3/rpcs3-ci-jammy-aarch64:1.6 \
-            .github/workflows/linux_arm64_build.sh
+            pwd && /cemu/.github/workflows/linux_arm64_build.sh
          
    # - name: Upload artifact
    #   uses: actions/upload-artifact@v4
