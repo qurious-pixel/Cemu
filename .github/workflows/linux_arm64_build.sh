@@ -11,6 +11,7 @@ apt install -y autoconf clang cmake freeglut3-dev git libbluetooth-dev libgcrypt
 cd /cemu/dependencies/vcpkg
 git remote update
 git pull origin master
+vcpkg update
 cd /cemu
 
 bash /cemu/dependencies/vcpkg/bootstrap-vcpkg.sh
