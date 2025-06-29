@@ -35,7 +35,7 @@ jobs:
     - name: "Fetch full history for vcpkg submodule"
       run: |
         cd dependencies/vcpkg
-        git fetch
+        git remote update
         git pull --all
         
     - name: "cmake"
