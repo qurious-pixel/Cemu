@@ -5,7 +5,7 @@ on:
   push:
 
 jobs:
-  build-fedora:
+  build-linux-arm64:
     runs-on: ubuntu-24.04-arm
     steps:
     - name: Checkout
@@ -21,7 +21,8 @@ jobs:
           docker run \
             -v $PWD:/cemu \
             rpcs3/rpcs3-ci-jammy-aarch64:1.6 \
-            pwd && /cemu/.github/workflows/linux_arm64_build.sh
+            ls -al && ls -al /cemu
+            #/.github/workflows/linux_arm64_build.sh
          
    # - name: Upload artifact
    #   uses: actions/upload-artifact@v4
