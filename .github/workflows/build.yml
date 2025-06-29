@@ -16,7 +16,7 @@ jobs:
     steps:
     - name: Setup dependencies
       run: |
-        sudo dnf install -y bison clang cmake cubeb-devel findutils freeglut-devel git glm-devel gtk3-devel kernel-headers libgcrypt-devel libsecret-devel libtool libudev-devel libusb1-devel nasm ninja-build python3-pip perl-open perl-FindBin perl-File-Compare perl-File-Copy perl-IPC-Cmd rsync systemd-devel vcpkg vim-enhanced wayland-protocols-devel wget zip zlib-devel 
+        sudo dnf install -y bison clang cmake cubeb-devel findutils freeglut-devel git glm-devel gtk3-devel kernel-headers libgcrypt-devel libsecret-devel libtool libudev-devel libusb1-devel mono-devel nasm ninja-build python3-pip perl-open perl-FindBin perl-File-Compare perl-File-Copy perl-IPC-Cmd rsync systemd-devel vcpkg vim-enhanced wayland-protocols-devel wget zip zlib-devel 
         pip3 install jinja2 passlib
         git config --global --add safe.directory '*'
 
@@ -39,7 +39,7 @@ jobs:
         
     - name: "cmake"
       run: |
-        cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DCMAKE_C_COMPILER=/usr/bin/clang-15 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-15 -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
+        cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
         
     - name: "Build Cemu"
       run: |
