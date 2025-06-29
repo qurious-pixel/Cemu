@@ -32,23 +32,11 @@ jobs:
         echo "BUILD_FLAGS=" >> $GITHUB_ENV
         echo "Build mode is release"
 
-    - name: "Bootstrap vcpkg"
+    - name: "Fetch full history for vcpkg submodule"
       run: |
-        bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
-
-    - name: 'Setup NuGet Credentials for vcpkg'
-      shell: 'bash'
-      run: |
-        mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
-        sources add \
-        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-        -storepasswordincleartext \
-        -name "GitHub" \
-        -username "${{ github.repository_owner }}" \
-        -password "${{ secrets.GITHUB_TOKEN }}"
-        mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
-        setapikey "${{ secrets.GITHUB_TOKEN }}" \
-        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+        cd dependencies/vcpkg
+        git fetch --unshallow
+        git pull --all
         
     - name: "cmake"
       run: |
