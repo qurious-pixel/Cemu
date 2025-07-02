@@ -14,8 +14,8 @@ git pull origin master
 ./bootstrap-vcpkg.sh
 cd /cemu
 
-cmake -S . -B build  -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
-cmake --build build
+cmake -S . -B build  -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -DCMAKE_VERBOSE_MAKEFILE=ON
+cmake --build build -- -v
 
 # mv bin/Cemu_release bin/Cemu
 
