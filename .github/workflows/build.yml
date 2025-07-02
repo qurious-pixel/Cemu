@@ -76,6 +76,12 @@ jobs:
       run: |
         echo "Linux Fixes"
 
+    - name: "Fetch full history for vcpkg submodule"
+      run: |
+        cd dependencies/vcpkg
+        git fetch --unshallow
+        git checkout 431eb6bda0950874c8d4ed929cc66e15d8aae46f
+        
     - name: "Bootstrap vcpkg"
       run: |
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
