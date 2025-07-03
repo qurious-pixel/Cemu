@@ -5,7 +5,8 @@ project ("ih264d")
 message(STATUS "Building for ${CMAKE_SYSTEM_NAME}")
 # Check for Apple platform
 if(NOT APPLE OR NOT __APPLE__)
-    remove_definitions(-DAPPLE)
+    remove_definitions(-D APPLE)
+    unset(__APPLE__)
 endif()
 
 add_library (ih264d 
@@ -188,7 +189,7 @@ target_sources(ih264d PRIVATE
 "decoder/arm/ih264d_function_selector_av8.c"
 "decoder/arm/ih264d_function_selector.c"
 )
-target_compile_options(ih264d PRIVATE -DARMV8)
+target_compile_options(ih264d PRIVATE -DARMV8 $<$<COMPILE_LANGUAGE:Clang>:-Wno-error=unused-command-line-argument>)
 if(APPLE)
     target_sources(ih264d PRIVATE "common/armv8/macos_arm_symbol_aliases.s")
 endif()
