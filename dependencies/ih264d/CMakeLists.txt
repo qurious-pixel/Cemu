@@ -2,6 +2,12 @@
 
 project ("ih264d")
 
+message(STATUS "Building for ${CMAKE_SYSTEM_NAME}")
+# Check for Apple platform
+if(NOT APPLE OR NOT __APPLE__)
+    remove_definitions(-DAPPLE)
+endif()
+
 add_library (ih264d 
 "common/ih264_buf_mgr.c"
 "common/ih264_buf_mgr.h"
