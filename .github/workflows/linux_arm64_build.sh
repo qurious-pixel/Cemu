@@ -19,7 +19,7 @@ cd /cemu/dependencies/ih264d
 ##
 
 cmake -S . -B build  -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja -DCMAKE_VERBOSE_MAKEFILE=ON
-cmake --build build -- -v
+cmake --build build
 
 # mv bin/Cemu_release bin/Cemu
 
