@@ -302,7 +302,7 @@ void WiimoteControllerProvider::reader_thread()
 					{
 						if (size == 0xf)
 						{
-							cemuLog_logDebug(LogType::Force,"Extension type received but no extension connected");
+							wiimote_log("Extension type received but no extension connected");
 							continue;
 						}
 
