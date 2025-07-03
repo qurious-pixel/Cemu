@@ -189,7 +189,7 @@ target_sources(ih264d PRIVATE
 "decoder/arm/ih264d_function_selector_av8.c"
 "decoder/arm/ih264d_function_selector.c"
 )
-target_compile_options(ih264d PRIVATE -DARMV8 $<$<COMPILE_LANGUAGE:CXX,Clang>:-Wno-error=unused-command-line-argument>)
+target_compile_options(ih264d PRIVATE -DARMV8 $<$<COMPILE_LANGUAGE:ASM,Clang>:-Wno-error=unused-command-line-argument>)
 if(APPLE)
     target_sources(ih264d PRIVATE "common/armv8/macos_arm_symbol_aliases.s")
 endif()
