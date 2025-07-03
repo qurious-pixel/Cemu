@@ -15,6 +15,7 @@ git config --global --add safe.directory '*'
 #cd /cemu
 
 ## test build
+apt update -qq
 apt install -y clang
 cd /cemu/dependencies/ih264d
 ##
