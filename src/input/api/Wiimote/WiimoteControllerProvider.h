@@ -15,7 +15,11 @@
 #define HAS_WIIMOTE 1
 #endif
 
-#define WIIMOTE_DEBUG 1
+template <typename Fmt, typename ...Param>
+constexpr void wiimote_log(Fmt format, Param... params){
+	std::string prefix_fmt = "Wiimote: ";
+	cemuLog_log(LogType::Force, prefix_fmt.append(format), std::forward<Param>(params)...);
+}
 
 class WiimoteControllerProvider : public ControllerProviderBase
 {
@@ -107,6 +111,7 @@ private:
 	void connectionThread();
 
 	void calibrate(size_t index);
+	bool identify_extension(WiimoteState& state, size_t controllerIndex, uint64 identifier);
 	IRMode set_ir_camera(size_t index, bool state);
 
 	void send_packet(size_t index, std::vector<uint8> data);
