@@ -339,7 +339,7 @@ void WiimoteControllerProvider::reader_thread()
 							set_motion_plus(index, true);
 							new_state.m_motion_plus = MotionPlusData{};
 							break;
-						case kExtensionPartialyInserted:
+						case kExtensionPartiallyInserted:
                             cemuLog_logDebug(LogType::Force,"Extension only partially inserted");
 							new_state.m_extension = {};
 							request_status(index);
