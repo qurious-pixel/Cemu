@@ -2,7 +2,7 @@
 
 project ("ih264d")
 
-message(STATUS "Building for ${CMAKE_SYSTEM_NAME}")
+message(STATUS "Building for ${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_PROCESSOR}")
 # Check for Apple platform
 if(NOT APPLE OR NOT __APPLE__)
     remove_definitions(-D APPLE)
