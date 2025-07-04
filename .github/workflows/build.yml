@@ -42,7 +42,7 @@ jobs:
             pkg install git ccache cmake ninja ffmpeg curl libfmt libzip png 
             pkg install pkgconf rapidjson pulseaudio sdl2 evdev-proto vulkan-headers vulkan-loader pugixml gtk3 glm glslang spirv-tools boost-libs wayland-protocols wx32-gtk3
             git config --global --add safe.directory .
-            cmake -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_MAKE_PROGRAM=/usr/local/bin/ninja -DENABLE_VCPKG=OFF
+            cmake -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_MAKE_PROGRAM=/usr/local/bin/ninja -DENABLE_VCPKG:BOOL=OFF -DENABLE_HIDAPI:BOOL=OFF -DENABLE_BLUEZ:BOOL=OFF -DENABLE_DISCORD_RPC:BOOL=OFF -DENABLE_FERAL_GAMEMODE:BOOL=OFF
             cmake --build build
 
       - name: Save Build Ccache
