@@ -31,58 +31,59 @@ jobs:
     steps:
     - name: "Checkout repo"
       uses: actions/checkout@v4
-      with:
-        submodules: "recursive"
+      #with:
+      #  submodules: "recursive"
         
-    - name: Setup release mode parameters
-      run: |
-        echo "BUILD_MODE=release" >> $GITHUB_ENV
-        echo "BUILD_FLAGS=" >> $GITHUB_ENV
-        echo "Build mode is release"
+    #- name: Setup release mode parameters
+    #  run: |
+    #    echo "BUILD_MODE=release" >> $GITHUB_ENV
+    #    echo "BUILD_FLAGS=" >> $GITHUB_ENV
+    #    echo "Build mode is release"
 
-    - name: Setup build flags for version
-      if: ${{ inputs.next_version_major != '' }}
-      run: |
-        echo "[INFO] Version ${{ inputs.next_version_major }}.${{ inputs.next_version_minor }}"
-        echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEMULATOR_VERSION_MAJOR=${{ inputs.next_version_major }} -DEMULATOR_VERSION_MINOR=${{ inputs.next_version_minor }}" >> $GITHUB_ENV
+    #- name: Setup build flags for version
+    #  if: ${{ inputs.next_version_major != '' }}
+    #  run: |
+    #    echo "[INFO] Version ${{ inputs.next_version_major }}.${{ inputs.next_version_minor }}"
+    #    echo "BUILD_FLAGS=${{ env.BUILD_FLAGS }} -DEMULATOR_VERSION_MAJOR=${{ inputs.next_version_major }} -DEMULATOR_VERSION_MINOR=${{ inputs.next_version_minor }}" >> $GITHUB_ENV
         
     - name: "Install system dependencies"
       run: |
         brew update
         brew install ninja nasm automake libtool
 
-    - name: "Install molten-vk"
-      run: |
-        curl -L -O https://github.com/KhronosGroup/MoltenVK/releases/download/v1.3.0/MoltenVK-macos.tar
-        tar xf MoltenVK-macos.tar
-        sudo mkdir -p /usr/local/lib
-        sudo cp MoltenVK/MoltenVK/dynamic/dylib/macOS/libMoltenVK.dylib /usr/local/lib
+    #- name: "Install molten-vk"
+    #  run: |
+    #    curl -L -O https://github.com/KhronosGroup/MoltenVK/releases/download/v1.3.0/MoltenVK-macos.tar
+    #    tar xf MoltenVK-macos.tar
+    #    sudo mkdir -p /usr/local/lib
+    #    sudo cp MoltenVK/MoltenVK/dynamic/dylib/macOS/libMoltenVK.dylib /usr/local/lib
 
     - name: "Setup cmake"
       uses: jwlawson/actions-setup-cmake@v2
       with:
         cmake-version: '3.29.0'
 
-    - name: "Bootstrap vcpkg"
-      run: |
-        bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
+    #- name: "Bootstrap vcpkg"
+    #  run: |
+    #    bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
         
-    - name: 'Setup NuGet Credentials for vcpkg'
-      shell: 'bash'
-      run: |
-        mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
-        sources add \
-        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-        -storepasswordincleartext \
-        -name "GitHub" \
-        -username "${{ github.repository_owner }}" \
-        -password "${{ secrets.GITHUB_TOKEN }}"
-        mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
-        setapikey "${{ secrets.GITHUB_TOKEN }}" \
-        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+    #- name: 'Setup NuGet Credentials for vcpkg'
+    #  shell: 'bash'
+    #  run: |
+    #    mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
+    #    sources add \
+    #    -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+    #    -storepasswordincleartext \
+    #    -name "GitHub" \
+    #    -username "${{ github.repository_owner }}" \
+    #    -password "${{ secrets.GITHUB_TOKEN }}"
+    #    mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
+    #    setapikey "${{ secrets.GITHUB_TOKEN }}" \
+    #    -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
         
     - name: "cmake"
       run: |
+        cd dependencies/ih264d/
         mkdir build
         cd build
         cmake .. ${{ env.BUILD_FLAGS }} \
