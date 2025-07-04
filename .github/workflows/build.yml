@@ -2,7 +2,7 @@ name: Build Cemu
 
 on:
   workflow_call:
-  #push:
+  push:
 
 jobs:
   build-linux-arm64:
