@@ -6,8 +6,6 @@ on:
 
 jobs:
   FreeBSD_Build:
-      # Only run push event on master branch of main repo, but run all PRs
-    if: github.event_name != 'push' || (github.repository == 'RPCS3/rpcs3' && github.ref_name == 'master')
     name: Cemu FreeBSD 
     runs-on: ubuntu-latest
     timeout-minutes: 60
