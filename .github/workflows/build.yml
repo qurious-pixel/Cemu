@@ -40,7 +40,7 @@ jobs:
             pkg info # debug
             pkg install llvm16
             pkg install git ccache cmake ninja ffmpeg
-            pkg install pkgconf rapidjson pulseaudio sdl2 evdev-proto vulkan-headers vulkan-loader pugixml glm glslang spirv-tools png
+            pkg install pkgconf rapidjson pulseaudio sdl2 evdev-proto vulkan-headers vulkan-loader pugixml glm glslang spirv-tools png boost-libs 
             git config --global --add safe.directory .
             cmake -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_MAKE_PROGRAM=/usr/local/bin/ninja -DENABLE_VCPKG=OFF
             cmake --build build
