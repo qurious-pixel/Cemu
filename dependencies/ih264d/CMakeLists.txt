@@ -173,7 +173,7 @@ target_sources(ih264d PRIVATE
 "common/armv8/ih264_inter_pred_luma_horz_qpel_vert_qpel_av8.s"
 "common/armv8/ih264_inter_pred_luma_vert_qpel_av8.s"
 "common/armv8/ih264_intra_pred_chroma_av8.s"
-"common/armv8/ih264_intra_pred_luma_16x16_av8.s"
+"common/armv8/ih264_intra_pred_luma_16x16_av8.S"
 "common/armv8/ih264_intra_pred_luma_4x4_av8.s"
 "common/armv8/ih264_intra_pred_luma_8x8_av8.s"
 "common/armv8/ih264_iquant_itrans_recon_av8.s"
