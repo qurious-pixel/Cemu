@@ -173,7 +173,7 @@ target_sources(ih264d PRIVATE
 "common/armv8/ih264_inter_pred_luma_horz_qpel_vert_qpel_av8.s"
 "common/armv8/ih264_inter_pred_luma_vert_qpel_av8.s"
 "common/armv8/ih264_intra_pred_chroma_av8.s"
-"common/armv8/ih264_intra_pred_luma_16x16_av8.S"
+"common/armv8/ih264_intra_pred_luma_16x16_av8.s"
 "common/armv8/ih264_intra_pred_luma_4x4_av8.s"
 "common/armv8/ih264_intra_pred_luma_8x8_av8.s"
 "common/armv8/ih264_iquant_itrans_recon_av8.s"
@@ -190,6 +190,9 @@ target_sources(ih264d PRIVATE
 "decoder/arm/ih264d_function_selector.c"
 )
 target_compile_options(ih264d PRIVATE -DARMV8 $<$<COMPILE_LANGUAGE:ASM,Clang>:-Wno-unused-command-line-argument>)
+if(NOT MSVC)
+    set(CMAKE_ASM_FLAGS "${CFLAGS} -x assembler-with-cpp")
+endif()
 if(APPLE)
     target_sources(ih264d PRIVATE "common/armv8/macos_arm_symbol_aliases.s")
 endif()
