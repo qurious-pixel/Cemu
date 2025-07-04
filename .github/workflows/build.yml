@@ -24,9 +24,9 @@ jobs:
         git config --global --add safe.directory '*'
 
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
-        repository: cemu-project/Cemu
+        repository: kreinholz/Cemu-upstream # cemu-project/Cemu
         ref: main
         submodules: recursive
 
@@ -48,7 +48,7 @@ jobs:
       run: mv bin/Cemu_release bin/Cemu
               
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: cemu-bin-linux-x64
         path: ./bin/Cemu
