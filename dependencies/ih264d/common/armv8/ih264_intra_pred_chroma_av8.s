@@ -429,7 +429,7 @@ ih264_intra_pred_chroma_8x8_mode_plane_av8:
     rev64     v7.4h, v2.4h
     ld1       {v3.2s}, [x10]
     sub       x5, x3, #8
-.ifdef __APPLE__
+.if defined(__APPLE__)
     adrp      x12, _ih264_gai1_intrapred_chroma_plane_coeffs1@GOTPAGE
     ldr       x12, [x12, _ih264_gai1_intrapred_chroma_plane_coeffs1@GOTPAGEOFF]
 .else
