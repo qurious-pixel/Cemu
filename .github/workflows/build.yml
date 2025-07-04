@@ -2,14 +2,7 @@ name: Build Cemu
 
 on:
   workflow_dispatch:
-  workflow_call:
-    inputs:
-      deploymode:
-        required: false
-        type: string
-      experimentalversion:
-        required: false
-        type: string
+  push:
 
 jobs:
   build-cemu:
