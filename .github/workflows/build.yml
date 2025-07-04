@@ -94,6 +94,6 @@ jobs:
         
     - name: "Build Cemu"
       run: |
-        cmake --build build
+        cmake --build dependencies/ih264d/build
 
 
