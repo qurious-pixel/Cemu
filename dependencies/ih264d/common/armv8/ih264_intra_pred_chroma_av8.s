@@ -435,7 +435,7 @@ ih264_intra_pred_chroma_8x8_mode_plane_av8:
     ldr       x12, [x12, _ih264_gai1_intrapred_chroma_plane_coeffs1@GOTPAGEOFF]
 # .endif
 #endif
-.ifdef UNIX AND NOT APPLE
+.ifndef __APPLE__
     adrp      x12, :got:ih264_gai1_intrapred_chroma_plane_coeffs1
     ldr       x12, [x12, #:got_lo12:ih264_gai1_intrapred_chroma_plane_coeffs1]
 .endif
