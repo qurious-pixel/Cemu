@@ -64,9 +64,11 @@ jobs:
   build-ubuntu:
     runs-on: ubuntu-22.04
     steps:
-    - name: "Checkout repo"
+    - name: Checkout
       uses: actions/checkout@v4
       with:
+        repository: cemu-project/Cemu
+        ref: main
         submodules: "recursive"
         fetch-depth: 0
 
@@ -165,10 +167,13 @@ jobs:
   build-windows:
     runs-on: windows-2022
     steps:
-    - name: "Checkout repo"
+    - name: Checkout
       uses: actions/checkout@v4
       with:
+        repository: cemu-project/Cemu
+        ref: main
         submodules: "recursive"
+        fetch-depth: 0
 
     - name: Setup release mode parameters
       run: |
@@ -239,10 +244,13 @@ jobs:
       matrix:
         arch: [x86_64, arm64]
     steps:
-    - name: "Checkout repo"
+    - name: Checkout
       uses: actions/checkout@v4
       with:
+        repository: cemu-project/Cemu
+        ref: main
         submodules: "recursive"
+        fetch-depth: 0
         
     - name: Setup release mode parameters
       run: |
