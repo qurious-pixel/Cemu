@@ -96,7 +96,7 @@ jobs:
       run: |
         cd dependencies/vcpkg
         git remote update
-        git checkout 0cb95c860ea83aafc1b24350510b30dec535989a
+        git checkout f0fb3ddba5135b80982668de39dbaa139c00d281
         
     - name: "Bootstrap vcpkg"
       run: |
@@ -191,7 +191,7 @@ jobs:
       run: |
         cd dependencies/vcpkg
         git remote update
-        git checkout 0cb95c860ea83aafc1b24350510b30dec535989a
+        git checkout f0fb3ddba5135b80982668de39dbaa139c00d281
         
     - name: "Bootstrap vcpkg"
       run: |
@@ -277,7 +277,7 @@ jobs:
       run: |
         cd dependencies/vcpkg
         git remote update
-        git checkout 0cb95c860ea83aafc1b24350510b30dec535989a
+        git checkout f0fb3ddba5135b80982668de39dbaa139c00d281
         
     - name: "Bootstrap vcpkg"
       run: |
