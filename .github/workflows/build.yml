@@ -19,7 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@main
         with:
-          repository: kreinholz/Cemu-upstream # cemu-project/Cemu
+          repository: cemu-project/Cemu # kreinholz/Cemu-upstream # 
           ref: main
           submodules: recursive
           fetch-depth: 0
