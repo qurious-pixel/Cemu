@@ -8,7 +8,7 @@ jobs:
   build-cemu:
     runs-on: ubuntu-latest
     container:
-      image: cachyos:latest
+      image: cachy-container
     steps:
     - name: Setup dependencies
       run: |
