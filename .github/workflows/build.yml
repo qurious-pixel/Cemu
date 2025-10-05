@@ -21,8 +21,8 @@ jobs:
     steps:
       - name: Install system dependencies
         run: |
-          sudo apt update -qq
-          sudo apt install -y gettext
+          apt update -qq
+          apt install -y gettext
           uname -a
           lsb_release -a
       
@@ -37,11 +37,6 @@ jobs:
         with:
             clean: false
             path: ci
-
-      - name: Install system dependencies
-        run: |
-          sudo apt update -qq
-          sudo apt install -y gettext
 
       - name: Uncompile message catalogs
         run: |
