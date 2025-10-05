@@ -22,7 +22,7 @@ jobs:
       - name: Install system dependencies
         run: |
           apt update -qq
-          apt install -y gettext
+          apt install -y gettext lsb-release
           uname -a
           lsb_release -a
       
