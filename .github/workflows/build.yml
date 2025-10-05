@@ -13,128 +13,62 @@ env:
   VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
 
 jobs:
-  build-ubuntu:
-    strategy:
-      fail-fast: false
-      matrix:
-        compiler: [clang++-12] # [g++-11, clang++-12] # [g++-11] # 
-        build: [Release] # [Release,Debug]
-        include:
-           #- compiler: g++-11
-           #  cc: gcc-11
-           #  deb: gcc-11 g++-11
-           - compiler: clang++-12
-             cc: clang-12
-             deb: clang-12
-    name: Build Ubuntu ${{ matrix.build }}
+  build-android:
     runs-on: ubuntu-24.04
-    env:
-      CACHEDIR: ~/.ccache
+
     steps:
-    - name: Checkout Upstream Repo
-      uses: actions/checkout@v4
-      with:
-        repository: SSimco/Cemu
-        ref: android-port
-        submodules: recursive
-    - name: Checkout AppImage Repo
-      uses: actions/checkout@v4
-      with:
-          clean: false
-          path: ci
+      - name: Checkout Upstream Repo
+        uses: actions/checkout@v4
+        with:
+          repository: SSimco/Cemu
+          ref: android-port
+          submodules: recursive
+      - name: Checkout AppImage Repo
+        uses: actions/checkout@v4
+        with:
+            clean: false
+            path: ci
 
-    - name: cache
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.ccache
-        key: build-${{github.run_id}}
-        restore-keys: |
-          build
+      - name: Install system dependencies
+        run: |
+          sudo apt update -qq
+          sudo apt install -y gettext
 
-    - name: Setup release mode parameters (for deploy)
-      #if: ${{ inputs.deploymode == 'release' }}
-      run: |
-        echo "BUILD_MODE=${{ matrix.build }}" >> $GITHUB_ENV
-        echo "BUILD_FLAGS=" >> $GITHUB_ENV
-        echo "Build mode is release"
-       
-    - name: "Install system dependencies"
-      run: |
-        sudo apt update -qq
-        sudo apt install -y ccache apksigner zipalign
-    - uses: actions/setup-java@v4
-      with:
-        distribution: 'oracle'
-        java-version: '17'
+      - name: Uncompile message catalogs
+        run: |
+          for mo_file in bin/resources/*/cemu.mo
+          do
+            echo $mo_file
+            language_code=$(basename $(dirname $mo_file))
+            po_file=src/android/app/src/main/assets/translations/$language_code/cemu.po
+            mkdir -p $(dirname $po_file)
+            msgunfmt $mo_file -o $po_file || echo "Failed to uncompile message catalog from $mo_file"
+          done
 
-    #- name: "Fetch full history for vcpkg submodule"
-    #  run: |
-    #    cd dependencies/vcpkg
-    #    git fetch --unshallow
-    #    git pull --all
-    
-    - name: "Create cache dir"
-      run: |
-        if [[ ! -e ${{ env.CACHEDIR }} ]]; then mkdir ${{ env.CACHEDIR }}; fi
-        ls -al ${{ env.CACHEDIR }}
+      - name: Setup vcpkg binary cache
+        uses: ./.github/actions/set-up-vcpkg-binary-cache-action
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
 
-    - name: Fixes (Android)
-      run: |
-        echo "Android Fixes"
-        #set -x
-        #cp -a ci/.gitmodules .gitmodules
-        #git add .gitmodules
-        #git rm --cached dependencies/cpuid
-        #git config --file .gitmodules --name-only --get-regexp path
-        #git submodule update --init --recursive
-        #go install github.com/klauspost/cpuid/v2/cmd/cpuid@latest
-        #pkg-config --list-all
-        #sed -i 's|Exec=cemu|Exec=Cemu|g' dist/linux/info.cemu.Cemu.desktop ## wayland build
-        #git apply ci/scripts/xdg.patch
-        #sed -i 251d CMakeLists.txt
+      - name: Build Cemu
+        run: |
+          export JAVA_HOME=$JAVA_HOME_17_X64
 
-    - name: "Bootstrap vcpkg"
-      run: |
-        bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
-        
-    - name: 'Setup NuGet Credentials for vcpkg'
-      shell: 'bash'
-      run: |
-        mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
-        sources add \
-        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-        -storepasswordincleartext \
-        -name "GitHub" \
-        -username "${{ github.repository_owner }}" \
-        -password "${{ secrets.GITHUB_TOKEN }}"
-        mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
-        setapikey "${{ secrets.GITHUB_TOKEN }}" \
-        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
-                
-    - name: "Build Cemu"
-      run: |
-        cd src/android
-        chmod +x ./gradlew
-        ./gradlew assembleRelease
-        
-    - name: "Prepare artifact"
-      run: |
-        if [ ! -z ${{ secrets.SECRETS_FILE_CONTENTS }} ]; then
-          echo "Secrets file valid"
-        fi
-        cd src/android
-        base64 --decode <<< "${{ secrets.SECRETS_FILE_CONTENTS }}" > ks.jks
-        mkdir -p ${{ github.workspace }}/artifacts
-        echo '"release"'
-        ls ${{ github.workspace }}/src/android/app/build/outputs/apk/release/
-        cp ${{ github.workspace }}/src/android/app/build/outputs/apk/release/*.apk ${{ github.workspace }}/artifacts/cemu-release.apk
- 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: cemu-android
-        path: |
-          artifacts
-        if-no-files-found: warn
- 
+          cd ./src/android
+
+          if [[ -n "$ANDROID_STORE_FILE_BASE64" ]]; then
+            base64 --decode <<< "${ANDROID_STORE_FILE_BASE64}" > store.jks
+            export ANDROID_STORE_FILE=$(pwd)/store.jks
+            echo "Android signing store file has been set up."
+          else
+            echo "No Android signing store file provided. The APK will not be signed with a release key."
+          fi
+
+          ./gradlew assembleRelease
+          ./gradlew testRelease
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cemu-bin-android
+          path: ./src/android/app/build/outputs/apk/*/*.apk
