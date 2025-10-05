@@ -45,10 +45,19 @@ jobs:
             msgunfmt $mo_file -o $po_file || echo "Failed to uncompile message catalog from $mo_file"
           done
 
-      - name: Setup vcpkg binary cache
-        uses: ./.github/actions/set-up-vcpkg-binary-cache-action
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: 'Setup NuGet Credentials for vcpkg'
+        shell: 'bash'
+        run: |
+          mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
+          sources add \
+          -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+          -storepasswordincleartext \
+          -name "GitHub" \
+          -username "${{ github.repository_owner }}" \
+          -password "${{ secrets.GITHUB_TOKEN }}"
+          mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
+          setapikey "${{ secrets.GITHUB_TOKEN }}" \
+          -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
       - name: Build Cemu
         run: |
