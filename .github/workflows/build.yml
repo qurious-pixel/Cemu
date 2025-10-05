@@ -32,7 +32,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt update -qq
-          sudo apt install -y gettext
+          sudo apt install -y gettext mono-runtime
 
       - name: Uncompile message catalogs
         run: |
@@ -44,7 +44,11 @@ jobs:
             mkdir -p $(dirname $po_file)
             msgunfmt $mo_file -o $po_file || echo "Failed to uncompile message catalog from $mo_file"
           done
-
+      
+      - name: "Bootstrap vcpkg"
+        run: |
+          bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
+        
       - name: 'Setup NuGet Credentials for vcpkg'
         shell: 'bash'
         run: |
