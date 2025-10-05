@@ -21,8 +21,8 @@ jobs:
     steps:
       - name: Install system dependencies
         run: |
-          apt update -qq
-          apt install -y gettext lsb-release
+          sudo apt update -qq
+          sudo apt install -y gettext lsb-release
           uname -a
           lsb_release -a
       
