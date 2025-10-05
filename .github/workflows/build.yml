@@ -19,6 +19,13 @@ jobs:
       image: androidsdk/android-30
 
     steps:
+      - name: Install system dependencies
+        run: |
+          sudo apt update -qq
+          sudo apt install -y gettext
+          uname -a
+          lsb_release -a
+      
       - name: Checkout Upstream Repo
         uses: actions/checkout@v4
         with:
