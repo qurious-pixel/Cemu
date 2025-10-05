@@ -68,7 +68,7 @@ jobs:
       - name: Fixes (Android)
         run: |
           echo "Android Fixes"
-          sed -i s|targetSdk = 35|targetSdk = 30|g src/android/app/build.gradle.kts
+          sed -i 's|targetSdk = 35|targetSdk = 30|g' src/android/app/build.gradle.kts
           cat src/android/app/build.gradle.kts
           
       - name: Build Cemu
