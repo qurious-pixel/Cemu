@@ -22,7 +22,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt update -qq
-          sudo apt install -y gettext mono-complete ninja-build
+          sudo apt install -y gettext mono-complete ninja-build automake
       
       - name: Checkout Upstream Repo
         uses: actions/checkout@v4
