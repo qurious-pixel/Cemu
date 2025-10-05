@@ -16,7 +16,7 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     container:
-      image: androidsdk/android-30
+      image: cimg/android:2025.09
 
     steps:
       - name: Install system dependencies
