@@ -14,7 +14,7 @@ env:
 
 jobs:
   build-android:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout Upstream Repo
@@ -32,7 +32,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt update -qq
-          sudo apt install -y gettext mono-runtime
+          sudo apt install -y gettext
 
       - name: Uncompile message catalogs
         run: |
