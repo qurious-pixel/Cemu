@@ -65,6 +65,12 @@ jobs:
           setapikey "${{ secrets.GITHUB_TOKEN }}" \
           -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
+      - name: Fixes (Android)
+        run: |
+          echo "Android Fixes"
+          sed -i s|targetSdk = 35|targetSdk = 30|g src/android/app/build.gradle.kts
+          cat src/android/app/build.gradle.kts
+          
       - name: Build Cemu
         run: |
           cd ./src/android
