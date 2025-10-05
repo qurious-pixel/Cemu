@@ -22,9 +22,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt update -qq
-          sudo apt install -y gettext lsb-release
-          uname -a
-          lsb_release -a
+          sudo apt install -y gettext mono-complete
       
       - name: Checkout Upstream Repo
         uses: actions/checkout@v4
