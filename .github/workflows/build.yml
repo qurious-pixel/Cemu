@@ -69,7 +69,8 @@ jobs:
         run: |
           echo "Android Fixes"
           sed -i 's|minSdk = 31|minSdk = 30|g' src/android/app/build.gradle.kts
-          cat src/android/app/build.gradle.kts
+          cp ci/AndroidManifest.xml src/android/app/src/main/AndroidManifest.xml
+          cat src/android/app/src/main/AndroidManifest.xml
           
       - name: Build Cemu
         run: |
