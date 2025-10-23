@@ -63,8 +63,8 @@ jobs:
       id: restore-vcpkg-cache
       with:
         path: |
-          vcpkg/installed
-          vcpkg/buildtrees
+          ./dependencies/vcpkg/installed
+          ./dependencies/vcpkg/buildtrees
         key: vcpkg-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/vcpkg') }}
         restore-keys: vcpkg-${{ runner.os }}-${{ runner.arch }}-
         
@@ -76,8 +76,8 @@ jobs:
       uses: actions/cache/save@main
       with:
         path: |
-          vcpkg/installed
-          vcpkg/buildtrees
+          ./dependencies/vcpkg/installed
+          ./dependencies/vcpkg/buildtrees
         key: ${{ steps.restore-vcpkg-cache.outputs.cache-primary-key }}          
 
     - name: "Build Cemu"
