@@ -14,6 +14,7 @@ on:
 env:
   VCPKG_ROOT: "${{github.workspace}}/dependencies/vcpkg"
   VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
+  VCPKG_FORCE_DOWNLOADED_BINARIES: true
 
 jobs:
   build-ubuntu:
@@ -60,27 +61,23 @@ jobs:
       run: |
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
 
-    - name: Restore vcpkg cache
-      uses: actions/cache/restore@main
-      id: restore-vcpkg-cache
-      with:
-        path: |
-          ./dependencies/vcpkg/installed
-          ./dependencies/vcpkg/buildtrees
-        key: vcpkg-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/vcpkg') }}
-        restore-keys: vcpkg-${{ runner.os }}-${{ runner.arch }}-
+    - name: 'Setup NuGet Credentials for vcpkg'
+      shell: 'bash'
+      run: |
+        mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
+        sources add \
+        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+        -storepasswordincleartext \
+        -name "GitHub" \
+        -username "${{ github.repository_owner }}" \
+        -password "${{ secrets.GITHUB_TOKEN }}"
+        mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
+        setapikey "${{ secrets.GITHUB_TOKEN }}" \
+        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
         
     - name: "cmake"
       run: |
-        cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DCMAKE_C_COMPILER=/usr/bin/clang-15 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-15 -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
-
-    - name: Save vcpkg cache
-      uses: actions/cache/save@main
-      with:
-        path: |
-          ./dependencies/vcpkg/installed
-          ./dependencies/vcpkg/buildtrees
-        key: ${{ steps.restore-vcpkg-cache.outputs.cache-primary-key }}          
+        cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DCMAKE_C_COMPILER=/usr/bin/clang-15 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-15 -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja       
 
     - name: "Build Cemu"
       run: |
