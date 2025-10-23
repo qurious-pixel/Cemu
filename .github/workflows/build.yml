@@ -34,7 +34,7 @@ jobs:
       #with:
       #  submodules: "recursive"
         
-    #- name: Setup release mode parameters
+    #- name: Setup release mode parameters#
     #  run: |
     #    echo "BUILD_MODE=release" >> $GITHUB_ENV
     #    echo "BUILD_FLAGS=" >> $GITHUB_ENV
