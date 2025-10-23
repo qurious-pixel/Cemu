@@ -53,7 +53,7 @@ jobs:
     
     - name: "Get build arch"
       if: ${{ matrix.os == 'ubuntu-22.04' }}
-      run: exit
+      run: exit 1
         
     - name: "Bootstrap vcpkg"
       run: |
