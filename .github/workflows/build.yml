@@ -103,7 +103,7 @@ jobs:
           - os: ubuntu-22.04-arm
             arch: arm
     runs-on: ${{ matrix.os }}
-    needs: build-ubuntu-${{ matrix.arch }}
+    needs: build-ubuntu
     steps:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v4
