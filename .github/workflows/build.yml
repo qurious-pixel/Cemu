@@ -57,6 +57,7 @@ jobs:
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
 
     - name: 'Setup NuGet Credentials for vcpkg'
+      if: ${{ matrix.os == 'ubuntu-22.04' }}
       shell: 'bash'
       run: |
         mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
