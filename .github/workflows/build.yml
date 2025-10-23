@@ -25,7 +25,7 @@ jobs:
             arch: x64
           - os: ubuntu-22.04-arm
             arch: arm
-    name: build-ubuntu-${{ runner.arch }}
+    name: build-ubuntu-${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     steps:
     - name: "Checkout repo"
