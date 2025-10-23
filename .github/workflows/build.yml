@@ -20,8 +20,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04-arm] # [ubuntu-22.04, ubuntu-22.04-arm]
-    name: build-${{ matrix.os }}
+        include:
+          - os: ubuntu-22.04
+            arch: x64
+          - os: ubuntu-22.04-arm
+            arch: arm
+    name: build-ubuntu-${{ runner.arch }}
     runs-on: ${{ matrix.os }}
     steps:
     - name: "Checkout repo"
@@ -46,37 +50,35 @@ jobs:
       run: |
         sudo apt update -qq
         sudo apt install -y clang-15 cmake freeglut3-dev libgcrypt20-dev libglm-dev libgtk-3-dev libpulse-dev libsecret-1-dev libsystemd-dev libudev-dev nasm ninja-build libbluetooth-dev mono-complete nuget
-
-    #- name: "Setup cmake"
-    #  uses: jwlawson/actions-setup-cmake@v2
-    #  with:
-    #    cmake-version: '3.29.0'
     
-    - name: "Get CMake version"
-      run: cmake --version
+    - name: "Get build arch"
+      run: echo "ubuntu-${{ runner.arch }}"
         
     - name: "Bootstrap vcpkg"
       run: |
         bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
 
-    - name: 'Setup NuGet Credentials for vcpkg'
-      if: ${{ matrix.os == 'ubuntu-22.04' }}
-      shell: 'bash'
-      run: |
-        mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
-        sources add \
-        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-        -storepasswordincleartext \
-        -name "GitHub" \
-        -username "${{ github.repository_owner }}" \
-        -password "${{ secrets.GITHUB_TOKEN }}"
-        mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
-        setapikey "${{ secrets.GITHUB_TOKEN }}" \
-        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+    - name: Restore vcpkg cache
+      uses: actions/cache/restore@main
+      id: restore-vcpkg-cache
+      with:
+        path: |
+          vcpkg/installed
+          vcpkg/buildtrees
+        key: vcpkg-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('**/vcpkg') }}
+        restore-keys: vcpkg-${{ runner.os }}-${{ runner.arch }}-
         
     - name: "cmake"
       run: |
         cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DCMAKE_C_COMPILER=/usr/bin/clang-15 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-15 -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
+
+    - name: Save vcpkg cache
+      uses: actions/cache/save@main
+      with:
+        path: |
+          vcpkg/installed
+          vcpkg/buildtrees
+        key: ${{ steps.restore-vcpkg-cache.outputs.cache-primary-key }}          
 
     - name: "Build Cemu"
       run: |
@@ -88,19 +90,27 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: cemu-bin-linux-x64
+        name: cemu-bin-linux-${{ matrix.arch }}
         path: ./bin/Cemu
 
   build-appimage:
-    runs-on: ubuntu-22.04
-    needs: build-ubuntu
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            arch: x64
+          - os: ubuntu-22.04-arm
+            arch: arm
+    runs-on: ${{ matrix.os }}
+    needs: build-ubuntu-${{ runner.arch }}
     steps:
     - name: Checkout Upstream Repo
       uses: actions/checkout@v4
 
     - uses: actions/download-artifact@v4
       with:
-        name: cemu-bin-linux-x64
+        name: cemu-bin-linux-${{ matrix.arch }}
         path: bin
 
     - name: "Install system dependencies"
@@ -112,11 +122,11 @@ jobs:
       run: |
         export LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"
         export DEPLOY_GTK_VERSION=3
-        dist/linux/appimage.sh
+        dist/linux/appimage.sh ${{ runner.arch }}
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: cemu-appimage-x64
+        name: cemu-appimage-${{ matrix.arch }}
         path: artifacts
 
