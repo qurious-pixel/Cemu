@@ -502,6 +502,11 @@ VulkanRenderer::VulkanRenderer()
 	{
 		deviceFeatures.vertexPipelineStoresAndAtomics = true;
 	}
+	else
+	{
+		cemuLog_log(LogType::Force, "Transform Feedback emulation via SSBO not supported. Falling back to NonWritable decoration");
+		deviceFeatures.vertexPipelineStoresAndAtomics = false;
+	}	
 
 	void* deviceExtensionFeatures = nullptr;
 
