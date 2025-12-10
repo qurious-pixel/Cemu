@@ -50,7 +50,7 @@ android {
     defaultConfig {
         applicationId = "info.cemu.cemu"
         minSdk = 26
-        targetSdk = 30
+        targetSdk = 33
         versionCode = getVersionCode()
         versionName = getVersionName()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
