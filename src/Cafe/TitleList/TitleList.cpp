@@ -2,6 +2,8 @@
 #include "Common/FileStream.h"
 
 #include "util/helpers/helpers.h"
+#include "util/helpers/ZArchiveHelpers.h"
+
 
 #include <zarchive/zarchivereader.h>
 
@@ -216,7 +218,8 @@ void CafeTitleList::AddTitleFromPath(fs::path path)
 {
 	if (path.has_extension() && boost::iequals(_pathToUtf8(path.extension()), ".wua"))
 	{
-		ZArchiveReader* zar = ZArchiveReader::OpenFromFile(path);
+		ZArchiveReader* zar = ZArchiveHelpers::OpenReader(path);
+
 		if (!zar)
 		{
 			cemuLog_log(LogType::Force, "Found {} but it is not a valid Wii U archive file", _pathToUtf8(path));
@@ -353,25 +356,50 @@ void CafeTitleList::ScanGamePath(const fs::path& path)
 	std::vector<fs::path> filesInDirectory;
 	std::vector<fs::path> dirsInDirectory;
 	bool hasContentFolder = false, hasCodeFolder = false, hasMetaFolder = false;
-	std::error_code ec;
-	for (auto& it : fs::directory_iterator(path, ec))
-	{		
-		if (it.is_regular_file(ec))
+	auto checkForTitleFolders = [&](const std::string& dirName)
+	{
+		if (boost::iequals(dirName, "content"))
+			hasContentFolder = true;
+		else if (boost::iequals(dirName, "code"))
+			hasCodeFolder = true;
+		else if (boost::iequals(dirName, "meta"))
+			hasMetaFolder = true;
+	};
+#if __ANDROID__
+	if (FilesystemAndroid::IsContentUri(path))
+	{
+		for (auto&& file : FilesystemAndroid::ListFiles(path))
 		{
-			filesInDirectory.emplace_back(it.path());
-		}
-		else if (it.is_directory(ec))
-		{
-			dirsInDirectory.emplace_back(it.path());
-			std::string dirName = _pathToUtf8(it.path().filename());
-			if (boost::iequals(dirName, "content"))
-				hasContentFolder = true;
-			else if (boost::iequals(dirName, "code"))
-				hasCodeFolder = true;
-			else if (boost::iequals(dirName, "meta"))
-				hasMetaFolder = true;
+			if (FilesystemAndroid::IsDirectory(file))
+			{
+				dirsInDirectory.emplace_back(file);
+
+				checkForTitleFolders(_pathToUtf8(file.filename()));
+			}
+			else
+			{
+				filesInDirectory.emplace_back(file);
+			}
 		}
 	}
+	else
+#endif // __ANDROID__
+	{
+		std::error_code ec;
+		for (auto& it : fs::directory_iterator(path, ec))
+		{		
+			if (it.is_regular_file(ec))
+			{
+				filesInDirectory.emplace_back(it.path());
+			}
+			else if (it.is_directory(ec))
+			{
+				dirsInDirectory.emplace_back(it.path());
+				checkForTitleFolders(_pathToUtf8(it.path().filename()));
+			}
+		}
+	}
+
 	// always check individual files
 	for (auto& it : filesInDirectory)
 	{

@@ -76,7 +76,7 @@ void IAudioAPI::InitWFX(sint32 samplerate, sint32 channels, sint32 bits_per_samp
 
 void IAudioAPI::InitializeStatic()
 {
-	s_audioDelay = GetConfig().audio_delay;
+	SetAudioDelay(GetConfig().audio_delay);
 
 #if BOOST_OS_WINDOWS
 	s_availableApis[DirectSound] = true;

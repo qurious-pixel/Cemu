@@ -22,6 +22,17 @@ namespace CafeSystem
 		UNABLE_TO_MOUNT, // failed to mount through TitleInfo (most likely caused by an invalid or outdated path)
 	};
 
+	class CafeSystemCallbacks
+	{
+	public:
+		virtual void updateWindowTitles(bool isIdle, bool isLoading, double fps) = 0;
+		virtual void notifyGameLoaded() = 0;
+	};
+
+	void registerCafeSystemCallbacks(CafeSystemCallbacks* cafeSystemCallbacks);
+	void unregisterCafeSystemCallbacks();
+	CafeSystemCallbacks* getCafeSystemCallbacks();
+
 	void Initialize();
 	void SetImplementation(SystemImplementation* impl);
     void Shutdown();

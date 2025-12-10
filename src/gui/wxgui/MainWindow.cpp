@@ -1453,7 +1453,7 @@ void MainWindow::OnKeyUp(wxKeyEvent& event)
 {
 	event.Skip();
 
-	if (swkbd_hasKeyboardInputHook())
+	if (swkbd::hasKeyboardInputHook())
 		return;
 
 	HotkeySettings::CaptureInput(event);
@@ -1482,8 +1482,8 @@ void MainWindow::OnKeyDown(wxKeyEvent& event)
 
 void MainWindow::OnChar(wxKeyEvent& event)
 {
-	if (swkbd_hasKeyboardInputHook())
-		swkbd_keyInput(event.GetUnicodeKey());
+	if (swkbd::hasKeyboardInputHook())
+		swkbd::keyInput(event.GetUnicodeKey());
 	
 	// event.Skip();
 }
@@ -2109,8 +2109,7 @@ void MainWindow::RecreateMenu()
 		m_loadMenuItem = m_fileMenu->Append(MAINFRAME_MENU_ID_FILE_LOAD, _("&Load..."));
 		m_installUpdateMenuItem = m_fileMenu->Append(MAINFRAME_MENU_ID_FILE_INSTALL_UPDATE, _("&Install game title, update or DLC..."));
 
-		wxMenu* recentMenu = new wxMenu();
-		sint32 recentFileIndex = 1;
+		sint32 recentFileIndex = 0;
 		m_fileMenuSeparator0 = nullptr;
 		m_fileMenuSeparator1 = nullptr;
 		for (size_t i = 0; i < guiConfig.recent_launch_files.size(); i++)
@@ -2118,21 +2117,15 @@ void MainWindow::RecreateMenu()
 			const std::string& pathStr = guiConfig.recent_launch_files[i];
 			if (pathStr.empty())
 				continue;
-			recentMenu->Append(MAINFRAME_MENU_ID_FILE_RECENT_0 + i, to_wxString(fmt::format("{}. {}", recentFileIndex, pathStr)));
+			if (recentFileIndex == 0)
+				m_fileMenuSeparator0 = m_fileMenu->AppendSeparator();
+			m_fileMenu->Append(MAINFRAME_MENU_ID_FILE_RECENT_0 + i, to_wxString(fmt::format("{}. {}", recentFileIndex, pathStr)));
 			recentFileIndex++;
 
-			if (recentFileIndex >= 10)
+			if (recentFileIndex >= 8)
 				break;
 		}
-		if (recentFileIndex == 0)
-		{
-			wxMenuItem* placeholder = recentMenu->Append(wxID_NONE, _("(No recent files)"));
-			placeholder->Enable(false);
-		}
-
-		m_fileMenu->AppendSeparator();
-		m_fileMenu->AppendSubMenu(recentMenu, _("Recent files"));
-		m_fileMenu->AppendSeparator();
+		m_fileMenuSeparator1 = m_fileMenu->AppendSeparator();
 	}
 	else
 	{

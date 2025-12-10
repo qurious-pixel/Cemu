@@ -62,7 +62,6 @@ struct SwapchainInfoVk
 	bool m_usesSRGB = false;
 	VSync m_vsyncState = VSync::Immediate;
 	bool hasDefinedSwapchainImage{}; // indicates if the swapchain image is in a defined state
-
 	VkInstance m_instance{};
 	VkPhysicalDevice m_physicalDevice{};
 	VkDevice m_logicalDevice{};

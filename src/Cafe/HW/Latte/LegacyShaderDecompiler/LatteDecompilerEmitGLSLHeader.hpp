@@ -356,6 +356,8 @@ namespace LatteDecompiler
 
 	void _emitVSExports(LatteDecompilerShaderContext* shaderContext)
 	{
+		std::array<bool, 32> activePassParams{};
+
 		auto* src = shaderContext->shaderSource;
 		LatteShaderPSInputTable* psInputTable = LatteSHRC_GetPSInputTable();
 		auto parameterMask = shaderContext->shader->outputParameterMask;
@@ -379,6 +381,8 @@ namespace LatteDecompiler
 			if (psInputIndex == -1)
 				continue; // no ps input
 
+			activePassParams.at(psInputIndex) = true;
+
 			src->addFmt("layout(location = {}) ", psInputIndex);
 			if (psInputTable->import[psInputIndex].isFlat)
 				src->add("flat ");
@@ -387,6 +391,21 @@ namespace LatteDecompiler
 			src->add("out");
 			src->addFmt(" vec4 passParameterSem{};" _CRLF, psInputTable->import[psInputIndex].semanticId);
 		}
+
+		// TODO: fix this
+		for (uint32 i = 0; i < 32; i++)
+		{
+			if (!activePassParams[i])
+				src->addFmt("layout(location = {0}) out vec4 dummyPassParameterSem{0};" _CRLF, i);
+		}
+
+		src->add("void dummyPassParamInit() {" _CRLF);
+		for (uint32 i = 0; i < 32; i++)
+		{
+			if (!activePassParams[i])
+				src->addFmt("dummyPassParameterSem{} = vec4(0.0, 0.0, 0.0, 0.0);" _CRLF, i);
+		}
+		src->add("}" _CRLF);
 	}
 
 	void _emitPSImports(LatteDecompilerShaderContext* shaderContext)

@@ -2,7 +2,6 @@
 #include "Cafe/HW/Latte/LatteAddrLib/LatteAddrLib.h"
 #include "Cafe/OS/libs/gx2/GX2_Surface.h"
 #include <bit>
-
 /*
 	Info:
 

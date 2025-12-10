@@ -22,7 +22,7 @@ private:
 		cemu_assert_debug(format.empty() || (format[0] != L'/' && format[0] != L'\\'));
 		return path / fmt::format(fmt::runtime(format), std::forward<TArgs>(args)...);
 	}
-	static fs::path GetPath(const fs::path& path, std::string_view p) 
+	static fs::path GetPath(const fs::path& path, std::string_view p)
 	{
 		std::basic_string_view<char8_t> s((const char8_t*)p.data(), p.size());
 		return path / fs::path(s);
@@ -58,6 +58,15 @@ public:
 
 	[[nodiscard]] static fs::path GetMlcPath();
 
+#if __ANDROID__
+	template <typename ...TArgs>
+	[[nodiscard]] static fs::path GetNativeLibPath(TArgs&&... args){ return GetPath(s_native_lib_path, std::forward<TArgs>(args)...); };
+
+	template <typename ...TArgs>
+	[[nodiscard]] static fs::path GetInternalPath(TArgs&&... args){ return GetPath(s_internal_dir_path, std::forward<TArgs>(args)...); };
+#endif
+
+
 	template <typename ...TArgs>
 	[[nodiscard]] static fs::path GetMlcPath(TArgs&&... args){ return GetPath(GetMlcPath(), std::forward<TArgs>(args)...); };
 	static bool IsCustomMlcPath();
@@ -75,8 +84,17 @@ private:
 	inline static fs::path s_data_path;
 	inline static fs::path s_executable_filename; // cemu.exe
 	inline static fs::path s_mlc_path;
+#if __ANDROID__
+	inline static fs::path s_native_lib_path;
+	inline static fs::path s_internal_dir_path;
+#endif
 
 public:
+
+#if __ANDROID__
+  static void SetNativeLibPath(const fs::path& nativeLibPath);
+  static void SetInternalDir(const fs::path& internalDirPath);
+#endif
 	// can be called before Init
 	[[nodiscard]] static bool IsPortableMode();
 
@@ -89,7 +107,7 @@ public:
 	[[nodiscard]] static uint8 GetTimerShiftFactor();
 
 	static void SetTimerShiftFactor(uint8 shiftFactor);
-	
+
 	// gpu
 	[[nodiscard]] static PrecompiledShaderOption GetPrecompiledShadersOption();
 	[[nodiscard]] static bool RenderUpsideDownEnabled();

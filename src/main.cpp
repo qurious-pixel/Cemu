@@ -30,8 +30,10 @@
 #pragma comment(lib,"Dbghelp.lib")
 #endif
 
+#if HAS_SDL
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
+#endif
 
 #if BOOST_OS_LINUX
 #define _putenv(__s) putenv((char*)(__s))
@@ -217,6 +219,8 @@ void HandlePostUpdate()
 
 void ToolShaderCacheMerger();
 
+void gui_create();
+
 #if BOOST_OS_WINDOWS
 
 // entrypoint for release builds
@@ -243,6 +247,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
+#elif __ANDROID__
 #else
 
 int main(int argc, char *argv[])

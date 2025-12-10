@@ -167,6 +167,7 @@ typedef struct
 extern debuggerState_t debuggerState;
 
 // new API
+
 DebuggerBreakpoint* debugger_getFirstBP(uint32 address);
 void debugger_createCodeBreakpoint(uint32 address, uint8 bpType);
 void debugger_toggleExecuteBreakpoint(uint32 address); // create/remove execute breakpoint

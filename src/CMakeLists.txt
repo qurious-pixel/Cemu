@@ -18,6 +18,8 @@ elseif(UNIX)
 			VK_USE_PLATFORM_MACOS_MVK
 			VK_USE_PLATFORM_METAL_EXT
 		)
+	elseif(ANDROID)
+		add_compile_definitions(VK_USE_PLATFORM_ANDROID_KHR)
 	else()
 		add_compile_definitions(
 			VK_USE_PLATFORM_XLIB_KHR # legacy. Do we need to support XLIB surfaces?
@@ -50,27 +52,34 @@ add_subdirectory(util)
 add_subdirectory(imgui)
 add_subdirectory(resource)
 
-add_executable(CemuBin
-	main.cpp
-	mainLLE.cpp
-)
+if(ANDROID)
+    add_library(CemuBin STATIC
+        main.cpp
+        mainLLE.cpp
+    )
+    add_subdirectory(android/app/src/main/cpp)
+else()
+	add_executable(CemuBin
+		main.cpp
+		mainLLE.cpp
+	)
 
-if(MSVC AND MSVC_VERSION EQUAL 1940)
-	# workaround for an msvc issue on VS 17.10 where generated ILK files are too large
-	# see https://developercommunity.visualstudio.com/t/After-updating-to-VS-1710-the-size-of-/10665511
-	set_target_properties(CemuBin PROPERTIES LINK_FLAGS "/INCREMENTAL:NO")
-endif()
+	if(MSVC AND MSVC_VERSION EQUAL 1940)
+		# workaround for an msvc issue on VS 17.10 where generated ILK files are too large
+		# see https://developercommunity.visualstudio.com/t/After-updating-to-VS-1710-the-size-of-/10665511
+		set_target_properties(CemuBin PROPERTIES LINK_FLAGS "/INCREMENTAL:NO")
+	endif()
 
-if(WIN32)
-	target_sources(CemuBin PRIVATE
-	resource/cemu.rc
+	if(WIN32)
+		target_sources(CemuBin PRIVATE
+		resource/cemu.rc
 	../dist/windows/cemu.manifest
 	)
+	endif()
+	set_property(TARGET CemuBin PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+	set_property(TARGET CemuBin PROPERTY WIN32_EXECUTABLE $<NOT:$<CONFIG:Debug>>)
+	set(OUTPUT_NAME "Cemu_$<LOWER_CASE:$<CONFIG>>")
 endif()
-
-set_property(TARGET CemuBin PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-set_property(TARGET CemuBin PROPERTY WIN32_EXECUTABLE $<NOT:$<CONFIG:Debug>>)
-set(OUTPUT_NAME "Cemu_$<LOWER_CASE:$<CONFIG>>")
 
 if (MACOS_BUNDLE)
 	set_property(TARGET CemuBin PROPERTY MACOSX_BUNDLE_INFO_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/resource/MacOSXBundleInfo.plist.in")
@@ -133,14 +142,20 @@ target_link_libraries(CemuBin PRIVATE
 	CemuAudio
 	CemuCafe
 	CemuCommon
+	CemuGui
 	CemuComponents
 	CemuConfig
-	CemuGui
 	CemuInput
 	CemuUtil
-	OpenGL::GL
-	SDL2::SDL2
 )
+
+if(ENABLE_OPENGL)
+	target_link_libraries(CemuBin PRIVATE OpenGL::GL)
+endif()
+
+if(ENABLE_SDL)
+	target_link_libraries(CemuBin PRIVATE SDL2::SDL2)
+endif()
 
 if(UNIX AND NOT APPLE)
 	# due to nasm output some linkers will make stack executable

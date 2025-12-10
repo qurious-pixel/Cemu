@@ -1,6 +1,7 @@
 #include "Common/precompiled.h"
 #include "Debugger.h"
 #include "Cafe/OS/RPL/rpl_structs.h"
+#include "Cafe/OS/RPL/rpl.h"
 #include "Cemu/PPCAssembler/ppcAssembler.h"
 #include "Cafe/HW/Espresso/Recompiler/PPCRecompiler.h"
 #include "Cemu/ExpressionParser/ExpressionParser.h"

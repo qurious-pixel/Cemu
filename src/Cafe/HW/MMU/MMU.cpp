@@ -132,7 +132,6 @@ void memory_init()
 		memory_base = (uint8*)MemMapper::ReserveMemory(nullptr, (size_t)0x100000000, MemMapper::PAGE_PERMISSION::P_RW);
 	if( !memory_base )
 	{
-		debug_printf("memory_init(): Unable to reserve 4GB of memory\n");
 		debugBreakpoint();
 		WindowSystem::ShowErrorDialog(_tr("Unable to reserve 4GB of memory"), _tr("Error"));
 		exit(-1);

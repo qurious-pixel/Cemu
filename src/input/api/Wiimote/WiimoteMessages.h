@@ -53,7 +53,6 @@ enum ExtensionType : uint64
 	kExtensionDrums = 0x0100A4200103,
 	kExtensionBalanceBoard = 0x2A2C,
 
-	kExtensionMotionPlusInactive = 0xa4200005,
 	kExtensionMotionPlus = 0xa6200005,
 
 	kExtensionPartialyInserted = 0xffffffffffff,

@@ -236,16 +236,13 @@ std::string RendererOutputShader::GetVulkanVertexSource(bool render_upside_down)
 {
 	// vertex shader
 	std::ostringstream vertex_source;
-		vertex_source <<
-			R"(#version 450
+	vertex_source << R"(#version 450
 layout(location = 0) out vec2 passUV;
-
 out gl_PerVertex 
 { 
    vec4 gl_Position; 
-};
-
-void main(){
+};)";
+	vertex_source << R"(void main(){
 	vec2 vPos;
 	vec2 vUV;
 	int vID = gl_VertexIndex;
@@ -274,12 +271,9 @@ void main(){
 	)";
 		}
 
-		vertex_source <<
-			R"(	passUV = vUV;
-	gl_Position = vec4(vPos, 0.0, 1.0);	
-}
-)";
-		return vertex_source.str();
+	vertex_source << "passUV = vUV;\n";
+	vertex_source << "gl_Position = vec4(vPos, 0.0, 1.0);}";
+	return vertex_source.str();
 }
 
 std::string RendererOutputShader::PrependFragmentPreamble(const std::string& shaderSrc)

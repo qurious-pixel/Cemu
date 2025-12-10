@@ -1,6 +1,9 @@
 #include "input/emulated/VPADController.h"
 #include "input/api/Controller.h"
+#include <mutex>
+#if HAS_SDL
 #include "input/api/SDL/SDLController.h"
+#endif // HAS_SDL
 #include "WindowSystem.h"
 #include "input/InputManager.h"
 #include "Cafe/HW/Latte/Core/Latte.h"
@@ -235,10 +238,11 @@ void VPADController::update_touch(VPADStatus_t& status)
 
 void VPADController::update_motion(VPADStatus_t& status)
 {
-	if (has_motion())
+	auto& input_manager = InputManager::instance();
+	bool has_device_motion = input_manager.m_device_motion.m_device_motion_enabled;
+	if (has_motion() || has_device_motion)
 	{
-		auto motionSample = get_motion_data();
-
+		MotionSample motionSample = has_device_motion ? input_manager.get_device_motion_sample() : get_motion_data();
 		glm::vec3 acc;
 		motionSample.getVPADAccelerometer(&acc[0]);
 		//const auto& acc = motionSample.getVPADAccelerometer();
@@ -279,7 +283,6 @@ void VPADController::update_motion(VPADStatus_t& status)
 	}
 
 	bool pad_view;
-	auto& input_manager = InputManager::instance();
 	if (const auto right_mouse = input_manager.get_right_down_mouse_info(&pad_view))
 	{
 		const Vector2<float> mousePos(right_mouse->x, right_mouse->y);
@@ -510,6 +513,7 @@ bool VPADController::set_default_mapping(const std::shared_ptr<ControllerBase>& 
 	std::vector<std::pair<uint64, uint64>> mapping;
 	switch (controller->api())
 	{
+#if HAS_SDL
 	case InputAPI::SDLController: {
 		const auto sdl_controller = std::static_pointer_cast<SDLController>(controller);
 		if (sdl_controller->get_guid() == SDLController::kLeftJoyCon)
@@ -633,6 +637,7 @@ bool VPADController::set_default_mapping(const std::shared_ptr<ControllerBase>& 
 		}
 		break;
 	}
+#endif // HAS_SDL
 	case InputAPI::XInput:
 	{
 		mapping =

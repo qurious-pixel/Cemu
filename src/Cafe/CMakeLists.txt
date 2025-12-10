@@ -537,6 +537,16 @@ if(APPLE)
 	target_sources(CemuCafe PRIVATE "HW/Latte/Renderer/Vulkan/CocoaSurface.mm")
 endif()
 
+if(ANDROID)
+  target_sources(CemuCafe PRIVATE
+    Filesystem/fscDeviceAndroidSAF.cpp
+    Filesystem/fscDeviceAndroidSAF.h
+  )
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "(aarch64)|(AARCH64)")
+    target_link_libraries(CemuCafe PRIVATE adrenotools)
+  endif()
+endif()
+
 if(CEMU_ARCHITECTURE MATCHES "(aarch64)|(AARCH64)|(arm64)|(ARM64)")
   target_sources(CemuCafe PRIVATE
     HW/Espresso/Recompiler/BackendAArch64/BackendAArch64.cpp

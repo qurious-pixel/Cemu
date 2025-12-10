@@ -6,7 +6,11 @@
 #include "wglext.h"
 #endif
 
-#if ( BOOST_OS_LINUX || BOOST_OS_BSD ) > 0
+#if __ANDROID__
+#define EGL_EGL_PROTOTYPES 0
+#include "egl.h"
+#undef EGL_EGL_PROTOTYPES
+#elif ( BOOST_OS_LINUX || BOOST_OS_BSD ) > 0
 
 // from Xlib
 #define Bool int

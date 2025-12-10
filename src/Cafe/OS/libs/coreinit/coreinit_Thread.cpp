@@ -15,33 +15,6 @@
 
 #include "util/helpers/helpers.h"
 
-#ifdef __arm64__
-#if defined(__clang__)
-#include <arm_acle.h>
-#elif defined(_MSC_VER)
-#include <intrin.h>
-#endif
-#endif
-
-namespace {
-
-void enableFlushDenormalsToZero()
-{
-#if defined(ARCH_X86_64)
-	_mm_setcsr(_mm_getcsr() | 0x8000);
-#elif defined(__arm64__)
-#if defined(__clang__)
-	__arm_wsr64("fpcr", __arm_rsr64("fpcr") | (1 << 24));
-#elif defined(__GNUC__)
-	__builtin_aarch64_set_fpcr(__builtin_aarch64_get_fpcr() | (1 << 24));
-#elif defined(_MSC_VER)
-	_WriteStatusReg(ARM64_FPCR, _ReadStatusReg(ARM64_FPCR) | (1 << 24));
-#endif
-#endif
-}
-
-}
-
 SlimRWLock srwlock_activeThreadList;
 
 // public list of active threads
@@ -1348,7 +1321,9 @@ namespace coreinit
 #endif
 		OSHostThread* hostThread = (OSHostThread*)_thread;
 
-		enableFlushDenormalsToZero();
+        #if defined(ARCH_X86_64)
+		_mm_setcsr(_mm_getcsr() | 0x8000); // flush denormals to zero
+        #endif
 
 		PPCInterpreter_t* hCPU = &hostThread->ppcInstance;
 		__OSLoadThread(hostThread->m_thread, hCPU, hostThread->selectedCore);
@@ -1394,8 +1369,9 @@ namespace coreinit
 	{
 		SetThreadName(fmt::format("OSSched[core={}]", (uintptr_t)_assignedCoreIndex).c_str());
 		t_assignedCoreIndex = (sint32)(uintptr_t)_assignedCoreIndex;
-
-		enableFlushDenormalsToZero();
+        #if defined(ARCH_X86_64)
+		_mm_setcsr(_mm_getcsr() | 0x8000); // flush denormals to zero
+        #endif
 
 #if BOOST_OS_LINUX
 		if (g_gdbstub)

@@ -269,3 +269,14 @@ fs::path ActiveSettings::GetDefaultMLCPath()
 	return GetUserDataPath("mlc01");
 }
 
+#if __ANDROID__
+void ActiveSettings::SetNativeLibPath(const fs::path& nativeLibPath)
+{
+	s_native_lib_path = nativeLibPath;
+}
+
+void ActiveSettings::SetInternalDir(const fs::path& internalDirPath)
+{
+	s_internal_dir_path = internalDirPath;
+}
+#endif

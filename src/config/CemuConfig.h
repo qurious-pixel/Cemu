@@ -363,6 +363,10 @@ struct CemuConfig
 #undef DISABLE_SCREENSAVER_DEFAULT
 	ConfigValue<bool> play_boot_sound{false};
 
+#if __ANDROID__
+	ConfigValue<std::string> custom_driver_path{};
+#endif
+
 	std::vector<std::string> game_paths;
 	std::mutex game_cache_entries_mutex;
 	std::vector<GameEntry> game_cache_entries;

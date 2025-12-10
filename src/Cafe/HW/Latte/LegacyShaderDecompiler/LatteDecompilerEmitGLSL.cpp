@@ -3965,6 +3965,12 @@ void LatteDecompiler_emitGLSLShader(LatteDecompilerShaderContext* shaderContext,
 	// start of main
 	src->add("void main()" _CRLF);
 	src->add("{" _CRLF);
+
+	if (shaderContext->options->usesGeometryShader == false && shaderContext->shaderType == LatteConst::ShaderType::Vertex)
+	{
+		src->add("dummyPassParamInit();" _CRLF);
+	}
+
 	// variable definition
 	if (shaderContext->typeTracker.useArrayGPRs == false)
 	{

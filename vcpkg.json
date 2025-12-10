@@ -11,7 +11,10 @@
       "default-features": false
     },
     "rapidjson",
-    "sdl2",
+    {
+      "name": "sdl2",
+      "platform": "!android"
+    },
     "boost-tokenizer",
     "boost-container",
     "boost-program-options",
@@ -24,9 +27,20 @@
     "boost-ptr-container",
     "boost-property-tree",
     "boost-static-string",
+    {
+      "name": "boost-iostreams",
+      "platform" : "android"
+    },
+    {
+      "name": "boost-stacktrace",
+      "platform" : "android"
+    },
     "boost-random",
     "fmt",
-    "hidapi",
+    {
+      "name": "hidapi",
+      "platform": "!android"
+    },
     "libpng",
     "glm",
     {
@@ -39,7 +53,8 @@
       "features": [
         "debug-support"
       ],
-      "default-features": false
+      "default-features": false,
+      "platform": "!android"
     },
     "openssl",
     {

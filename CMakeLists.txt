@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21.1)
+cmake_minimum_required(VERSION 3.25)
 
 option(ENABLE_VCPKG "Enable the vcpkg package manager" ON)
 option(MACOS_BUNDLE "The executable when built on macOS will be created as an application bundle" OFF)
@@ -25,7 +25,7 @@ if (ENABLE_VCPKG)
 	OUTPUT_VARIABLE is_vcpkg_shallow
 	OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-
+	
 	if(is_vcpkg_shallow STREQUAL "true")
 		message(STATUS "vcpkg is shallow. Unshallowing it now...")
 		execute_process(
@@ -36,15 +36,22 @@ if (ENABLE_VCPKG)
 		)
 	endif()
 
-	if(UNIX AND NOT APPLE)
+
+	if(UNIX AND NOT APPLE AND NOT VCPKG_TARGET_ANDROID)
 		set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_LIST_DIR}/dependencies/vcpkg_overlay_ports_linux;${CMAKE_CURRENT_LIST_DIR}/dependencies/vcpkg_overlay_ports")
 	elseif(APPLE)
 		set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_LIST_DIR}/dependencies/vcpkg_overlay_ports_mac;${CMAKE_CURRENT_LIST_DIR}/dependencies/vcpkg_overlay_ports")
 	else()
 		set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_LIST_DIR}/dependencies/vcpkg_overlay_ports_win;${CMAKE_CURRENT_LIST_DIR}/dependencies/vcpkg_overlay_ports")
 	endif()
-	set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/vcpkg/scripts/buildsystems/vcpkg.cmake"
-		CACHE STRING "Vcpkg toolchain file")
+	if(VCPKG_TARGET_ANDROID)
+		set(ENV{ANDROID_NDK_HOME} ${ANDROID_NDK})
+        set(ENV{VCPKG_ROOT} "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/vcpkg")
+		include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/vcpkg_android.cmake")
+	else()
+		set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/dependencies/vcpkg/scripts/buildsystems/vcpkg.cmake"
+			CACHE STRING "Vcpkg toolchain file")
+	endif()
 	# Set this so that all the various find_package() calls don't need an explicit
 	# CONFIG option
 	set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
@@ -93,7 +100,7 @@ endif()
 
 if (APPLE)
     enable_language(OBJC OBJCXX)
-    set(CMAKE_OSX_DEPLOYMENT_TARGET "13.4")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET "12.0")
 endif()
 
 if (UNIX AND NOT APPLE)
@@ -128,11 +135,17 @@ option(ENABLE_WXWIDGETS "Build with wxWidgets UI (Currently required)" ON)
 
 set(THREADS_PREFER_PTHREAD_FLAG true)
 find_package(Threads REQUIRED)
-find_package(SDL2 REQUIRED)
+if(ENABLE_SDL)
+	find_package(SDL2 REQUIRED)
+	add_compile_definitions("HAS_SDL=1")
+endif()
 find_package(CURL REQUIRED)
 find_package(pugixml REQUIRED)
 find_package(RapidJSON REQUIRED)
 find_package(Boost COMPONENTS program_options filesystem nowide REQUIRED)
+if(ANDROID)
+	find_package(Boost COMPONENTS context iostreams REQUIRED)
+endif()
 find_package(libzip REQUIRED)
 find_package(glslang REQUIRED)
 find_package(ZLIB REQUIRED)
@@ -147,7 +160,7 @@ if (NOT TARGET glslang::SPIRV AND TARGET SPIRV)
 	add_library(glslang::SPIRV ALIAS SPIRV)
 endif()
 
-if (UNIX AND NOT APPLE)
+if (UNIX AND NOT APPLE AND NOT ANDROID)
 	find_package(X11 REQUIRED)
 	if (ENABLE_WAYLAND)
 		find_package(Wayland REQUIRED Client)
@@ -190,7 +203,7 @@ if (ENABLE_HIDAPI)
 	add_compile_definitions(HAS_HIDAPI)
 endif ()
 
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT ANDROID)
 	if(ENABLE_FERAL_GAMEMODE)
 		add_compile_definitions(ENABLE_FERAL_GAMEMODE)
 		add_subdirectory(dependencies/gamemode EXCLUDE_FROM_ALL)
@@ -232,6 +245,14 @@ endif()
 find_package(ZArchive)
 if (NOT ZArchive_FOUND)
 	add_subdirectory("dependencies/ZArchive" EXCLUDE_FROM_ALL)
+endif()
+
+if(ANDROID)
+	if(CMAKE_SYSTEM_PROCESSOR MATCHES "(aarch64)|(AARCH64)")
+		add_subdirectory("dependencies/libadrenotools" EXCLUDE_FROM_ALL)
+	endif()
+	add_subdirectory("dependencies/libucontext" EXCLUDE_FROM_ALL)
+	add_subdirectory("dependencies/stb" EXCLUDE_FROM_ALL)
 endif()
 
 add_subdirectory(src)

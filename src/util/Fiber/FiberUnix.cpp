@@ -1,5 +1,17 @@
 #include "Fiber.h"
+#if USE_LIBUCONTEXT
+namespace libucontext
+{
+#include <libucontext/libucontext.h>
+}
+#define ucontext_t libucontext::libucontext_ucontext_t
+#define getcontext libucontext::libucontext_getcontext
+#define setcontext libucontext::libucontext_setcontext
+#define swapcontext libucontext::libucontext_swapcontext
+#define makecontext libucontext::libucontext_makecontext
+#else
 #include <ucontext.h>
+#endif
 #include <atomic>
 
 thread_local Fiber* sCurrentFiber{};

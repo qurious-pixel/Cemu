@@ -27,14 +27,18 @@ public:
 	[[nodiscard]] const std::optional<std::string>& GetGameName() const { return m_gameName; }
 
 	[[nodiscard]] const std::optional<bool>& ShouldLoadSharedLibraries() const { return m_loadSharedLibraries; }
+	void SetShouldLoadSharedLibraries(bool shouldLoadSharedLibraries) { m_loadSharedLibraries = shouldLoadSharedLibraries; }
 	[[nodiscard]] bool StartWithGamepadView() const { return m_startWithPadView; }
 
 	[[nodiscard]] const std::optional<GraphicAPI>& GetGraphicsAPI() const { return m_graphics_api; }
 	[[nodiscard]] const AccurateShaderMulOption& GetAccurateShaderMul() const { return m_accurateShaderMul; }
+	void SetAccurateShaderMul(AccurateShaderMulOption accurateShaderMulOption) { m_accurateShaderMul = accurateShaderMulOption; }
 	[[nodiscard]] const std::optional<PrecompiledShaderOption>& GetPrecompiledShadersState() const { return m_precompiledShaders; }
 
 	[[nodiscard]] uint32 GetThreadQuantum() const { return m_threadQuantum; }
+	void SetThreadQuantum(uint32 threadQuantum){ m_threadQuantum = threadQuantum; }
 	[[nodiscard]] const std::optional<CPUMode>& GetCPUMode() const { return m_cpuMode; }
+	void SetCPUMode(CPUMode cpuMode) { m_cpuMode = cpuMode; }
 
 	[[nodiscard]] bool IsAudioDisabled() const { return m_disableAudio; }
 

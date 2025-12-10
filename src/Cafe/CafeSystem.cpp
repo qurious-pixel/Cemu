@@ -74,6 +74,10 @@
 #include <sys/sysctl.h>
 #endif
 
+#if __ANDROID__
+#include <android/api-level.h>
+#endif
+
 std::string _pathToExecutable;
 std::string _pathToBaseExecutable;
 
@@ -424,6 +428,20 @@ void cemu_initForGame()
 
 namespace CafeSystem
 {
+	CafeSystemCallbacks* sCafeSystemCallbacks = nullptr;
+	void registerCafeSystemCallbacks(CafeSystemCallbacks* cafeSystemCallbacks)
+	{
+		sCafeSystemCallbacks = cafeSystemCallbacks;
+	}
+	void unregisterCafeSystemCallbacks()
+	{
+		sCafeSystemCallbacks = nullptr;
+	}
+	CafeSystemCallbacks* getCafeSystemCallbacks()
+	{
+		return sCafeSystemCallbacks;
+	}
+
 	void InitVirtualMlcStorage();
 	void MlcStorageMountTitle(TitleInfo& titleInfo);
     void MlcStorageUnmountAllTitles();
@@ -510,7 +528,10 @@ namespace CafeSystem
 	{
 		std::string buffer;
 		const char* platform = NULL;
-		#if BOOST_OS_WINDOWS
+		#if __ANDROID__
+        buffer = fmt::format("Android (API level {})", android_get_device_api_level());;
+		platform = buffer.c_str();
+		#elif BOOST_OS_WINDOWS
 		uint32 buildNumber;
 		std::string windowsVersionName = GetWindowsNamedVersion(buildNumber);
 		buffer = fmt::format("{} (Build {})", windowsVersionName, buildNumber);
@@ -819,10 +840,10 @@ namespace CafeSystem
 			// check for content folder
 			fs::path contentPath = executablePath.parent_path().parent_path().append("content");
 			std::error_code ec;
-			if (fs::is_directory(contentPath, ec))
+			if (cemu::fs::is_directory(contentPath, ec))
 			{
 				// mounting content folder
-				bool r = FSCDeviceHostFS_Mount(std::string("/vol/content").c_str(), _pathToUtf8(contentPath), FSC_PRIORITY_BASE);
+				bool r = FSCDeviceHost_Mount(std::string("/vol/content").c_str(), _pathToUtf8(contentPath), FSC_PRIORITY_BASE);
 				if (!r)
 				{
 					cemuLog_log(LogType::Force, "Failed to mount {}", _pathToUtf8(contentPath));
@@ -831,7 +852,7 @@ namespace CafeSystem
 			}
 		}
 		// mount code folder to a virtual temporary path
-		FSCDeviceHostFS_Mount(std::string("/internal/code/").c_str(), _pathToUtf8(executablePath.parent_path()), FSC_PRIORITY_BASE);
+		FSCDeviceHost_Mount(std::string("/internal/code/").c_str(), _pathToUtf8(executablePath.parent_path()), FSC_PRIORITY_BASE);
 		std::string internalExecutablePath = "/internal/code/";
 		internalExecutablePath.append(_pathToUtf8(executablePath.filename()));
 		_pathToExecutable = internalExecutablePath;
