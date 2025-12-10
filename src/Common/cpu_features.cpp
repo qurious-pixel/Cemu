@@ -48,19 +48,12 @@ std::string getCpuBrandNameLinux()
 
 std::string getProperty(const std::string& name)
 {
-	const prop_info* pi = __system_property_find(name.c_str());
-	std::string propValue;
-	if (pi == nullptr)
-		return {};
-	__system_property_read_callback(
-		pi,
-		[](void* cookie, const char* name, const char* value, uint32_t serial) {
-			if (cookie == nullptr)
-				return;
-			*reinterpret_cast<std::string*>(cookie) = value;
-		},
-		&propValue);
-	return propValue;
+    const prop_info* pi = __system_property_find(name.c_str());
+    if (!pi) return {};
+
+    char value[PROP_VALUE_MAX];
+    __system_property_read(pi, nullptr, value);
+    return std::string(value);
 }
 
 std::string getCpuBrandNameAndroid()
