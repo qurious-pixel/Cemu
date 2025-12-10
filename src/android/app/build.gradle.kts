@@ -45,7 +45,7 @@ val cemuDataFilesFolder = "../../../bin"
 
 android {
     namespace = "info.cemu.cemu"
-    compileSdk = 31
+    compileSdk = 36
     ndkVersion = "26.3.11579264"
     defaultConfig {
         applicationId = "info.cemu.cemu"
