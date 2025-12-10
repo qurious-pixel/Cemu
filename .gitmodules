@@ -29,3 +29,6 @@
 	path = dependencies/libucontext/src
 	url = https://github.com/kaniini/libucontext
 	shallow = true
+[submodule "dependencies/libucontext/src"]
+	path = dependencies/libucontext/src
+	url = https://github.com/kaniini/libucontext/
