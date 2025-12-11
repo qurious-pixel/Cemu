@@ -16,7 +16,7 @@ espresso-core = "3.7.0"
 okhttp = "5.1.0"
 kotlinx-serialization-json = "1.9.0"
 kotlinx-gettext = "0.7.0"
-leanback = "1.6.0"
+leanback = "1.2.0"
 
 [libraries]
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
