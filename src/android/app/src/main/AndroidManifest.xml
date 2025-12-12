@@ -4,23 +4,18 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    
-    <!-- Make sure TV devices are allowed: touchscreen is NOT required -->
-    <uses-feature android:name="android.hardware.type.television" android:required="false" />
-    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
-    <!-- Indicate leanback support (not required to avoid excluding phones) -->
-    <uses-feature android:name="android.software.leanback" android:required="false" />
-    <!-- Vulkan requirement left as in original (adjust if not needed on TV) -->
+
     <uses-feature
         android:name="android.hardware.vulkan.version"
         android:required="true"
         android:version="0x401000" />
-    
+
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+
     <application
         android:name=".CemuApplication"
         android:allowBackup="true"
         android:appCategory="game"
-        android:banner="@drawable/banner"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -28,30 +23,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Cemu">
-    
-        <!-- Phone / tablet launcher -->
+
         <activity
             android:name=".MainActivity"
-            android:exported="true">
+            android:exported="true"
+            android:banner="@drawable/app_banner"
+            android:resizeableActivity="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-    
-        <!-- TV launcher (Leanback) -->
-        <activity
-            android:name=".MainActivityTV"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.Leanback">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
-    
-        <!-- Emulation activity: support VIEW for file types, keep landscape orientation -->
+
         <activity
             android:name=".emulation.EmulationActivity"
             android:configChanges="orientation|screenSize"
@@ -75,7 +63,7 @@
                 <data android:pathPattern=".*\\.rpx" />
             </intent-filter>
         </activity>
-    
+
         <provider
             android:name=".provider.DocumentsProvider"
             android:authorities="${applicationId}.provider"
@@ -86,5 +74,7 @@
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>
         </provider>
+        
+        <meta-data android:name="com.android.tv.banner" android:resource="@drawable/app_banner" />
     </application>
 </manifest>
