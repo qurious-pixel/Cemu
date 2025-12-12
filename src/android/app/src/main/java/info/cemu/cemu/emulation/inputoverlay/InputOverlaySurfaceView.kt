@@ -105,10 +105,20 @@ class InputOverlaySurfaceView(context: Context, attrs: AttributeSet?) :
         return inputMode
     }
 
-    private fun getVibrator(context: Context): Vibrator {
-        val vibratorManager =
-            context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as VibratorManager
-        return vibratorManager.defaultVibrator
+    private fun getVibrator(context: Context): Vibrator? {
+        val isTv = (context.packageManager?.hasSystemFeature(PackageManager.FEATURE_TELEVISION) == true)
+                || (context.resources.configuration.uiMode and Configuration.UI_MODE_TYPE_MASK) == Configuration.UI_MODE_TYPE_TELEVISION
+    
+        if (isTv) return null
+    
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val vibratorManager =
+                context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
+            vibratorManager?.defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
+        }
     }
 
     private fun overlayButtonToVPADButton(button: OverlayInput): Int {
