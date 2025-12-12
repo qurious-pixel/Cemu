@@ -1,8 +1,11 @@
 package info.cemu.cemu.emulation.inputoverlay
 
 import android.content.Context
+import android.content.res.Configuration
+import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Rect
+import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
