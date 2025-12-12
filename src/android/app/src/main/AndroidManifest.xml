@@ -75,6 +75,6 @@
             </intent-filter>
         </provider>
         
-        <meta-data android:name="com.android.tv.banner" android:resource="@drawable/app_banner" />
+        <meta-data android:name="com.android.tv.banner" android:resource="@drawable/banner" />
     </application>
 </manifest>
