@@ -19,12 +19,11 @@ fun CemuTheme(
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit,
 ) {
+    val context = LocalContext.current
     val colorScheme = when {
-        dynamicColor -> {
-            val context = LocalContext.current
+        dynamicColor && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S -> {
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
