@@ -67,7 +67,7 @@ class InputOverlaySurfaceView(context: Context, attrs: AttributeSet?) :
         val overlaySettings = SettingsManager.inputOverlaySettings
         controllerIndex = overlaySettings.controllerIndex
         currentAlpha = overlaySettings.alpha
-        vibrateOnTouch = vibrator.hasVibrator() && overlaySettings.isVibrateOnTouchEnabled
+        vibrateOnTouch = (vibrator?.hasVibrator() == true) && overlaySettings.isVibrateOnTouchEnabled
     }
 
     fun setVisible(visible: Boolean) {
@@ -211,7 +211,7 @@ class InputOverlaySurfaceView(context: Context, attrs: AttributeSet?) :
             return
         }
         if (vibrateOnTouch && state) {
-            vibrator!!.vibrate(buttonTouchVibrationEffect)
+            vibrator?.vibrate(buttonTouchVibrationEffect)
         }
         onOverlayButton(controllerIndex, nativeButtonId, state)
     }
