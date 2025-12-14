@@ -90,14 +90,14 @@ fun showEmulationTextInputDialog(
 ): AlertDialog {
     NativeSwkbd.setCurrentInputText(initialText)
 
-    val inputEditTextLayout =
-        layoutInflater.inflate(
-            info.cemu.cemu.R.layout.layout_emulation_input,
-            null
-        )
+    val inputEditTextLayout = layoutInflater.inflate(
+        info.cemu.cemu.R.layout.layout_emulation_input,
+        null
+    )
 
-    val inputEditText =
-        inputEditTextLayout.requireViewById<EmulationTextInputEditText>(info.cemu.cemu.R.id.emulation_input_text)
+    val inputEditText = inputEditTextLayout.requireViewById<EmulationTextInputEditText>(
+        info.cemu.cemu.R.id.emulation_input_text
+    )
 
     inputEditText.updateText(initialText)
 
@@ -107,18 +107,29 @@ fun showEmulationTextInputDialog(
         .setPositiveButton(tr("Done")) { _, _ -> }
         .show()
 
-    val doneButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE)!!
+    val doneButton = dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+    doneButton?.isEnabled = false
 
-    doneButton.isEnabled = false
-
-    doneButton.setOnClickListener { _ -> inputEditText.onFinishedEdit() }
-
-    inputEditText.setOnTextChangedListener {
-        doneButton.isEnabled = it.isNotEmpty()
+    doneButton?.setOnClickListener {
+        inputEditText.onFinishedEdit()
     }
 
-    val parentTextInputLayout =
-        inputEditTextLayout.requireViewById<TextInputLayout>(info.cemu.cemu.R.id.emulation_input_layout)
+    inputEditText.setOnTextChangedListener { text ->
+        doneButton?.isEnabled = !text.isNullOrEmpty()
+    }
+
+    inputEditText.setOnEditorActionListener { v, actionId, _ ->
+        if (actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_SEND) {
+            if (!v.text.isNullOrEmpty()) {
+                inputEditText.onFinishedEdit()
+            }
+            true
+        } else false
+    }
+
+    val parentTextInputLayout = inputEditTextLayout.requireViewById<TextInputLayout>(
+        info.cemu.cemu.R.id.emulation_input_layout
+    )
 
     if (maxLength > 0) {
         parentTextInputLayout.isCounterEnabled = true
@@ -126,6 +137,12 @@ fun showEmulationTextInputDialog(
         inputEditText.appendFilter(LengthFilter(maxLength))
     } else {
         parentTextInputLayout.isCounterEnabled = false
+    }
+
+    inputEditText.requestFocus()
+    inputEditText.post {
+        val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? android.view.inputmethod.InputMethodManager
+        imm?.showSoftInput(inputEditText, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
     }
 
     return dialog
