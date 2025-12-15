@@ -39,8 +39,7 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             labelFormatter = { "${it}ms" },
             modifier = Modifier
                 .focusRequester(latencyRequester)
-                .focusable()
-                .onFocusChanged { latencyFocused = it.isFocused }
+                .onFocusChanged { state -> latencyFocused = state.isFocused }
                 .then(if (latencyFocused) Modifier.border(2.dp, Color.Cyan).padding(4.dp) else Modifier)
         )
 
@@ -54,8 +53,7 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             onCheckedChanged = { NativeSettings.setAudioDeviceEnabled(it, true) },
             modifier = Modifier
                 .focusRequester(tvToggleRequester)
-                .focusable()
-                .onFocusChanged { tvToggleFocused = it.isFocused }
+                .onFocusChanged { state -> tvToggleFocused = state.isFocused }
                 .then(if (tvToggleFocused) Modifier.border(2.dp, Color.Cyan).padding(4.dp) else Modifier)
         )
 
@@ -74,8 +72,7 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             ),
             modifier = Modifier
                 .focusRequester(tvChannelsRequester)
-                .focusable()
-                .onFocusChanged { tvChannelsFocused = it.isFocused }
+                .onFocusChanged { state -> tvChannelsFocused = state.isFocused }
                 .then(if (tvChannelsFocused) Modifier.border(2.dp, Color.Cyan).padding(4.dp) else Modifier)
         )
 
@@ -92,8 +89,7 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             labelFormatter = { "$it%" },
             modifier = Modifier
                 .focusRequester(tvVolumeRequester)
-                .focusable()
-                .onFocusChanged { tvVolumeFocused = it.isFocused }
+                .onFocusChanged { state -> tvVolumeFocused = state.isFocused }
                 .then(if (tvVolumeFocused) Modifier.border(2.dp, Color.Cyan).padding(4.dp) else Modifier)
         )
 
@@ -107,8 +103,7 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             onCheckedChanged = { NativeSettings.setAudioDeviceEnabled(false, it) },
             modifier = Modifier
                 .focusRequester(gpToggleRequester)
-                .focusable()
-                .onFocusChanged { gpToggleFocused = it.isFocused }
+                .onFocusChanged { state -> gpToggleFocused = state.isFocused }
                 .then(if (gpToggleFocused) Modifier.border(2.dp, Color.Cyan).padding(4.dp) else Modifier)
         )
 
@@ -125,8 +120,7 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             ),
             modifier = Modifier
                 .focusRequester(gpChannelsRequester)
-                .focusable()
-                .onFocusChanged { gpChannelsFocused = it.isFocused }
+                .onFocusChanged { state -> gpChannelsFocused = state.isFocused }
                 .then(if (gpChannelsFocused) Modifier.border(2.dp, Color.Cyan).padding(4.dp) else Modifier)
         )
 
@@ -143,8 +137,7 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             labelFormatter = { "$it%" },
             modifier = Modifier
                 .focusRequester(gpVolumeRequester)
-                .focusable()
-                .onFocusChanged { gpVolumeFocused = it.isFocused }
+                .onFocusChanged { state -> gpVolumeFocused = state.isFocused }
                 .then(if (gpVolumeFocused) Modifier.border(2.dp, Color.Cyan).padding(4.dp) else Modifier)
         )
     }
