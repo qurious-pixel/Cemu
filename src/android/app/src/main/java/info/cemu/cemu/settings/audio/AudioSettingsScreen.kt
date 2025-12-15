@@ -32,10 +32,10 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             label = tr("Latency"),
             initialValue = { NativeSettings.getAudioLatency() },
             valueFrom = 0,
-            valueTo = NativeSettings.AUDIO_LATENCY_MS_MAX,
             steps = AUDIO_LATENCY_STEPS,
-            labelFormatter = { "${it}ms" },
-            onValueChange = { v -> NativeSettings.setAudioLatency(v) },
+            valueTo = NativeSettings.AUDIO_LATENCY_MS_MAX,
+            onValueChange = { v: Int -> NativeSettings.setAudioLatency(v) },
+            labelFormatter = { v: Int -> "${v}ms" },
             modifier = Modifier
                 .focusRequester(latencyRequester)
                 .onFocusChanged { state -> latencyFocused = state.isFocused }
@@ -49,7 +49,7 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             label = tr("TV"),
             description = tr("Enable audio output for the Wii U TV"),
             initialCheckedState = { NativeSettings.getAudioDeviceEnabled(true) },
-            onCheckedChanged = { checked -> NativeSettings.setAudioDeviceEnabled(checked, true) },
+            onCheckedChanged = { checked: Boolean -> NativeSettings.setAudioDeviceEnabled(checked, true) },
             modifier = Modifier
                 .focusRequester(tvToggleRequester)
                 .onFocusChanged { state -> tvToggleFocused = state.isFocused }
@@ -62,8 +62,8 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
         SingleSelection(
             label = tr("TV channels"),
             initialChoice = { NativeSettings.getAudioDeviceChannels(true) },
-            onChoiceChanged = { choice -> NativeSettings.setAudioDeviceChannels(choice, true) },
-            choiceToString = { channels -> channelsToString(channels) },
+            onChoiceChanged = { choice: Int -> NativeSettings.setAudioDeviceChannels(choice, true) },
+            choiceToString = { channels: Int -> channelsToString(channels) },
             choices = listOf(
                 NativeSettings.AudioChannels.MONO,
                 NativeSettings.AudioChannels.STEREO,
@@ -82,10 +82,10 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             label = tr("TV volume"),
             initialValue = { NativeSettings.getAudioDeviceVolume(true) },
             valueFrom = NativeSettings.AUDIO_MIN_VOLUME,
-            valueTo = NativeSettings.AUDIO_MAX_VOLUME,
             steps = AUDIO_VOLUME_STEPS,
-            labelFormatter = { "$it%" },
-            onValueChange = { v -> NativeSettings.setAudioDeviceVolume(v, true) },
+            valueTo = NativeSettings.AUDIO_MAX_VOLUME,
+            onValueChange = { v: Int -> NativeSettings.setAudioDeviceVolume(v, true) },
+            labelFormatter = { v: Int -> "$v%" },
             modifier = Modifier
                 .focusRequester(tvVolumeRequester)
                 .onFocusChanged { state -> tvVolumeFocused = state.isFocused }
@@ -99,7 +99,7 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             label = tr("Gamepad"),
             description = tr("Enable audio output for the Wii U Gamepad"),
             initialCheckedState = { NativeSettings.getAudioDeviceEnabled(false) },
-            onCheckedChanged = { checked -> NativeSettings.setAudioDeviceEnabled(checked, false) },
+            onCheckedChanged = { checked: Boolean -> NativeSettings.setAudioDeviceEnabled(checked, false) },
             modifier = Modifier
                 .focusRequester(gpToggleRequester)
                 .onFocusChanged { state -> gpToggleFocused = state.isFocused }
@@ -112,8 +112,8 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
         SingleSelection(
             label = tr("Gamepad channels"),
             initialChoice = { NativeSettings.getAudioDeviceChannels(false) },
-            onChoiceChanged = { choice -> NativeSettings.setAudioDeviceChannels(choice, false) },
-            choiceToString = { channels -> channelsToString(channels) },
+            onChoiceChanged = { choice: Int -> NativeSettings.setAudioDeviceChannels(choice, false) },
+            choiceToString = { channels: Int -> channelsToString(channels) },
             choices = listOf(
                 NativeSettings.AudioChannels.STEREO,
             ),
@@ -132,8 +132,8 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             valueFrom = NativeSettings.AUDIO_MIN_VOLUME,
             steps = AUDIO_VOLUME_STEPS,
             valueTo = NativeSettings.AUDIO_MAX_VOLUME,
-            onValueChange = { NativeSettings.setAudioDeviceVolume(it, false) },
-            labelFormatter = { "$it%" },
+            onValueChange = { v: Int -> NativeSettings.setAudioDeviceVolume(v, false) },
+            labelFormatter = { v: Int -> "$v%" },
             modifier = Modifier
                 .focusRequester(gpVolumeRequester)
                 .onFocusChanged { state -> gpVolumeFocused = state.isFocused }
