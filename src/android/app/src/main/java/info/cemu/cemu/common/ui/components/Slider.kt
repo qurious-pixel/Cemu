@@ -26,9 +26,9 @@ fun Slider(
     @IntRange(from = 0) steps: Int = (valueTo - valueFrom - 1).coerceAtLeast(0),
     labelFormatter: (Int) -> String,
     onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var sliderValue by rememberSaveable(value) { mutableFloatStateOf(value.toFloat()) }
-
     Column(modifier = Modifier.padding(8.dp)) {
         Text(
             modifier = Modifier.padding(bottom = 8.dp),
@@ -61,9 +61,9 @@ fun Slider(
     @IntRange(from = 0) steps: Int = (valueTo - valueFrom - 1).coerceAtLeast(0),
     labelFormatter: (Int) -> String,
     onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var value by rememberSaveable { mutableIntStateOf(initialValue()) }
-
     Slider(
         label = label,
         value = value,
