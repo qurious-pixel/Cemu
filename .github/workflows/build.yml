@@ -11,7 +11,7 @@ on:
 concurrency:
   group: ${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
-  
+ 
 env:
   VCPKG_ROOT: "${{github.workspace}}/dependencies/vcpkg"
   VCPKG_BINARY_SOURCES: 'clear;nuget,GitHub,readwrite'
@@ -27,7 +27,7 @@ jobs:
         run: |
           sudo apt update -qq
           sudo apt install -y gettext mono-complete ninja-build automake libtool
-      
+
       - name: Checkout Upstream Repo
         uses: actions/checkout@v4
         with:
@@ -43,7 +43,7 @@ jobs:
             mkdir -p $(dirname $po_file)
             msgunfmt $mo_file -o $po_file || echo "Failed to uncompile message catalog from $mo_file"
           done
-      
+
       - name: "Bootstrap vcpkg"
         run: |
           bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
@@ -61,7 +61,18 @@ jobs:
           mono `./dependencies/vcpkg/vcpkg fetch nuget | tail -n 1` \
           setapikey "${{ secrets.GITHUB_TOKEN }}" \
           -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
-         
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/gradle-wrapper.properties') }}-${{ hashFiles('**/build.gradle*', '**/settings.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-${{ hashFiles('**/gradle-wrapper.properties') }}-
+            ${{ runner.os }}-gradle-
+
       - name: Build Cemu
         run: |
           cd ./src/android
