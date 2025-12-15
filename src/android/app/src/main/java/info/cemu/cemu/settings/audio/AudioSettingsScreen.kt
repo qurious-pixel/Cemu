@@ -32,10 +32,10 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             label = tr("Latency"),
             initialValue = { NativeSettings.getAudioLatency() },
             valueFrom = 0,
-            steps = AUDIO_LATENCY_STEPS,
             valueTo = NativeSettings.AUDIO_LATENCY_MS_MAX,
-            onValueChange = { v: Int -> NativeSettings.setAudioLatency(v) },
+            steps = AUDIO_LATENCY_STEPS,
             labelFormatter = { v: Int -> "${v}ms" },
+            onValueChange = { v: Int -> NativeSettings.setAudioLatency(v) },
             modifier = Modifier
                 .focusRequester(latencyRequester)
                 .onFocusChanged { state -> latencyFocused = state.isFocused }
@@ -82,10 +82,10 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             label = tr("TV volume"),
             initialValue = { NativeSettings.getAudioDeviceVolume(true) },
             valueFrom = NativeSettings.AUDIO_MIN_VOLUME,
-            steps = AUDIO_VOLUME_STEPS,
             valueTo = NativeSettings.AUDIO_MAX_VOLUME,
-            onValueChange = { v: Int -> NativeSettings.setAudioDeviceVolume(v, true) },
+            steps = AUDIO_VOLUME_STEPS,
             labelFormatter = { v: Int -> "$v%" },
+            onValueChange = { v: Int -> NativeSettings.setAudioDeviceVolume(v, true) },
             modifier = Modifier
                 .focusRequester(tvVolumeRequester)
                 .onFocusChanged { state -> tvVolumeFocused = state.isFocused }
@@ -130,10 +130,10 @@ fun AudioSettingsScreen(navigateBack: () -> Unit) {
             label = tr("Gamepad volume"),
             initialValue = { NativeSettings.getAudioDeviceVolume(false) },
             valueFrom = NativeSettings.AUDIO_MIN_VOLUME,
-            steps = AUDIO_VOLUME_STEPS,
             valueTo = NativeSettings.AUDIO_MAX_VOLUME,
-            onValueChange = { v: Int -> NativeSettings.setAudioDeviceVolume(v, false) },
+            steps = AUDIO_VOLUME_STEPS,
             labelFormatter = { v: Int -> "$v%" },
+            onValueChange = { v: Int -> NativeSettings.setAudioDeviceVolume(v, false) },
             modifier = Modifier
                 .focusRequester(gpVolumeRequester)
                 .onFocusChanged { state -> gpVolumeFocused = state.isFocused }
