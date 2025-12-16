@@ -9,7 +9,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -30,7 +29,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
-import kotlin.math.roundToLong
 import androidx.compose.material3.Slider as MaterialSlider
 import androidx.compose.ui.interaction.MutableInteractionSource
 
@@ -49,23 +47,23 @@ fun Slider(
 
     val stepCount = (steps.coerceAtLeast(0)) + 1
     val rangeSpan = (valueTo - valueFrom).toFloat()
-    val stepSizeFloat = rangeSpan / stepCount.toFloat() // distance per discrete step
+    val stepSizeFloat = rangeSpan / stepCount.toFloat()
 
     var sliderValue by rememberSaveable(value) { mutableFloatStateOf(value.toFloat()) }
     val onValueChangeState = rememberUpdatedState(onValueChange)
 
     val focusRequester = FocusRequester()
-    val interactionSource = remember { MutableInteractionSource() }
+    val interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
 
     fun snapToStepFloat(raw: Float): Float {
         val clamped = raw.coerceIn(valueFrom.toFloat(), valueTo.toFloat())
         val relative = clamped - valueFrom.toFloat()
-        val stepIndex = (relative / stepSizeFloat).roundToInt() // 0..stepCount
+        val stepIndex = (relative / stepSizeFloat).roundToInt()
         return valueFrom.toFloat() + stepIndex * stepSizeFloat
     }
 
     fun snappedFloatToInt(snapped: Float): Int =
-        (snapped.roundToInt())
+        snapped.roundToInt()
 
     Column(modifier = modifier.padding(8.dp)) {
         Text(
@@ -85,7 +83,8 @@ fun Slider(
             modifier = Modifier
                 .focusRequester(focusRequester)
                 .focusable(interactionSource = interactionSource)
-                .onKeyEvent { event: KeyEvent ->
+                .onKeyEvent { e ->
+                    val event: KeyEvent = e
                     if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
                     when (event.key) {
                         Key.DirectionLeft, Key.DirectionDown -> {
