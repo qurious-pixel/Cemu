@@ -18,8 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.progressBarRangeInfo
 import androidx.compose.ui.semantics.setProgress
@@ -29,9 +30,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 import androidx.compose.material3.Slider as MaterialSlider
 import androidx.compose.ui.interaction.MutableInteractionSource
-import kotlinx.coroutines.launch
 
 @Composable
 fun Slider(
@@ -44,16 +45,27 @@ fun Slider(
     onValueChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    require(valueFrom < valueTo) { "valueFrom must be < valueTo" }
+
+    val stepCount = (steps.coerceAtLeast(0)) + 1
+    val rangeSpan = (valueTo - valueFrom).toFloat()
+    val stepSizeFloat = rangeSpan / stepCount.toFloat() // distance per discrete step
+
     var sliderValue by rememberSaveable(value) { mutableFloatStateOf(value.toFloat()) }
     val onValueChangeState = rememberUpdatedState(onValueChange)
 
     val focusRequester = FocusRequester()
     val interactionSource = remember { MutableInteractionSource() }
-    val coroutineScope = rememberCoroutineScope()
 
-    // Determine step float amount. If steps > 0, steps param means number of discrete intervals between ends.
-    val effectiveSteps = if (steps > 0) steps + 1 else (valueTo - valueFrom).coerceAtLeast(1)
-    val stepSizeFloat = (valueTo - valueFrom).toFloat() / effectiveSteps.toFloat()
+    fun snapToStepFloat(raw: Float): Float {
+        val clamped = raw.coerceIn(valueFrom.toFloat(), valueTo.toFloat())
+        val relative = clamped - valueFrom.toFloat()
+        val stepIndex = (relative / stepSizeFloat).roundToInt() // 0..stepCount
+        return valueFrom.toFloat() + stepIndex * stepSizeFloat
+    }
+
+    fun snappedFloatToInt(snapped: Float): Int =
+        (snapped.roundToInt())
 
     Column(modifier = modifier.padding(8.dp)) {
         Text(
@@ -73,23 +85,21 @@ fun Slider(
             modifier = Modifier
                 .focusRequester(focusRequester)
                 .focusable(interactionSource = interactionSource)
-                .onKeyEvent { keyEvent ->
-                    if (keyEvent.type != KeyEventType.KeyDown) return@onKeyEvent false
-                    when (keyEvent.key) {
+                .onKeyEvent { event: KeyEvent ->
+                    if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
+                    when (event.key) {
                         Key.DirectionLeft, Key.DirectionDown -> {
-                            coroutineScope.launch {
-                                val newVal = (sliderValue - stepSizeFloat).coerceAtLeast(valueFrom.toFloat())
-                                sliderValue = newVal
-                                onValueChangeState.value(newVal.roundToInt())
-                            }
+                            val newRaw = sliderValue - stepSizeFloat
+                            val snapped = snapToStepFloat(newRaw)
+                            sliderValue = snapped
+                            onValueChangeState.value(snappedFloatToInt(snapped))
                             true
                         }
                         Key.DirectionRight, Key.DirectionUp -> {
-                            coroutineScope.launch {
-                                val newVal = (sliderValue + stepSizeFloat).coerceAtMost(valueTo.toFloat())
-                                sliderValue = newVal
-                                onValueChangeState.value(newVal.roundToInt())
-                            }
+                            val newRaw = sliderValue + stepSizeFloat
+                            val snapped = snapToStepFloat(newRaw)
+                            sliderValue = snapped
+                            onValueChangeState.value(snappedFloatToInt(snapped))
                             true
                         }
                         else -> false
@@ -103,17 +113,25 @@ fun Slider(
                         steps = steps
                     )
                     setProgress { newFloat ->
-                        val coerced = newFloat.coerceIn(valueFrom.toFloat(), valueTo.toFloat())
-                        sliderValue = coerced
-                        onValueChangeState.value(coerced.roundToInt())
+                        val snapped = snapToStepFloat(newFloat)
+                        sliderValue = snapped
+                        onValueChangeState.value(snappedFloatToInt(snapped))
                         true
                     }
                 },
             valueRange = valueFrom.toFloat()..valueTo.toFloat(),
             steps = steps,
             value = sliderValue,
-            onValueChangeFinished = { onValueChangeState.value(sliderValue.roundToInt()) },
-            onValueChange = { sliderValue = it },
+            onValueChangeFinished = {
+                val snapped = snapToStepFloat(sliderValue)
+                sliderValue = snapped
+                onValueChangeState.value(snappedFloatToInt(snapped))
+            },
+            onValueChange = { raw ->
+                val snapped = snapToStepFloat(raw)
+                sliderValue = snapped
+                onValueChangeState.value(snappedFloatToInt(snapped))
+            },
         )
     }
 }
@@ -129,15 +147,18 @@ fun Slider(
     onValueChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var value by rememberSaveable { mutableIntStateOf(initialValue()) }
+    var internalValue by rememberSaveable { mutableIntStateOf(initialValue()) }
     Slider(
         label = label,
-        value = value,
+        value = internalValue,
         valueFrom = valueFrom,
         valueTo = valueTo,
         steps = steps,
         labelFormatter = labelFormatter,
-        onValueChange = onValueChange,
+        onValueChange = { new ->
+            internalValue = new
+            onValueChange(new)
+        },
         modifier = modifier,
     )
 }
