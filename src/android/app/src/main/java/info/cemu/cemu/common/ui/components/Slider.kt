@@ -73,27 +73,78 @@ fun Slider(
         modifier = Modifier
             .focusRequester(focusRequester)
             .focusable(interactionSource = interactionSource)
-            .onKeyEvent { event: KeyEvent ->
-                if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
-                when (event.key) {
-                    Key.DirectionLeft, Key.DirectionDown -> {
-                        val newRaw = sliderValue - stepSizeFloat
-                        val snapped = snapToStepFloat(newRaw)
-                        sliderValue = snapped
-                        onValueChangeState.value(snappedFloatToInt(snapped))
-                        true
-                    }
-                    Key.DirectionRight, Key.DirectionUp -> {
-                        val newRaw = sliderValue + stepSizeFloat
-                        val snapped = snapToStepFloat(newRaw)
-                        sliderValue = snapped
-                        onValueChangeState.value(snappedFloatToInt(snapped))
-                        true
-                    }
-                    else -> false
-                }
-            }
-            .semantics {
+			.onKeyEvent { event ->
+    			// handle only key down
+    			val isDown = try {
+        			// Compose KeyEvent has 'type' property
+        			event.type == KeyEventType.KeyDown
+    			} catch (_: Throwable) {
+        			// fallback: some platforms expose key event via nativeKeyEvent
+        			event.nativeKeyEvent?.action == android.view.KeyEvent.ACTION_DOWN
+    			}
+    			if (!isDown) return@onKeyEvent false
+			
+    			// Try to match Compose Key first
+    			val handled = when (event.key) {
+        			Key.DirectionLeft, Key.DirectionDown -> {
+            			coroutineScope.launch {
+                			val newVal = (sliderValue - stepSizeFloat).coerceAtLeast(valueFrom.toFloat())
+                			sliderValue = newVal
+                			onValueChangeState.value(newVal.roundToInt())
+            			}
+            			true
+        			}
+        			Key.DirectionRight, Key.DirectionUp -> {
+            			coroutineScope.launch {
+                			val newVal = (sliderValue + stepSizeFloat).coerceAtMost(valueTo.toFloat())
+                			sliderValue = newVal
+                			onValueChangeState.value(newVal.roundToInt())
+            			}
+            			true
+        			}
+        			else -> false
+    			}
+    			if (handled) return@onKeyEvent true
+			
+    			// Fallback: compare native Android key codes if event.key isn't meaningful in this runtime
+    			val nativeCode = try { event.nativeKeyEvent?.keyCode } catch (_: Throwable) { null }
+    			when (nativeCode) {
+        			android.view.KeyEvent.KEYCODE_DPAD_LEFT, android.view.KeyEvent.KEYCODE_MINUS -> {
+            			coroutineScope.launch {
+                			val newVal = (sliderValue - stepSizeFloat).coerceAtLeast(valueFrom.toFloat())
+                			sliderValue = newVal
+                			onValueChangeState.value(newVal.roundToInt())
+            			}
+            			true
+        			}
+        			android.view.KeyEvent.KEYCODE_DPAD_RIGHT, android.view.KeyEvent.KEYCODE_PLUS -> {
+            			coroutineScope.launch {
+                			val newVal = (sliderValue + stepSizeFloat).coerceAtMost(valueTo.toFloat())
+                			sliderValue = newVal
+                			onValueChangeState.value(newVal.roundToInt())
+            			}
+            			true
+        			}
+        			android.view.KeyEvent.KEYCODE_DPAD_DOWN -> {
+            			coroutineScope.launch {
+                			val newVal = (sliderValue - stepSizeFloat).coerceAtLeast(valueFrom.toFloat())
+                			sliderValue = newVal
+                			onValueChangeState.value(newVal.roundToInt())
+            			}
+            			true
+        			}
+        			android.view.KeyEvent.KEYCODE_DPAD_UP -> {
+            			coroutineScope.launch {
+                			val newVal = (sliderValue + stepSizeFloat).coerceAtMost(valueTo.toFloat())
+                			sliderValue = newVal
+                			onValueChangeState.value(newVal.roundToInt())
+            			}
+            			true
+        			}
+        			else -> false
+    			}
+			}
+            			.semantics {
                 contentDescription = "$label: ${labelFormatter(sliderValue.roundToInt())}"
                 progressBarRangeInfo = ProgressBarRangeInfo(
                     current = sliderValue,
