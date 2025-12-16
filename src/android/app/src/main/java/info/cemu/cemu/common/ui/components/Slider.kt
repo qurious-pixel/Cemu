@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 import androidx.compose.material3.Slider as MaterialSlider
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.saveable.rememberSaveable
 
 @Composable
 fun Slider(
@@ -68,60 +69,59 @@ fun Slider(
             fontSize = 14.sp,
         )
 
-        MaterialSlider(
-            modifier = Modifier
-                .focusRequester(focusRequester)
-                .focusable(interactionSource = interactionSource)
-                .onKeyEvent { e ->
-                    val event: KeyEvent = e
-                    if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
-                    when (event.key) {
-                        Key.DirectionLeft, Key.DirectionDown -> {
-                            val newRaw = sliderValue - stepSizeFloat
-                            val snapped = snapToStepFloat(newRaw)
-                            sliderValue = snapped
-                            onValueChangeState.value(snappedFloatToInt(snapped))
-                            true
-                        }
-                        Key.DirectionRight, Key.DirectionUp -> {
-                            val newRaw = sliderValue + stepSizeFloat
-                            val snapped = snapToStepFloat(newRaw)
-                            sliderValue = snapped
-                            onValueChangeState.value(snappedFloatToInt(snapped))
-                            true
-                        }
-                        else -> false
-                    }
-                }
-                .semantics {
-                    contentDescription = "$label: ${labelFormatter(sliderValue.roundToInt())}"
-                    progressBarRangeInfo = ProgressBarRangeInfo(
-                        current = sliderValue,
-                        range = valueFrom.toFloat()..valueTo.toFloat(),
-                        steps = steps
-                    )
-                    setProgress { newFloat ->
-                        val snapped = snapToStepFloat(newFloat)
+    MaterialSlider(
+        modifier = Modifier
+            .focusRequester(focusRequester)
+            .focusable(interactionSource = interactionSource)
+            .onKeyEvent { event: KeyEvent ->
+                if (event.type != KeyEventType.KeyDown) return@onKeyEvent false
+                when (event.key) {
+                    Key.DirectionLeft, Key.DirectionDown -> {
+                        val newRaw = sliderValue - stepSizeFloat
+                        val snapped = snapToStepFloat(newRaw)
                         sliderValue = snapped
                         onValueChangeState.value(snappedFloatToInt(snapped))
                         true
                     }
-                },
-            valueRange = valueFrom.toFloat()..valueTo.toFloat(),
-            steps = steps,
-            value = sliderValue,
-            onValueChangeFinished = {
-                val snapped = snapToStepFloat(sliderValue)
-                sliderValue = snapped
-                onValueChangeState.value(snappedFloatToInt(snapped))
+                    Key.DirectionRight, Key.DirectionUp -> {
+                        val newRaw = sliderValue + stepSizeFloat
+                        val snapped = snapToStepFloat(newRaw)
+                        sliderValue = snapped
+                        onValueChangeState.value(snappedFloatToInt(snapped))
+                        true
+                    }
+                    else -> false
+                }
+            }
+            .semantics {
+                contentDescription = "$label: ${labelFormatter(sliderValue.roundToInt())}"
+                progressBarRangeInfo = ProgressBarRangeInfo(
+                    current = sliderValue,
+                    range = valueFrom.toFloat()..valueTo.toFloat(),
+                    steps = steps
+                )
+                setProgress { newFloat ->
+                    val snapped = snapToStepFloat(newFloat)
+                    sliderValue = snapped
+                    onValueChangeState.value(snappedFloatToInt(snapped))
+                    true
+                }
             },
-            onValueChange = { raw ->
-                val snapped = snapToStepFloat(raw)
-                sliderValue = snapped
-                onValueChangeState.value(snappedFloatToInt(snapped))
-            },
-        )
-    }
+        	valueRange = valueFrom.toFloat()..valueTo.toFloat(),
+        	steps = steps,
+        	value = sliderValue,
+        	onValueChangeFinished = {
+            	val snapped = snapToStepFloat(sliderValue)
+            	sliderValue = snapped
+            	onValueChangeState.value(snappedFloatToInt(snapped))
+        	},
+        	onValueChange = { raw ->
+            	val snapped = snapToStepFloat(raw)
+            	sliderValue = snapped
+            	onValueChangeState.value(snappedFloatToInt(snapped))
+        	},
+    	)
+	}
 }
 
 @Composable
