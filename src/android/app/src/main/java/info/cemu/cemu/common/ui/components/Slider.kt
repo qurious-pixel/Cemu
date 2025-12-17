@@ -43,16 +43,14 @@ fun Slider(
         modifier = Modifier
             .padding(8.dp)
             .focusable()
-            .onKeyEvent { keyEvent ->
-                when {
-                    keyEvent.key == Key.DirectionLeft ||
-                    keyEvent.key == Key.DPadLeft -> {
-                        if (keyEvent.type == KeyEventType.KeyDown) applyDelta(-1)
+            .onKeyEvent { event ->
+                when (event.key) {
+                    Key.DirectionLeft -> {
+                        if (event.type == KeyEventType.KeyDown) applyDelta(-1)
                         true
                     }
-                    keyEvent.key == Key.DirectionRight ||
-                    keyEvent.key == Key.DPadRight -> {
-                        if (keyEvent.type == KeyEventType.KeyDown) applyDelta(1)
+                    Key.DirectionRight -> {
+                        if (event.type == KeyEventType.KeyDown) applyDelta(1)
                         true
                     }
                     else -> false
