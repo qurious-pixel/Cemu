@@ -1,6 +1,7 @@
 package info.cemu.cemu.common.ui.components
 
 import androidx.annotation.IntRange
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Slider as MaterialSlider
@@ -33,10 +34,9 @@ fun Slider(
 ) {
     var sliderValue by rememberSaveable(value) { mutableFloatStateOf(value.toFloat()) }
 
-    // Helper that applies a delta, clamps to the range and notifies the caller.
-    fun applyDelta(delta: Int) {
+    fun applyDelta(deltaSteps: Int) {
         val stepWidth = if (steps > 0) (valueTo - valueFrom) / (steps + 1) else 1
-        val newInt = (sliderValue + delta * stepWidth).roundToInt()
+        val newInt = (sliderValue + deltaSteps * stepWidth).roundToInt()
             .coerceIn(valueFrom, valueTo)
         sliderValue = newInt.toFloat()
         onValueChange(newInt)
@@ -48,13 +48,11 @@ fun Slider(
             .focusable()
             .onKeyEvent { keyEvent ->
                 when {
-                    // Decrease with LEFT / DPAD_LEFT
                     keyEvent.key == Key.DirectionLeft ||
                     keyEvent.key == Key.DPadLeft -> {
                         if (keyEvent.type == KeyEventType.KeyDown) applyDelta(-1)
                         true
                     }
-                    // Increase with RIGHT / DPAD_RIGHT
                     keyEvent.key == Key.DirectionRight ||
                     keyEvent.key == Key.DPadRight -> {
                         if (keyEvent.type == KeyEventType.KeyDown) applyDelta(1)
@@ -106,7 +104,7 @@ fun Slider(
         steps = steps,
         labelFormatter = labelFormatter,
         onValueChange = {
-            value = it        
+            value = it
             onValueChange(it)
         }
     )
