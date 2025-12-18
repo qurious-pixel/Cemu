@@ -20,6 +20,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import info.cemu.cemu.R
 import info.cemu.cemu.common.ui.localization.tr
+import androidx.compose.ui.platform.LocalFocusManager
+import info.cemu.cemu.common.input.handleGamepadFocus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
