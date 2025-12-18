@@ -36,9 +36,9 @@ fun DateField(
     onDateChange: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var showDatePicker by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
-    
+    var showDatePicker by remember { mutableStateOf(false) }
+        
     TextField(
         value = convertMillisToDate(dateMillis),
         onValueChange = {},
@@ -55,7 +55,7 @@ fun DateField(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .handleGamepadFocus(LocalFocusManager),
+            .handleGamepadFocus(focusManager),
     )
 
     if (showDatePicker) {
