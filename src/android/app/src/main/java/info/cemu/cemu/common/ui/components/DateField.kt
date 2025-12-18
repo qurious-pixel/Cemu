@@ -32,7 +32,8 @@ import java.util.Date
 fun DateField(
     label: String,
     dateMillis: Long,
-    onDateChange: (Long) -> Unit
+    onDateChange: (Long) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
 
