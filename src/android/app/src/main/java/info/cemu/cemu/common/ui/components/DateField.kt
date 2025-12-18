@@ -49,7 +49,8 @@ fun DateField(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .handleGamepadFocus(LocalFocusManager.current),
     )
 
     if (showDatePicker) {
