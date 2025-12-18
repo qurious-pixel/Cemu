@@ -29,6 +29,7 @@ fun <T> SelectField(
     choices: Collection<T>,
     choiceToString: @Composable (T) -> String,
     onChoiceChanged: (T) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
