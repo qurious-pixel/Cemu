@@ -59,6 +59,7 @@ import info.cemu.cemu.nativeinterface.NativeAccount.MIN_ACCOUNT_COUNT
 import info.cemu.cemu.nativeinterface.NativeSettings
 import info.cemu.cemu.nativeinterface.NativeSettings.NetworkService
 import androidx.compose.ui.platform.LocalFocusManager
+import info.cemu.cemu.common.input.GamepadFocus.kt
 
 private val Countries = NativeAccount.getAccountCountries().toList()
 private val CountriesIndices = Countries.map { it.index }
@@ -329,7 +330,7 @@ private fun AccountInformation(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
-            .handleGamepadFocus(focusManager),
+            .handleGamepadFocus(focusManager)
         singleLine = true,
         onValueChange = { onDataChange(account.copy(miiName = it)) },
         label = { Text(tr("Mii name")) },
@@ -356,8 +357,8 @@ private fun AccountInformation(
         value = account.email,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
-            .handleGamepadFocus(focusManager),
+            .padding(8.dp)
+            .handleGamepadFocus(focusManager)
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         onValueChange = { onDataChange(account.copy(email = it)) },
