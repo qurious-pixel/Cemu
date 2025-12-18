@@ -49,6 +49,7 @@ fun <T> SelectField(
             modifier = Modifier
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable)
                 .fillMaxWidth()
+                .handleGamepadFocus(LocalFocusManager.current)
         )
 
         ExposedDropdownMenu(
