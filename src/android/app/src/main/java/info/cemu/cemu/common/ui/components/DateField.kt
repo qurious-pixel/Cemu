@@ -27,7 +27,7 @@ import info.cemu.cemu.common.ui.localization.tr
 import java.text.SimpleDateFormat
 import java.util.Date
 import androidx.compose.ui.platform.LocalFocusManager
-import info.cemu.cemu.common.input.GamepadFocus
+import info.cemu.cemu.common.input.handleGamepadFocus
 
 @Composable
 fun DateField(
