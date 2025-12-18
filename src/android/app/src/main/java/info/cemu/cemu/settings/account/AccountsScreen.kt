@@ -340,20 +340,18 @@ private fun AccountInformation(
     DateField(
         label = tr("Birthday"),
         dateMillis = account.birthday,
-        onDateChange = { onDataChange(account.copy(birthday = it)) },
-        modifier = Modifier.handleGamepadFocus(focusManager)
+        onDateChange = { onDataChange(account.copy(birthday = it)) }
     )
 
     SelectField(
+        label = tr("Gender"),
         choice = account.gender,
         choiceToString = { accountGenderToString(it) },
         choices = listOf(
             AccountGender.FEMALE,
             AccountGender.MALE,
         ),
-        onChoiceChanged = { onDataChange(account.copy(gender = it)) },
-        label = tr("Gender"),
-        modifier = Modifier.handleGamepadFocus(focusManager)
+        onChoiceChanged = { onDataChange(account.copy(gender = it)) }
     )
 
     TextField(
@@ -373,8 +371,7 @@ private fun AccountInformation(
         choice = account.country,
         choiceToString = { CountriesMap[it] ?: it.toString() },
         choices = CountriesIndices,
-        onChoiceChanged = { onDataChange(account.copy(country = it)) },
-        modifier = Modifier.handleGamepadFocus(focusManager)
+        onChoiceChanged = { onDataChange(account.copy(country = it)) }
     )
 }
 
@@ -407,6 +404,7 @@ private fun CreateAccountDialog(
     onValidateCreateAccount: (CreateAccount) -> CreateAccountError?,
     onCreateAccount: (CreateAccount) -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
     var createAccount by remember {
         mutableStateOf(
             CreateAccount(
@@ -425,6 +423,7 @@ private fun CreateAccountDialog(
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 TextField(
                     value = createAccount.miiName,
+                    modifier = Modifier.handleGamepadFocus(focusManager),
                     singleLine = true,
                     isError = createError != null,
                     supportingText = {
@@ -438,6 +437,7 @@ private fun CreateAccountDialog(
                 TextField(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
                     value = createAccount.persistentId?.toUInt()?.toString(16) ?: "",
+                    modifier = Modifier.handleGamepadFocus(focusManager),
                     singleLine = true,
                     isError = createError != null,
                     supportingText = {
