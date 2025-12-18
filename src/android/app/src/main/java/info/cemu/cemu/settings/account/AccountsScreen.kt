@@ -318,7 +318,8 @@ private fun AccountInformation(
         value = account.persistentId.toUInt().toString(16),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp),
+            .padding(8.dp)
+            .handleGamepadFocus(focusManager),
         singleLine = true,
         onValueChange = {},
         readOnly = true,
@@ -340,6 +341,7 @@ private fun AccountInformation(
         label = tr("Birthday"),
         dateMillis = account.birthday,
         onDateChange = { onDataChange(account.copy(birthday = it)) },
+        modifier = Modifier.handleGamepadFocus(focusManager)
     )
 
     SelectField(
@@ -351,6 +353,7 @@ private fun AccountInformation(
         ),
         onChoiceChanged = { onDataChange(account.copy(gender = it)) },
         label = tr("Gender"),
+        modifier = Modifier.handleGamepadFocus(focusManager)
     )
 
     TextField(
@@ -371,6 +374,7 @@ private fun AccountInformation(
         choiceToString = { CountriesMap[it] ?: it.toString() },
         choices = CountriesIndices,
         onChoiceChanged = { onDataChange(account.copy(country = it)) },
+        modifier = Modifier.handleGamepadFocus(focusManager)
     )
 }
 
