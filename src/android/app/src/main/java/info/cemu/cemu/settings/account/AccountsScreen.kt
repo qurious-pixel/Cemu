@@ -309,6 +309,7 @@ private fun AccountInformation(
     account: NativeAccount.Account,
     onDataChange: (NativeAccount.Account) -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
     Header(tr("Account information"))
 
     TextField(
@@ -327,6 +328,7 @@ private fun AccountInformation(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
+            .handleGamepadFocus(focusManager),
         singleLine = true,
         onValueChange = { onDataChange(account.copy(miiName = it)) },
         label = { Text(tr("Mii name")) },
@@ -354,6 +356,7 @@ private fun AccountInformation(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
+            .handleGamepadFocus(focusManager),
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
         onValueChange = { onDataChange(account.copy(email = it)) },
