@@ -58,6 +58,7 @@ import info.cemu.cemu.nativeinterface.NativeAccount.MAX_ACCOUNT_COUNT
 import info.cemu.cemu.nativeinterface.NativeAccount.MIN_ACCOUNT_COUNT
 import info.cemu.cemu.nativeinterface.NativeSettings
 import info.cemu.cemu.nativeinterface.NativeSettings.NetworkService
+import androidx.compose.ui.platform.LocalFocusManager
 
 private val Countries = NativeAccount.getAccountCountries().toList()
 private val CountriesIndices = Countries.map { it.index }
