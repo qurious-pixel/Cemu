@@ -36,21 +36,25 @@ fun DateField(
     modifier: Modifier = Modifier
 ) {
     var showDatePicker by remember { mutableStateOf(false) }
-
+    val focusManager = LocalFocusManager.current
+    
     TextField(
         value = convertMillisToDate(dateMillis),
         onValueChange = {},
         readOnly = true,
         label = { Text(label) },
         trailingIcon = {
-            IconButton(onClick = { showDatePicker = !showDatePicker }) {
+            IconButton(
+                onClick = { showDatePicker = !showDatePicker },
+                modifier = Modifier.handleGamepadFocus(focusManager)
+            ) {
                 Icon(painterResource(R.drawable.ic_date_range), tr("Pick a date"))
             }
         },
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
-            .handleGamepadFocus(LocalFocusManager.current),
+            .handleGamepadFocus(LocalFocusManager),
     )
 
     if (showDatePicker) {
