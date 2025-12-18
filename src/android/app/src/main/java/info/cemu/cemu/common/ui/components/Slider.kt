@@ -1,11 +1,8 @@
 package info.cemu.cemu.common.ui.components
 
-import androidx.compose.ui.input.key.*
 import androidx.annotation.IntRange
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Slider as MaterialSlider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,6 +15,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
+import androidx.compose.material3.Slider as MaterialSlider
+import androidx.compose.ui.input.key.*
+import androidx.compose.foundation.focusable
 
 @Composable
 fun Slider(
