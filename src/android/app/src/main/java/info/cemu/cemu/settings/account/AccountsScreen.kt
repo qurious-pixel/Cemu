@@ -59,7 +59,7 @@ import info.cemu.cemu.nativeinterface.NativeAccount.MIN_ACCOUNT_COUNT
 import info.cemu.cemu.nativeinterface.NativeSettings
 import info.cemu.cemu.nativeinterface.NativeSettings.NetworkService
 import androidx.compose.ui.platform.LocalFocusManager
-import info.cemu.cemu.common.input.GamepadFocus
+import info.cemu.cemu.common.input.handleGamepadFocus
 
 private val Countries = NativeAccount.getAccountCountries().toList()
 private val CountriesIndices = Countries.map { it.index }
