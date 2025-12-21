@@ -2,6 +2,7 @@
 
 package info.cemu.cemu.settings.account
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -32,19 +34,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import info.cemu.cemu.R
+import info.cemu.cemu.common.input.handleGamepadFocus
 import info.cemu.cemu.common.string.parseHexOrNull
 import info.cemu.cemu.common.ui.components.DateField
 import info.cemu.cemu.common.ui.components.Header
@@ -58,8 +67,12 @@ import info.cemu.cemu.nativeinterface.NativeAccount.MAX_ACCOUNT_COUNT
 import info.cemu.cemu.nativeinterface.NativeAccount.MIN_ACCOUNT_COUNT
 import info.cemu.cemu.nativeinterface.NativeSettings
 import info.cemu.cemu.nativeinterface.NativeSettings.NetworkService
-import androidx.compose.ui.platform.LocalFocusManager
-import info.cemu.cemu.common.input.handleGamepadFocus
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.KeyEventType
+import android.view.KeyEvent
 
 private val Countries = NativeAccount.getAccountCountries().toList()
 private val CountriesIndices = Countries.map { it.index }
@@ -307,6 +320,56 @@ private fun OnlineTutorial() {
 }
 
 @Composable
+fun ClickToEditTextField(
+    value: String,
+    label: @Composable (() -> Unit),
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+    singleLine: Boolean = true
+) {
+    val focusManager = LocalFocusManager.current
+    var isEditing by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+
+	TextField(
+    	value = value,
+    	onValueChange = onValueChange,
+    	label = label,
+    	modifier = modifier
+        	.focusRequester(focusRequester)
+        	.onFocusChanged { state ->
+            	if (!state.isFocused) isEditing = false
+        	}
+        	.onKeyEvent { keyEvent ->
+            	// Check if the center button (D-pad Center / A / Cross) is pressed
+            	val isCenterClick = keyEvent.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
+                               	keyEvent.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_BUTTON_A
+            	
+            	if (isCenterClick && keyEvent.type == KeyEventType.KeyDown) {
+                	isEditing = true
+                	true // Consume the event
+            	} else {
+                	false
+            	}
+        	}
+        	.pointerInput(Unit) {
+            	detectTapGestures {
+                	isEditing = true
+                	focusRequester.requestFocus()
+            	}
+        	},
+        readOnly = !isEditing,
+        singleLine = singleLine,
+        keyboardOptions = keyboardOptions,
+        keyboardActions = KeyboardActions(onDone = {
+            isEditing = false
+            focusManager.clearFocus()
+        })
+    )
+}
+
+@Composable
 private fun AccountInformation(
     account: NativeAccount.Account,
     onDataChange: (NativeAccount.Account) -> Unit,
@@ -326,7 +389,7 @@ private fun AccountInformation(
         label = { Text(tr("PersistentId")) },
     )
 
-    TextField(
+    ClickToEditTextField(
         value = account.miiName,
         modifier = Modifier
             .fillMaxWidth()
@@ -354,7 +417,7 @@ private fun AccountInformation(
         onChoiceChanged = { onDataChange(account.copy(gender = it)) }
     )
 
-    TextField(
+    ClickToEditTextField(
         value = account.email,
         modifier = Modifier
             .fillMaxWidth()
