@@ -31,10 +31,6 @@ fun Modifier.handleGamepadFocus(
             focusManager.moveFocus(FocusDirection.Right)
             true
         }
-        KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER, KeyEvent.KEYCODE_DPAD_CENTER,KeyEvent.KEYCODE_BUTTON_A -> {
-            onEnterPressed?.invoke() ?: focusManager.moveFocus(FocusDirection.Next)
-            true
-        }
         else -> false
     }
 }
