@@ -1,6 +1,8 @@
 package info.cemu.cemu
 
 import android.app.Application
+import android.content.ComponentCallbacks2
+import info.cemu.cemu.nativeinterface.NativeEmulation
 import info.cemu.cemu.common.android.context.internalFolder
 import info.cemu.cemu.common.settings.AppSettingsStore
 import info.cemu.cemu.common.ui.localization.setLanguage
@@ -23,7 +25,18 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.regex.Pattern
 
-class CemuApplication : Application() {
+class CemuApplication : Application(), ComponentCallbacks2 {
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        
+        if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
+            try {
+                NativeEmulation.trimMemoryUsage()
+            } catch (e: Exception) {
+            }
+        }
+    }
+    
     override fun onCreate() {
         super.onCreate()
 
