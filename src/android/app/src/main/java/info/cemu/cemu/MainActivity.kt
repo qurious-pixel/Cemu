@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
+import android.graphics.drawable.Icon as AndroidIcon
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.view.KeyEvent
@@ -14,22 +15,25 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.documentfile.provider.DocumentFile
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -55,10 +59,10 @@ import info.cemu.cemu.settings.settingsNavigation
 import info.cemu.cemu.titlemanager.TitleManagerRoute
 import info.cemu.cemu.titlemanager.titleManagerNavigation
 import java.io.File
-import android.graphics.drawable.Icon as AndroidIcon
 
 class MainActivity : GamepadInputManager, AppCompatActivity() {
     private var handler: GamepadInputHandler = NullGamepadInputHandler
+    private var showPauseMenu by mutableStateOf(false)
 
     override fun setHandler(handler: GamepadInputHandler) {
         this.handler = handler
@@ -83,18 +87,28 @@ class MainActivity : GamepadInputManager, AppCompatActivity() {
 
         return super.dispatchKeyEvent(event)
     }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            TranslatableContent {
-                ActivityContent {
-                    MainNav()
-                }
-            }
-        }
-    }
-
+    
+	override fun onCreate(savedInstanceState: Bundle?) {
+    	super.onCreate(savedInstanceState)
+    	setContent {
+        	TranslatableContent {
+            	ActivityContent {
+                	MainNav()
+	
+                	if (showPauseMenu) {
+                    	PauseMenu(
+                        	onDismiss = { showPauseMenu = false },
+                        	onNavigateBack = { 
+                            	showPauseMenu = false 
+                        	},
+                        	onExitApp = { finishAffinity() }
+                    	)
+                	}
+            	}
+        	}
+    	}
+	}
+	
     override fun onDestroy() {
         super.onDestroy()
         NativeSettings.saveSettings()
@@ -104,6 +118,7 @@ class MainActivity : GamepadInputManager, AppCompatActivity() {
         super.onPause()
         NativeSettings.saveSettings()
     }
+    
 }
 
 @Composable
@@ -300,5 +315,90 @@ private fun createShortcutForGame(
         shortcutManager.requestPinShortcut(pinShortcutInfo, successCallback.intentSender)
     } catch (_: Exception) {
         onFailedToCreateShortcut()
+    }
+}
+
+@Composable
+fun PauseMenu(
+    onDismiss: () -> Unit,
+    onNavigateBack: () -> Unit,
+    onExitApp: () -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(16.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 8.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(0.8f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text(
+                    text = tr("Emulation Paused"),
+                    style = MaterialTheme.typography.headlineSmall,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                PauseMenuButton(
+                    modifier = Modifier.focusRequester(focusRequester),
+                    onClick = onDismiss,
+                    text = tr("Resume"),
+                    icon = Icons.Default.PlayArrow
+                )
+
+                PauseMenuButton(
+                    onClick = onNavigateBack,
+                    text = tr("Back to Game List"),
+                    icon = Icons.AutoMirrored.Filled.List
+                )
+
+                PauseMenuButton(
+                    onClick = onExitApp,
+                    text = tr("Exit Cemu"),
+                    icon = Icons.AutoMirrored.Filled.ExitToApp,
+                    isDestructive = true
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PauseMenuButton(
+    onClick: () -> Unit,
+    text: String,
+    icon: ImageVector,
+    isDestructive: Boolean = false,
+    modifier: Modifier = Modifier
+) {
+    val color = if (isDestructive) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+
+    OutlinedButton(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth(),
+        border = BorderStroke(1.dp, color)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = color,
+            modifier = Modifier.size(18.dp)
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(text = text, color = color)
     }
 }
