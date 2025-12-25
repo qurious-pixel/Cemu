@@ -29,7 +29,7 @@ class CemuApplication : Application(), ComponentCallbacks2 {
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         
-        if (level >= ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW) {
+        if (level >= 10) {
             try {
                 NativeEmulation.trimMemoryUsage()
             } catch (e: Exception) {
