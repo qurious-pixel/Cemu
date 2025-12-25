@@ -3,9 +3,11 @@
 #include "AndroidAudio.h"
 #include "AndroidEmulatedController.h"
 #include "AndroidFilesystemCallbacks.h"
+#include "Cafe/HW/Latte/Core/Latte.h"
 #include "Cafe/HW/Latte/Core/LatteOverlay.h"
 #include "Cafe/HW/Latte/Renderer/Vulkan/VulkanAPI.h"
 #include "Cafe/HW/Latte/Renderer/Vulkan/VulkanRenderer.h"
+#include "Cafe/HW/Espresso/Recompiler/PPCRecompiler.h"
 #include "Cafe/CafeSystem.h"
 #include "GameTitleLoader.h"
 #include "input/ControllerFactory.h"
@@ -352,4 +354,18 @@ extern "C" [[maybe_unused]] JNIEXPORT void JNICALL
 Java_info_cemu_cemu_nativeinterface_NativeEmulation_resumeTitle([[maybe_unused]] JNIEnv* env, [[maybe_unused]] jclass clazz)
 {
 	CafeSystem::ResumeTitle();
+}
+
+extern "C" [[maybe_unused]] JNIEXPORT void JNICALL
+Java_info_cemu_cemu_nativeinterface_NativeEmulation_trimMemoryUsage(JNIEnv* env, [[maybe_unused]] jclass clazz)
+{
+    // Ensure we only trim if a game is actually running
+    if (CafeSystem::IsTitleRunning())
+    {
+        LatteCP_ProcessRingbuffer();
+
+        LatteTC_CleanupUnusedTextures();
+
+        PPCRecompiler_invalidateRange(0x00000000, 0x10000000);
+    }
 }
