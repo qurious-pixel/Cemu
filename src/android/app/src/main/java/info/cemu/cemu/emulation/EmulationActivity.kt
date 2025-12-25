@@ -13,10 +13,15 @@ import info.cemu.cemu.BuildConfig
 import info.cemu.cemu.common.ui.components.ActivityContent
 import info.cemu.cemu.common.ui.localization.TranslatableContent
 import kotlin.system.exitProcess
+import info.cemu.cemu.PauseMenu
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
 class EmulationActivity : AppCompatActivity() {
     private lateinit var sensorManager: SensorManager
-
+	private var showPauseMenu by mutableStateOf(false)
+	
     override fun onGenericMotionEvent(event: MotionEvent): Boolean {
         if (InputHandler.onMotionEvent(event)) {
             return true
@@ -25,13 +30,24 @@ class EmulationActivity : AppCompatActivity() {
         return super.onGenericMotionEvent(event)
     }
 
-    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (InputHandler.onKeyEvent(event)) {
-            return true
-        }
-
-        return super.dispatchKeyEvent(event)
-    }
+	override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+    	if (event.action == KeyEvent.ACTION_DOWN) {
+        	when (event.keyCode) {
+            	KeyEvent.KEYCODE_BACK, 
+            	KeyEvent.KEYCODE_BUTTON_START -> {
+                	showPauseMenu = !showPauseMenu
+                	return true
+            	}
+        	}
+    	}
+	
+    	if (showPauseMenu) return true
+    	if (InputHandler.onKeyEvent(event)) {
+        	return true
+    	}
+	
+    	return super.dispatchKeyEvent(event)
+	}
 
     private fun getGamePath(): String {
         val extras = intent.extras
@@ -72,6 +88,16 @@ class EmulationActivity : AppCompatActivity() {
                         setMotionSensorEnabled = sensorManager::setIsListening,
                         onQuit = ::onQuit,
                     )
+                    if (showPauseMenu) {
+                        PauseMenu(
+                            onDismiss = { showPauseMenu = false },
+                            onNavigateBack = { finish() }, // Simply close activity to go back
+                            onExitApp = { 
+                                finishAffinity() 
+                                exitProcess(0)
+                            }
+                        )
+                    }
                 }
             }
         }
