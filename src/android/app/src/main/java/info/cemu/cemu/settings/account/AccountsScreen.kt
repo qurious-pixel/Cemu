@@ -2,8 +2,6 @@
 
 package info.cemu.cemu.settings.account
 
-import android.view.KeyEvent
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,12 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -59,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import info.cemu.cemu.R
 import info.cemu.cemu.common.input.handleGamepadFocus
+import info.cemu.cemu.common.input.ClickToEditTextField
 import info.cemu.cemu.common.string.parseHexOrNull
 import info.cemu.cemu.common.ui.components.Header
 import info.cemu.cemu.common.ui.components.ScreenContent
@@ -72,8 +66,6 @@ import info.cemu.cemu.nativeinterface.NativeAccount.MAX_ACCOUNT_COUNT
 import info.cemu.cemu.nativeinterface.NativeAccount.MIN_ACCOUNT_COUNT
 import info.cemu.cemu.nativeinterface.NativeSettings
 import info.cemu.cemu.nativeinterface.NativeSettings.NetworkService
-import java.text.DateFormat
-import java.util.Date
 
 private val Countries = NativeAccount.getAccountCountries().toList()
 private val CountriesIndices = Countries.map { it.index }
@@ -321,67 +313,6 @@ private fun OnlineTutorial() {
 }
 
 @Composable
-fun ClickToEditTextField(
-    value: String,
-    label: @Composable (() -> Unit),
-    onValueChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-    singleLine: Boolean = true,
-    onClick: (() -> Unit)? = null, 
-    colors: androidx.compose.material3.TextFieldColors = androidx.compose.material3.TextFieldDefaults.colors()
-) {
-    val focusManager = LocalFocusManager.current
-    var isEditing by remember { mutableStateOf(false) }
-    val focusRequester = remember { FocusRequester() }
-
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = label,
-        colors = colors, // Now correctly passed to the internal TextField
-        modifier = modifier
-            .focusRequester(focusRequester)
-            .onFocusChanged { state ->
-                if (!state.isFocused) isEditing = false
-            }
-            .onKeyEvent { keyEvent ->
-                val isCenterClick = keyEvent.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
-                                    keyEvent.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_BUTTON_A
-                
-                if (isCenterClick && keyEvent.type == KeyEventType.KeyUp) {
-                    if (onClick != null) {
-                        onClick()
-                    } else if (!isEditing) {
-                        isEditing = true
-                        focusRequester.requestFocus()
-                    }
-                    true 
-                } else {
-                    false
-                }
-            }
-            .pointerInput(Unit) {
-                detectTapGestures {
-                    if (onClick != null) {
-                        onClick()
-                    } else {
-                        isEditing = true
-                        focusRequester.requestFocus()
-                    }
-                }
-            },
-        readOnly = if (onClick != null) true else !isEditing,
-        singleLine = singleLine,
-        keyboardOptions = keyboardOptions,
-        keyboardActions = KeyboardActions(onDone = {
-            isEditing = false
-            focusManager.clearFocus()
-        })
-    )
-}
-
-@Composable
 private fun AccountInformation(
     account: NativeAccount.Account,
     onDataChange: (NativeAccount.Account) -> Unit,
@@ -506,13 +437,11 @@ private fun CreateAccountDialog(
     onCreateAccount: (CreateAccount) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
+    val miiNameFocusRequester = remember { FocusRequester() }
+    val idFocusRequester = remember { FocusRequester() }
+
     var createAccount by remember {
-        mutableStateOf(
-            CreateAccount(
-                persistentId = NativeAccount.MIN_PERSISTENT_ID.toInt(),
-                miiName = "",
-            )
-        )
+        mutableStateOf(CreateAccount(persistentId = NativeAccount.MIN_PERSISTENT_ID.toInt(), miiName = ""))
     }
 
     val createError by remember { derivedStateOf { onValidateCreateAccount(createAccount) } }
@@ -522,53 +451,45 @@ private fun CreateAccountDialog(
         title = { Text(tr("Create new account")) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                TextField(
+                ClickToEditTextField(
                     value = createAccount.miiName,
-                    modifier = Modifier.handleGamepadFocus(focusManager),
-                    singleLine = true,
-                    isError = createError != null,
-                    supportingText = {
-                        if (createError is CreateAccountError.EmptyMiiName) {
-                            Text(tr("Account name may not be empty!"))
-                        }
-                    },
                     onValueChange = { createAccount = createAccount.copy(miiName = it) },
                     label = { Text(tr("Mii name")) },
+                    isError = createError is CreateAccountError.EmptyMiiName,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(miiNameFocusRequester)
+                        .handleGamepadFocus(focusManager),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { idFocusRequester.requestFocus() })
                 )
-                TextField(
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
+
+                ClickToEditTextField(
                     value = createAccount.persistentId?.toUInt()?.toString(16) ?: "",
-                    modifier = Modifier.handleGamepadFocus(focusManager),
-                    singleLine = true,
-                    isError = createError != null,
-                    supportingText = {
-                        val errorMessage = when (val currentError = createError) {
-                            is CreateAccountError.ConflictingPersistentId -> tr(
-                                "The persistent id {0} is already in use by account {1}!",
-                                currentError.existingPersistentId.toUInt().toString(16),
-                                currentError.existingMiiName,
-                            )
-
-                            CreateAccountError.EmptyPersistentId -> tr("No persistent id entered!")
-                            CreateAccountError.InvalidPersistentId -> tr(
-                                "The persistent id must be greater than {0}!",
-                                NativeAccount.MIN_PERSISTENT_ID.toString(16)
-                            )
-
-                            else -> return@TextField
-                        }
-
-                        Text(errorMessage)
-                    },
                     onValueChange = {
-                        if (it.isEmpty()) {
-                            createAccount = createAccount.copy(persistentId = null)
-                            return@TextField
-                        }
-                        val hexValue = it.parseHexOrNull() ?: return@TextField
-                        createAccount = createAccount.copy(persistentId = hexValue.toInt())
+                        val hexValue = it.parseHexOrNull()
+                        createAccount = createAccount.copy(persistentId = hexValue?.toInt())
                     },
                     label = { Text(tr("PersistentId")) },
+                    isError = createError != null && createError !is CreateAccountError.EmptyMiiName,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(idFocusRequester)
+                        .handleGamepadFocus(focusManager),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(onDone = { 
+                        if (createError == null) onCreateAccount(createAccount) 
+                    }),
+                    supportingText = {
+    					val errorMsg = when (createError) {
+        					is CreateAccountError.EmptyMiiName -> tr("Account name may not be empty!")
+        					is CreateAccountError.InvalidPersistentId -> tr("Invalid ID format!")
+        					else -> null
+    					}
+    					if (errorMsg != null) {
+        					Text(errorMsg)
+    					}
+					}
                 )
             }
         },
