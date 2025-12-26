@@ -2,6 +2,7 @@
 
 package info.cemu.cemu.settings.account
 
+import android.view.KeyEvent
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
@@ -38,6 +40,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -55,11 +60,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import info.cemu.cemu.R
 import info.cemu.cemu.common.input.handleGamepadFocus
 import info.cemu.cemu.common.string.parseHexOrNull
-import info.cemu.cemu.common.ui.components.DateField
 import info.cemu.cemu.common.ui.components.Header
 import info.cemu.cemu.common.ui.components.ScreenContent
 import info.cemu.cemu.common.ui.components.SelectField
 import info.cemu.cemu.common.ui.components.SingleSelection
+import info.cemu.cemu.common.ui.components.SpinboxDatePickerDialog
 import info.cemu.cemu.common.ui.localization.tr
 import info.cemu.cemu.nativeinterface.NativeAccount
 import info.cemu.cemu.nativeinterface.NativeAccount.AccountGender
@@ -67,12 +72,8 @@ import info.cemu.cemu.nativeinterface.NativeAccount.MAX_ACCOUNT_COUNT
 import info.cemu.cemu.nativeinterface.NativeAccount.MIN_ACCOUNT_COUNT
 import info.cemu.cemu.nativeinterface.NativeSettings
 import info.cemu.cemu.nativeinterface.NativeSettings.NetworkService
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.nativeKeyCode
-import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.key.KeyEventType
-import android.view.KeyEvent
+import java.text.DateFormat
+import java.util.Date
 
 private val Countries = NativeAccount.getAccountCountries().toList()
 private val CountriesIndices = Countries.map { it.index }
@@ -327,7 +328,8 @@ fun ClickToEditTextField(
     modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
     singleLine: Boolean = true,
-    onEditTriggered: (() -> Unit)? = null
+    onClick: (() -> Unit)? = null, 
+    colors: androidx.compose.material3.TextFieldColors = androidx.compose.material3.TextFieldDefaults.colors()
 ) {
     val focusManager = LocalFocusManager.current
     var isEditing by remember { mutableStateOf(false) }
@@ -337,6 +339,7 @@ fun ClickToEditTextField(
         value = value,
         onValueChange = onValueChange,
         label = label,
+        colors = colors, // Now correctly passed to the internal TextField
         modifier = modifier
             .focusRequester(focusRequester)
             .onFocusChanged { state ->
@@ -347,9 +350,9 @@ fun ClickToEditTextField(
                                     keyEvent.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_BUTTON_A
                 
                 if (isCenterClick && keyEvent.type == KeyEventType.KeyUp) {
-                    if (onEditTriggered != null) {
-                        onEditTriggered()
-                    } else {
+                    if (onClick != null) {
+                        onClick()
+                    } else if (!isEditing) {
                         isEditing = true
                         focusRequester.requestFocus()
                     }
@@ -360,15 +363,15 @@ fun ClickToEditTextField(
             }
             .pointerInput(Unit) {
                 detectTapGestures {
-                    if (onEditTriggered != null) {
-                        onEditTriggered()
+                    if (onClick != null) {
+                        onClick()
                     } else {
                         isEditing = true
                         focusRequester.requestFocus()
                     }
                 }
             },
-        readOnly = if (onEditTriggered != null) true else !isEditing,
+        readOnly = if (onClick != null) true else !isEditing,
         singleLine = singleLine,
         keyboardOptions = keyboardOptions,
         keyboardActions = KeyboardActions(onDone = {
@@ -384,6 +387,11 @@ private fun AccountInformation(
     onDataChange: (NativeAccount.Account) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
+    var showDatePicker by remember { mutableStateOf(false) }
+    val dateString = remember(account.birthday) {
+        java.text.DateFormat.getDateInstance().format(java.util.Date(account.birthday))
+    }
+    
     Header(tr("Account information"))
 
     TextField(
@@ -409,11 +417,32 @@ private fun AccountInformation(
         label = { Text(tr("Mii name")) },
     )
 
-    DateField(
-        label = tr("Birthday"),
-        dateMillis = account.birthday,
-        onDateChange = { onDataChange(account.copy(birthday = it)) }
+	ClickToEditTextField(
+        value = dateString,
+        onValueChange = {},
+        onClick = { showDatePicker = true }, // Triggers dialog instead of keyboard
+        label = { Text(tr("Birthday")) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .handleGamepadFocus(focusManager),
+        colors = TextFieldDefaults.colors(
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledIndicatorColor = MaterialTheme.colorScheme.outline
+        )
     )
+
+    if (showDatePicker) {
+        SpinboxDatePickerDialog(
+            initialDateMillis = account.birthday,
+            onDismissRequest = { showDatePicker = false },
+            onConfirm = { selectedMillis ->
+                onDataChange(account.copy(birthday = selectedMillis))
+                showDatePicker = false
+            }
+        )
+    }
 
     SelectField(
         label = tr("Gender"),
