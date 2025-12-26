@@ -326,40 +326,49 @@ fun ClickToEditTextField(
     onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     keyboardOptions: KeyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-    singleLine: Boolean = true
+    singleLine: Boolean = true,
+    onEditTriggered: (() -> Unit)? = null
 ) {
     val focusManager = LocalFocusManager.current
     var isEditing by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
-	TextField(
-    	value = value,
-    	onValueChange = onValueChange,
-    	label = label,
-    	modifier = modifier
-        	.focusRequester(focusRequester)
-        	.onFocusChanged { state ->
-            	if (!state.isFocused) isEditing = false
-        	}
-        	.onKeyEvent { keyEvent ->
-            	// Check if the center button (D-pad Center / A / Cross) is pressed
-            	val isCenterClick = keyEvent.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
-                               	keyEvent.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_BUTTON_A
-            	
-            	if (isCenterClick && keyEvent.type == KeyEventType.KeyDown) {
-                	isEditing = true
-                	true // Consume the event
-            	} else {
-                	false
-            	}
-        	}
-        	.pointerInput(Unit) {
-            	detectTapGestures {
-                	isEditing = true
-                	focusRequester.requestFocus()
-            	}
-        	},
-        readOnly = !isEditing,
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = label,
+        modifier = modifier
+            .focusRequester(focusRequester)
+            .onFocusChanged { state ->
+                if (!state.isFocused) isEditing = false
+            }
+            .onKeyEvent { keyEvent ->
+                val isCenterClick = keyEvent.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER ||
+                                    keyEvent.nativeKeyEvent.keyCode == android.view.KeyEvent.KEYCODE_BUTTON_A
+                
+                if (isCenterClick && keyEvent.type == KeyEventType.KeyUp) {
+                    if (onEditTriggered != null) {
+                        onEditTriggered()
+                    } else {
+                        isEditing = true
+                        focusRequester.requestFocus()
+                    }
+                    true 
+                } else {
+                    false
+                }
+            }
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    if (onEditTriggered != null) {
+                        onEditTriggered()
+                    } else {
+                        isEditing = true
+                        focusRequester.requestFocus()
+                    }
+                }
+            },
+        readOnly = if (onEditTriggered != null) true else !isEditing,
         singleLine = singleLine,
         keyboardOptions = keyboardOptions,
         keyboardActions = KeyboardActions(onDone = {
