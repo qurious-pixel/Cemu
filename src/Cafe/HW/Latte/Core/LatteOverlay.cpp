@@ -83,17 +83,18 @@ void LatteOverlay_renderOverlay(ImVec2& position, ImVec2& pivot, sint32 directio
 		ImGui::SetNextWindowBgAlpha(kBackgroundAlpha);
 		if (ImGui::Begin("Stats overlay", nullptr, kPopupFlags))
 		{
-			const char* api_name = "Unknown";
-		    switch (config.graphic_api.get()) 
-		    {
-		        case GraphicAPI::kOpenGL: api_name = "OpenGL"; break;
-		        case GraphicAPI::kVulkan: api_name = "Vulkan"; break;
-		        case GraphicAPI::kMetal:  api_name = "Metal";  break;
-		    }
-		    ImGui::Text("API: %s", api_name);
-			
 			if (config.overlay.fps)
-				ImGui::Text("FPS: %.2lf", g_state.fps);
+			{
+			    const char* api_name = "Unknown";
+			    // Direct access without .get()
+			    GraphicAPI currentApi = config.graphic_api; 
+			    
+			    if (currentApi == kVulkan) api_name = "Vulkan";
+			    else if (currentApi == kOpenGL) api_name = "OpenGL";
+			    else if (currentApi == kMetal) api_name = "Metal";
+			
+			    ImGui::Text("FPS: %.2lf (%s)", g_state.fps, api_name);
+			}
 		
 			if (config.overlay.drawcalls)
 				ImGui::Text("Draws/f: %d (fast: %d)", g_state.draw_calls_per_frame, g_state.fast_draw_calls_per_frame);
