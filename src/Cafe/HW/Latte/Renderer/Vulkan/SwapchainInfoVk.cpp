@@ -382,35 +382,16 @@ VkExtent2D SwapchainInfoVk::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& cap
 
 VkPresentModeKHR SwapchainInfoVk::ChoosePresentMode(const std::vector<VkPresentModeKHR>& modes)
 {
-	m_maxQueued = 0;
-	const auto vsyncState = (VSync)GetConfig().vsync.GetValue();
-	if (vsyncState == VSync::MAILBOX)
-	{
-		if (std::find(modes.cbegin(), modes.cend(), VK_PRESENT_MODE_MAILBOX_KHR) != modes.cend())
-			return VK_PRESENT_MODE_MAILBOX_KHR;
+	// Get the mode we previously selected in VulkanRenderer's constructor
+	VkPresentModeKHR selected = VulkanRenderer::GetInstance()->m_selectedPresentMode;
 
-		cemuLog_log(LogType::Force, "Vulkan: Can't find mailbox present mode");
-	}
-	else if (vsyncState == VSync::Immediate)
-	{
-		if (std::find(modes.cbegin(), modes.cend(), VK_PRESENT_MODE_IMMEDIATE_KHR) != modes.cend())
-			return VK_PRESENT_MODE_IMMEDIATE_KHR;
+	// Mailbox and Immediate allow more frames to be queued for lower latency
+	if (selected == VK_PRESENT_MODE_MAILBOX_KHR || selected == VK_PRESENT_MODE_IMMEDIATE_KHR)
+		m_maxQueued = 0; 
+	else
+		m_maxQueued = 1; // FIFO (standard VSync) limits queuing
 
-		cemuLog_log(LogType::Force, "Vulkan: Can't find immediate present mode");
-	}
-	else if (vsyncState == VSync::SYNC_AND_LIMIT)
-	{
-		LatteTiming_EnableHostDrivenVSync();
-		// use immediate mode if available, other wise fall back to
-		//if (std::find(modes.cbegin(), modes.cend(), VK_PRESENT_MODE_IMMEDIATE_KHR) != modes.cend())
-		//	return VK_PRESENT_MODE_IMMEDIATE_KHR;
-		//else
-		//	cemuLog_log(LogType::Force, "Vulkan: Present mode 'immediate' not available. Vsync might not behave as intended");
-		return VK_PRESENT_MODE_FIFO_KHR;
-	}
-
-	m_maxQueued = 1;
-	return VK_PRESENT_MODE_FIFO_KHR;
+	return selected;
 }
 
 VkSwapchainCreateInfoKHR SwapchainInfoVk::CreateSwapchainCreateInfo(VkSurfaceKHR surface, const SwapchainSupportDetails& swapchainSupport, const VkSurfaceFormatKHR& surfaceFormat, uint32 imageCount, const VkExtent2D& extent)

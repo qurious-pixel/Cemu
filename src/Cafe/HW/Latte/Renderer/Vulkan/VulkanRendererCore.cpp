@@ -360,18 +360,21 @@ PipelineInfo* VulkanRenderer::draw_getOrCreateGraphicsPipeline(uint32 indexCount
 
 Renderer::IndexAllocation VulkanRenderer::indexData_reserveIndexMemory(uint32 size)
 {
-	VKRSynchronizedHeapAllocator::AllocatorReservation* resv = memoryManager->GetIndexAllocator().AllocateBufferMemory(size, 32);
-	return { resv->memPtr, resv };
+	VKRSynchronizedRingAllocator::AllocatorReservation_t resv = 
+        memoryManager->getStagingAllocator().AllocateBufferMemory(size, 32);
+        
+	auto* internalResv = new VKRSynchronizedRingAllocator::AllocatorReservation_t(resv);
+    return { internalResv->memPtr, internalResv };
 }
 
 void VulkanRenderer::indexData_releaseIndexMemory(IndexAllocation& allocation)
 {
-	memoryManager->GetIndexAllocator().FreeReservation((VKRSynchronizedHeapAllocator::AllocatorReservation*)allocation.rendererInternal);
+	delete (VKRSynchronizedRingAllocator::AllocatorReservation_t*)allocation.rendererInternal;
 }
 
 void VulkanRenderer::indexData_uploadIndexMemory(IndexAllocation& allocation)
 {
-	memoryManager->GetIndexAllocator().FlushReservation((VKRSynchronizedHeapAllocator::AllocatorReservation*)allocation.rendererInternal);
+	auto* resv = (VKRSynchronizedRingAllocator::AllocatorReservation_t*)allocation.rendererInternal;
 }
 
 float s_vkUniformData[512 * 4];
@@ -454,8 +457,10 @@ void VulkanRenderer::uniformData_updateUniformVars(uint32 shaderStageIndex, Latt
 			}
 		}
 		// upload
-		const uint32 bufferAlignmentM1 = std::max(m_featureControl.limits.minUniformBufferOffsetAlignment, m_featureControl.limits.nonCoherentAtomSize) - 1;
-		const uint32 uniformSize = (shader->uniform.uniformRangeSize + bufferAlignmentM1) & ~bufferAlignmentM1;
+		const uint32 minAlignment = std::max(m_featureControl.limits.minUniformBufferOffsetAlignment, 
+                                             m_featureControl.limits.nonCoherentAtomSize);
+        const uint32 bufferAlignmentM1 = minAlignment - 1;
+        const uint32 uniformSize = (shader->uniform.uniformRangeSize + bufferAlignmentM1) & ~bufferAlignmentM1;
 
 		auto waitWhileCondition = [&](std::function<bool()> condition) {
 			while (condition())
@@ -481,12 +486,14 @@ void VulkanRenderer::uniformData_updateUniformVars(uint32 shaderStageIndex, Latt
 
 		// wrap around if it doesnt fit consecutively
 		if (m_uniformVarBufferWriteIndex + uniformSize > UNIFORMVAR_RINGBUFFER_SIZE)
-		{
-			waitWhileCondition([&]() {
-				return m_uniformVarBufferReadIndex > m_uniformVarBufferWriteIndex || m_uniformVarBufferReadIndex == 0;
-			});
-			m_uniformVarBufferWriteIndex = 0;
-		}
+        {
+            // Sync logic: Wait for the GPU to finish reading the beginning of the ring
+            while (m_uniformVarBufferReadIndex > m_uniformVarBufferWriteIndex || m_uniformVarBufferReadIndex == 0)
+            {
+                WaitForNextFinishedCommandBuffer();
+            }
+            m_uniformVarBufferWriteIndex = 0;
+        }
 
 		auto ringBufRemaining = [&]() {
 			ssize_t ringBufferUsedBytes = (ssize_t)m_uniformVarBufferWriteIndex - m_uniformVarBufferReadIndex;
@@ -499,17 +506,20 @@ void VulkanRenderer::uniformData_updateUniformVars(uint32 shaderStageIndex, Latt
 		});
 
 		const uint32 uniformOffset = m_uniformVarBufferWriteIndex;
-		memcpy(m_uniformVarBufferPtr + uniformOffset, s_vkUniformData, shader->uniform.uniformRangeSize);
-		m_uniformVarBufferWriteIndex += uniformSize;
-		// update dynamic offset
-		dynamicOffsetInfo.uniformVarBufferOffset[shaderStageIndex] = uniformOffset;
+        std::memcpy(m_uniformVarBufferPtr + uniformOffset, s_vkUniformData, shader->uniform.uniformRangeSize);
+        
+        m_uniformVarBufferWriteIndex += uniformSize;
+        dynamicOffsetInfo.uniformVarBufferOffset[shaderStageIndex] = uniformOffset;
 		// flush if not coherent
 		if (!m_uniformVarBufferMemoryIsCoherent)
 		{
+			VmaAllocationInfo allocInfo;
+			vmaGetAllocationInfo(memoryManager->GetVmaAllocator(), m_uniformVarBufferMemory, &allocInfo);
+			
 			VkMappedMemoryRange flushedRange{};
 			flushedRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-			flushedRange.memory = m_uniformVarBufferMemory;
-			flushedRange.offset = uniformOffset;
+			flushedRange.memory = allocInfo.deviceMemory; // Fix: Use the internal handle
+			flushedRange.offset = allocInfo.offset + uniformOffset; // Fix: Include the VMA heap offset
 			flushedRange.size = uniformSize;
 			vkFlushMappedMemoryRanges(m_logicalDevice, 1, &flushedRange);
 		}
@@ -1408,7 +1418,8 @@ void VulkanRenderer::draw_execute(uint32 baseVertex, uint32 baseInstance, uint32
 	uint32 indexMax = 0;
 	Renderer::IndexAllocation indexAllocation;
 	LatteIndices_decode(memory_getPointerFromVirtualOffset(indexDataMPTR), indexType, count, primitiveMode, indexMin, indexMax, hostIndexType, hostIndexCount, indexAllocation);
-	VKRSynchronizedHeapAllocator::AllocatorReservation* indexReservation = (VKRSynchronizedHeapAllocator::AllocatorReservation*)indexAllocation.rendererInternal;
+	VKRSynchronizedRingAllocator::AllocatorReservation_t* indexReservation = 
+    (VKRSynchronizedRingAllocator::AllocatorReservation_t*)indexAllocation.rendererInternal;
 	// update index binding
 	bool isPrevIndexData = false;
 	if (hostIndexType != INDEX_TYPE::NONE)

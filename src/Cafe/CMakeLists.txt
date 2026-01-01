@@ -212,6 +212,7 @@ add_library(CemuCafe
   HW/Latte/Renderer/Vulkan/VulkanRendererCore.cpp
   HW/Latte/Renderer/Vulkan/VulkanRenderer.cpp
   HW/Latte/Renderer/Vulkan/VulkanRenderer.h
+  HW/Latte/Renderer/Vulkan/VKRMemoryManager.cpp
   HW/Latte/Renderer/Vulkan/VulkanSurfaceCopy.cpp
   HW/Latte/Renderer/Vulkan/VulkanTextureReadback.h
   HW/Latte/ShaderInfo/ShaderDescription.cpp

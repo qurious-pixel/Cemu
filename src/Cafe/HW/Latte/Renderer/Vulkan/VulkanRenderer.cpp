@@ -222,11 +222,22 @@ void VulkanRenderer::DetermineVendor()
 	{
 		cemuLog_log(LogType::Force, "Driver version: {}", driverProperties.driverInfo);
 
-		if(m_vendor == GfxVendor::Nvidia)
-		{
-			// multithreaded pipelines on nvidia (requires 515 or higher)
-			m_featureControl.disableMultithreadedCompilation = (StringHelpers::ToInt(std::string(driverProperties.driverInfo)) < 515);
-		}
+		if (m_vendor == GfxVendor::Nvidia)
+    	{
+        	std::string versionStr = driverProperties.driverInfo;
+        	int versionNum = StringHelpers::ToInt(versionStr);
+	
+        	cemuLog_log(LogType::Force, "Vulkan: Detected NVIDIA driver version: {}", versionNum);
+	
+        	if (versionNum > 0) // Ensure we actually got a valid number
+        	{
+            	m_featureControl.disableMultithreadedCompilation = (versionNum < 515);
+        	}
+        	else
+        	{
+            	m_featureControl.disableMultithreadedCompilation = true;
+        	}
+    	}
 	}
 
 	else
@@ -339,8 +350,8 @@ void VulkanRenderer::GetDeviceFeatures()
 			m_featureControl.deviceExtensions.pipeline_robustness = false;
 	}
 	// get limits
-	m_featureControl.limits.minUniformBufferOffsetAlignment = std::max(prop2.properties.limits.minUniformBufferOffsetAlignment, (VkDeviceSize)4);
-	m_featureControl.limits.nonCoherentAtomSize = std::max(prop2.properties.limits.nonCoherentAtomSize, (VkDeviceSize)4);
+	m_featureControl.limits.minUniformBufferOffsetAlignment = std::max(m_featureControl.limits.minUniformBufferOffsetAlignment, (uint32)256);
+	m_featureControl.limits.nonCoherentAtomSize = std::max(m_featureControl.limits.nonCoherentAtomSize, (uint32)256);
 	cemuLog_log(LogType::Force, fmt::format("VulkanLimits: UBAlignment {0} nonCoherentAtomSize {1}", prop2.properties.limits.minUniformBufferOffsetAlignment, prop2.properties.limits.nonCoherentAtomSize));
 }
 
@@ -561,16 +572,48 @@ VulkanRenderer::VulkanRenderer()
 	VkDeviceCreateInfo createInfo = CreateDeviceCreateInfo(queueCreateInfos, deviceFeatures, deviceExtensionFeatures, used_extensions);
 
 	VkResult result = vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_logicalDevice);
-	if (result != VK_SUCCESS)
-	{
-		cemuLog_log(LogType::Force, "Vulkan: Unable to create a logical device. Error {}", (sint32)result);
-		throw std::runtime_error(fmt::format("Unable to create a logical device: {}", result));
-	}
-
+    if (result != VK_SUCCESS)
+    {
+        cemuLog_log(LogType::Force, "Vulkan: Unable to create a logical device. Error {}", (sint32)result);
+        throw std::runtime_error(fmt::format("Unable to create a logical device: {}", (sint32)result));
+    }
+	
 	InitializeDeviceVulkan(m_logicalDevice);
+	if (memoryManager) 
+    {
+        if (!memoryManager->Start()) 
+        {
+            cemuLog_log(LogType::Force, "Vulkan: Failed to start VKRMemoryManager");
+            throw std::runtime_error("Vulkan: Failed to start VKRMemoryManager");
+        }
+    }
 
 	vkGetDeviceQueue(m_logicalDevice, m_indices.graphicsFamily, 0, &m_graphicsQueue);
 	vkGetDeviceQueue(m_logicalDevice, m_indices.graphicsFamily, 0, &m_presentQueue);
+
+	uint32_t presentModeCount;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, surface, &presentModeCount, nullptr);
+    std::vector<VkPresentModeKHR> presentModes(presentModeCount);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(m_physicalDevice, surface, &presentModeCount, presentModes.data());
+
+    bool foundMailbox = false;
+    bool foundImmediate = false;
+
+    for (const auto& mode : presentModes) {
+        if (mode == VK_PRESENT_MODE_MAILBOX_KHR) foundMailbox = true;
+        if (mode == VK_PRESENT_MODE_IMMEDIATE_KHR) foundImmediate = true;
+    }
+
+    if (foundMailbox) {
+        m_selectedPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
+        cemuLog_log(LogType::Force, "Vulkan: Selecting MAILBOX present mode (Low latency VSync)");
+    } else if (foundImmediate) {
+        m_selectedPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+        cemuLog_log(LogType::Force, "Vulkan: Selecting IMMEDIATE present mode (No VSync)");
+    } else {
+        m_selectedPresentMode = VK_PRESENT_MODE_FIFO_KHR;
+        cemuLog_log(LogType::Force, "Vulkan: Selecting FIFO present mode (Standard VSync)");
+    }
 
 	vkDestroySurfaceKHR(m_instance, surface, nullptr);
 
@@ -615,46 +658,47 @@ VulkanRenderer::VulkanRenderer()
 	void* bufferPtr;
 	// init ringbuffer for uniform vars
 	m_uniformVarBufferMemoryIsCoherent = false;
-	if (memoryManager->CreateBuffer(UNIFORMVAR_RINGBUFFER_SIZE, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT, m_uniformVarBuffer, m_uniformVarBufferMemory))
-		m_uniformVarBufferMemoryIsCoherent = true;
-	else if (memoryManager->CreateBuffer(UNIFORMVAR_RINGBUFFER_SIZE, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_uniformVarBuffer, m_uniformVarBufferMemory))
-		m_uniformVarBufferMemoryIsCoherent = true; // unified memory
-	else if (memoryManager->CreateBuffer(UNIFORMVAR_RINGBUFFER_SIZE, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, m_uniformVarBuffer, m_uniformVarBufferMemory))
-		m_uniformVarBufferMemoryIsCoherent = true;
-	else if (memoryManager->CreateBuffer(UNIFORMVAR_RINGBUFFER_SIZE, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_uniformVarBuffer, m_uniformVarBufferMemory))
-		m_uniformVarBufferMemoryIsCoherent = true;
-	else
+	if (!memoryManager->CreateBuffer(UNIFORMVAR_RINGBUFFER_SIZE, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VMA_MEMORY_USAGE_AUTO_PREFER_HOST, m_uniformVarBuffer, m_uniformVarBufferMemory))
 	{
-		memoryManager->CreateBuffer(UNIFORMVAR_RINGBUFFER_SIZE, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, m_uniformVarBuffer, m_uniformVarBufferMemory);
+    	throw std::runtime_error("Failed to create Uniform Var Buffer");
 	}
-
+	m_uniformVarBufferMemoryIsCoherent = true;
 	if (!m_uniformVarBufferMemoryIsCoherent)
 		cemuLog_log(LogType::Force, "[Vulkan-Info] Using non-coherent memory for uniform data");
 	bufferPtr = nullptr;
-	vkMapMemory(m_logicalDevice, m_uniformVarBufferMemory, 0, VK_WHOLE_SIZE, 0, &bufferPtr);
-	m_uniformVarBufferPtr = (uint8*)bufferPtr;
-
-	// texture readback buffer
-	if (!memoryManager->CreateBuffer(TEXTURE_READBACK_SIZE, VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT, m_textureReadbackBuffer, m_textureReadbackBufferMemory))
+	if (vmaMapMemory(memoryManager->GetVmaAllocator(), m_uniformVarBufferMemory, &bufferPtr) == VK_SUCCESS)
 	{
-		memoryManager->CreateBuffer(TEXTURE_READBACK_SIZE, VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT, m_textureReadbackBuffer, m_textureReadbackBufferMemory);
+    	m_uniformVarBufferPtr = (uint8*)bufferPtr;
+	}
+	else
+	{
+    	throw std::runtime_error("Vulkan: Failed to map uniform var buffer");
+	}
+	// texture readback buffer
+	if (!memoryManager->CreateBuffer(TEXTURE_READBACK_SIZE, VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_AUTO_PREFER_HOST, m_textureReadbackBuffer, m_textureReadbackBufferMemory))
+	{
+    	throw std::runtime_error("Vulkan: Failed to allocate texture readback buffer");
 	}
 	bufferPtr = nullptr;
-	vkMapMemory(m_logicalDevice, m_textureReadbackBufferMemory, 0, VK_WHOLE_SIZE, 0, &bufferPtr);
-	m_textureReadbackBufferPtr = (uint8*)bufferPtr;
+	vmaMapMemory(memoryManager->GetVmaAllocator(), m_textureReadbackBufferMemory, &bufferPtr);
+m_textureReadbackBufferPtr = (uint8*)bufferPtr;
 
 	// transform feedback ringbuffer
-	memoryManager->CreateBuffer(LatteStreamout_GetRingBufferSize(), VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT | (m_featureControl.mode.useTFEmulationViaSSBO ? VK_BUFFER_USAGE_STORAGE_BUFFER_BIT : 0), 0, m_xfbRingBuffer, m_xfbRingBufferMemory);
+	memoryManager->CreateBuffer(LatteStreamout_GetRingBufferSize(), VK_BUFFER_USAGE_TRANSFORM_FEEDBACK_BUFFER_BIT_EXT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+    VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE, m_xfbRingBuffer, m_xfbRingBufferMemory);
 
 	// occlusion query result buffer
-	if (!memoryManager->CreateBuffer(OCCLUSION_QUERY_POOL_SIZE * sizeof(uint64), VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT, m_occlusionQueries.bufferQueryResults, m_occlusionQueries.memoryQueryResults))
+	if (!memoryManager->CreateBuffer(OCCLUSION_QUERY_POOL_SIZE * sizeof(uint64), VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_AUTO_PREFER_HOST, m_occlusionQueries.bufferQueryResults, m_occlusionQueries.memoryQueryResults))
 	{
-		memoryManager->CreateBuffer(OCCLUSION_QUERY_POOL_SIZE * sizeof(uint64), VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT, m_occlusionQueries.bufferQueryResults, m_occlusionQueries.memoryQueryResults);
+		throw std::runtime_error("Vulkan: Failed to allocate occlusion query result buffer");
 	}
 	bufferPtr = nullptr;
-	vkMapMemory(m_logicalDevice, m_occlusionQueries.memoryQueryResults, 0, VK_WHOLE_SIZE, 0, &bufferPtr);
+	if (vmaMapMemory(memoryManager->GetVmaAllocator(), m_occlusionQueries.memoryQueryResults, &bufferPtr) != VK_SUCCESS)
+	{
+     	throw std::runtime_error("Vulkan: Failed to map occlusion query buffer");
+	}
 	m_occlusionQueries.ptrQueryResults = (uint64*)bufferPtr;
-
+	
 	for (sint32 i = 0; i < OCCLUSION_QUERY_POOL_SIZE; i++)
 		m_occlusionQueries.list_availableQueryIndices.emplace_back(i);
 
@@ -702,6 +746,9 @@ VulkanRenderer::~VulkanRenderer()
 	// shut down imgui
 	ImGui_ImplVulkan_Shutdown();
 
+	vmaUnmapMemory(memoryManager->GetVmaAllocator(), m_uniformVarBufferMemory);
+	vmaUnmapMemory(memoryManager->GetVmaAllocator(), m_textureReadbackBufferMemory);
+	vmaUnmapMemory(memoryManager->GetVmaAllocator(), m_occlusionQueries.memoryQueryResults);
 	// delete null objects
 	DeleteNullObjects();
 
@@ -903,12 +950,6 @@ void VulkanRenderer::HandleScreenshotRequest(LatteTextureView* texView, bool pad
 			allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 			allocInfo.allocationSize = memRequirements.size;
 			uint32 memIndex;
-			bool foundMemory = memoryManager->FindMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, memIndex);
-			if(!foundMemory)
-			{
-				cemuLog_log(LogType::Force, "Screenshot request failed due to incompatible vulkan memory types.");
-				return;
-			}
 			allocInfo.memoryTypeIndex = memIndex;
 
 			if (vkAllocateMemory(m_logicalDevice, &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
@@ -1048,7 +1089,13 @@ void VulkanRenderer::HandleScreenshotRequest(LatteTextureView* texView, bool pad
 
 	VkBuffer buffer = nullptr;
 	VkDeviceMemory bufferMemory = nullptr;
-	memoryManager->CreateBuffer(size, VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT, buffer, bufferMemory);
+	memoryManager->CreateBuffer(
+    size, 
+    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, 
+    VMA_MEMORY_USAGE_GPU_ONLY,
+    m_bufferCache, 
+    m_bufferCacheMemory
+);
 	vkMapMemory(m_logicalDevice, bufferMemory, 0, VK_WHOLE_SIZE, 0, &bufferPtr);
 
 	{
@@ -1590,74 +1637,51 @@ bool VulkanRenderer::IsSwapchainInfoValid(bool mainWindow) const
 
 void VulkanRenderer::CreateNullTexture(NullTexture& nullTex, VkImageType imageType)
 {
-	// these are used when the game requests NULL ptr textures
-	VkImageCreateInfo imageInfo{};
-	imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-	if (imageType == VK_IMAGE_TYPE_1D)
-	{
-		imageInfo.extent.width = 4;
-		imageInfo.extent.height = 1;
-	}
-	else if (imageType == VK_IMAGE_TYPE_2D)
-	{
-		imageInfo.extent.width = 4;
-		imageInfo.extent.height = 1;
-	}
-	else
-	{
-		cemu_assert(false);
-	}
-	imageInfo.mipLevels = 1;
-	imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-	imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-	imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
-	imageInfo.extent.depth = 1;
-	imageInfo.arrayLayers = 1;
-	imageInfo.imageType = imageType;
-	imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-	if (vkCreateImage(m_logicalDevice, &imageInfo, nullptr, &nullTex.image) != VK_SUCCESS)
-		UnrecoverableError("Failed to create nullTex image");
-	nullTex.allocation = memoryManager->imageMemoryAllocate(nullTex.image);
+    // 1. Describe the simplest possible image
+    VkImageCreateInfo imageInfo{ VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO };
+    imageInfo.imageType = imageType;
+    imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+    imageInfo.extent = { 2, 2, 1 }; // Smallest power of 2
+    imageInfo.mipLevels = 1;
+    imageInfo.arrayLayers = 1;
+    imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+    imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL; // Required for sampled images on many mobile GPUs
+    imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+    imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
-	VkClearColorValue clrColor{};
-	ClearColorImageRaw(nullTex.image, 0, 0, clrColor, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
-	// texture view
-	VkImageViewCreateInfo viewInfo{};
-	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	viewInfo.image = nullTex.image;
-	if (imageType == VK_IMAGE_TYPE_1D)
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_1D;
-	else if (imageType == VK_IMAGE_TYPE_2D)
-		viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-	else
-	{
-		cemu_assert(false);
-	}
-	viewInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-	viewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	viewInfo.subresourceRange.baseMipLevel = 0;
-	viewInfo.subresourceRange.levelCount = 1;
-	viewInfo.subresourceRange.baseArrayLayer = 0;
-	viewInfo.subresourceRange.layerCount = 1;
-	if (vkCreateImageView(m_logicalDevice, &viewInfo, nullptr, &nullTex.view) != VK_SUCCESS)
-		UnrecoverableError("Failed to create nullTex image view");
-	// sampler
-	VkSamplerCreateInfo samplerInfo{};
-	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerInfo.magFilter = VK_FILTER_LINEAR;
-	samplerInfo.minFilter = VK_FILTER_LINEAR;
-	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.mipLodBias = 0.0f;
-	samplerInfo.compareOp = VK_COMPARE_OP_NEVER;
-	samplerInfo.minLod = 0.0f;
-	samplerInfo.maxLod = 0.0f;
-	samplerInfo.maxAnisotropy = 1.0;
-	samplerInfo.anisotropyEnable = VK_FALSE;
-	samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-	vkCreateSampler(m_logicalDevice, &samplerInfo, nullptr, &nullTex.sampler);
+    VmaAllocationCreateInfo allocInfo = {};
+    // Switch to AUTO and PREFER_DEVICE. This lets VMA look for the high-performance
+    // memory heap that actually supports textures.
+    allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
+    allocInfo.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+    allocInfo.priority = 1.0f;
+
+    VkResult res = vmaCreateImage(memoryManager->GetVmaAllocator(), &imageInfo, &allocInfo, 
+                                 &nullTex.image, &nullTex.allocation, nullptr);
+    
+    if (res != VK_SUCCESS)
+    {
+        cemuLog_log(LogType::Force, "Vulkan: Shield Fail - vmaCreateImage Error {}. Tiling: Optimal, Usage: Sampled", (int)res);
+        return;
+    }
+
+    // 2. View Creation
+    VkImageViewCreateInfo viewInfo{ VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO };
+    viewInfo.image = nullTex.image;
+    viewInfo.viewType = (imageType == VK_IMAGE_TYPE_3D) ? VK_IMAGE_VIEW_TYPE_3D : VK_IMAGE_VIEW_TYPE_2D;
+    viewInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+    viewInfo.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+    vkCreateImageView(m_logicalDevice, &viewInfo, nullptr, &nullTex.view);
+
+    // 3. Sampler Creation
+    VkSamplerCreateInfo samplerInfo{ VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO };
+    samplerInfo.magFilter = VK_FILTER_NEAREST;
+    samplerInfo.minFilter = VK_FILTER_NEAREST;
+    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
+    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    vkCreateSampler(m_logicalDevice, &samplerInfo, nullptr, &nullTex.sampler);
 }
 
 void VulkanRenderer::CreateNullObjects()
@@ -1668,20 +1692,47 @@ void VulkanRenderer::CreateNullObjects()
 
 void VulkanRenderer::DeleteNullTexture(NullTexture& nullTex)
 {
-	vkDestroySampler(m_logicalDevice, nullTex.sampler, nullptr);
-	nullTex.sampler = VK_NULL_HANDLE;
-	vkDestroyImageView(m_logicalDevice, nullTex.view, nullptr);
-	nullTex.view = VK_NULL_HANDLE;
-	vkDestroyImage(m_logicalDevice, nullTex.image, nullptr);
-	nullTex.image = VK_NULL_HANDLE;
-	memoryManager->imageMemoryFree(nullTex.allocation);
-	nullTex.allocation = nullptr;
+    if (nullTex.sampler != VK_NULL_HANDLE)
+        vkDestroySampler(m_logicalDevice, nullTex.sampler, nullptr);
+
+    if (nullTex.view != VK_NULL_HANDLE)
+        vkDestroyImageView(m_logicalDevice, nullTex.view, nullptr);
+
+    if (nullTex.image != VK_NULL_HANDLE)
+    {
+        // Atomic destruction of both image and memory
+        vmaDestroyImage(memoryManager->GetVmaAllocator(), nullTex.image, nullTex.allocation);
+    }
+    
+    nullTex = {};
 }
 
 void VulkanRenderer::DeleteNullObjects()
 {
-	DeleteNullTexture(nullTexture1D);
-	DeleteNullTexture(nullTexture2D);
+    // Use the names defined in your header: nullTexture1D and nullTexture2D
+    std::array<NullTexture*, 2> nullTextures = { &nullTexture1D, &nullTexture2D };
+
+    for (NullTexture* tex : nullTextures)
+    {
+        if (tex->sampler != VK_NULL_HANDLE)
+        {
+            vkDestroySampler(m_logicalDevice, tex->sampler, nullptr);
+            tex->sampler = VK_NULL_HANDLE;
+        }
+
+        if (tex->view != VK_NULL_HANDLE)
+        {
+            vkDestroyImageView(m_logicalDevice, tex->view, nullptr);
+            tex->view = VK_NULL_HANDLE;
+        }
+
+        if (tex->image != VK_NULL_HANDLE)
+        {
+            vmaDestroyImage(memoryManager->GetVmaAllocator(), tex->image, tex->allocation);
+            tex->image = VK_NULL_HANDLE;
+            tex->allocation = VK_NULL_HANDLE;
+        }
+    }
 }
 
 void VulkanRenderer::ImguiInit()
@@ -2080,6 +2131,29 @@ void VulkanRenderer::WaitForNextFinishedCommandBuffer()
 
 void VulkanRenderer::SubmitCommandBuffer(VkSemaphore signalSemaphore, VkSemaphore waitSemaphore)
 {
+	if (nullTexture2D.image == VK_NULL_HANDLE || nullTexture2D.view == VK_NULL_HANDLE)
+	{
+    	// Instead of just returning, we end the command buffer and submit it
+    	// even if it's empty, so the Fences can signal and stop the engine from hanging.
+    	vkEndCommandBuffer(m_state.currentCommandBuffer);
+    	
+    	VkSubmitInfo dummySubmit{ VK_STRUCTURE_TYPE_SUBMIT_INFO };
+    	dummySubmit.commandBufferCount = 1;
+    	dummySubmit.pCommandBuffers = &m_state.currentCommandBuffer;
+    	
+    	vkQueueSubmit(m_graphicsQueue, 1, &dummySubmit, m_cmd_buffer_fences[m_commandBufferIndex]);
+    	
+    	// Now we do the index management so the next frame can try again
+    	m_commandBufferIndex = (m_commandBufferIndex + 1) % m_commandBuffers.size();
+    	m_state.currentCommandBuffer = m_commandBuffers[m_commandBufferIndex];
+    	vkResetFences(m_logicalDevice, 1, &m_cmd_buffer_fences[m_commandBufferIndex]);
+    	vkResetCommandBuffer(m_state.currentCommandBuffer, 0);
+    	
+    	VkCommandBufferBeginInfo beginInfo{ VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO };
+    	vkBeginCommandBuffer(m_state.currentCommandBuffer, &beginInfo);
+    	return; 
+	}
+    	
 	draw_endRenderPass();
 
 	occlusionQuery_notifyEndCommandBuffer();
@@ -3535,7 +3609,6 @@ void VulkanRenderer::texture_loadSlice(LatteTexture* hostTexture, sint32 width, 
 
 	auto uploadResv = vkMemAllocator.AllocateBufferMemory(uploadSize, uploadAlignment);
 	memcpy(uploadResv.memPtr, pixelData, compressedImageSize);
-	vkMemAllocator.FlushReservation(uploadResv);
 
 	FormatInfoVK texFormatInfo;
 	GetTextureFormatInfoVK(hostTexture->format, hostTexture->isDepth, hostTexture->dim, 0, 0, &texFormatInfo);
@@ -3833,7 +3906,7 @@ std::pair<VkBuffer, uint32> VulkanRenderer::buffer_genStrideWorkaroundVertexBuff
 	uint32 newStride = oldStride + (4-(oldStride % 4));
 	uint32 newSize = size / oldStride * newStride;
 
-	auto new_buffer_alloc = memoryManager->getMetalStrideWorkaroundAllocator().AllocateBufferMemory(newSize, 128);
+	auto new_buffer_alloc = memoryManager->getVertexStrideAllocator().AllocateBufferMemory(newSize, 128);
 
 	std::span<uint8> new_buffer{new_buffer_alloc.memPtr, new_buffer_alloc.size};
 
@@ -3873,14 +3946,19 @@ void VulkanRenderer::bufferCache_init(const sint32 bufferSize)
 	m_useHostMemoryForCache = false;
 	if (m_featureControl.deviceExtensions.external_memory_host && configUseHostMemory)
 	{
+#ifndef ANDROID	
 		m_useHostMemoryForCache = memoryManager->CreateBufferFromHostMemory(memory_getPointerFromVirtualOffset(m_importedMemBaseAddress), hostAllocationSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 0, m_importedMem, m_importedMemMemory);
+#else
+m_useHostMemoryForCache = false; 
+    cemuLog_log(LogType::Force, "Vulkan: Host memory import skipped on Android.");
+#endif		
 		if (!m_useHostMemoryForCache)
 		{
 			cemuLog_log(LogType::Force, "Unable to import host memory to Vulkan buffer. Use default cache system instead");
 		}
 	}
 	if(!m_useHostMemoryForCache)
-		memoryManager->CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 0, m_bufferCache, m_bufferCacheMemory);
+		memoryManager->CreateBuffer(bufferSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE, m_bufferCache, m_bufferCacheMemory);
 }
 
 void VulkanRenderer::bufferCache_upload(uint8* buffer, sint32 size, uint32 bufferOffset)
@@ -3891,8 +3969,6 @@ void VulkanRenderer::bufferCache_upload(uint8* buffer, sint32 size, uint32 buffe
 
 	auto uploadResv = vkMemAllocator.AllocateBufferMemory(size, 256);
 	memcpy(uploadResv.memPtr, buffer, size);
-
-	vkMemAllocator.FlushReservation(uploadResv);
 
 	barrier_bufferRange<ANY_TRANSFER | HOST_WRITE, ANY_TRANSFER,
 		BUFFER_SHADER_READ, TRANSFER_WRITE>(
@@ -3997,13 +4073,13 @@ void VulkanRenderer::AppendOverlayDebugInfo()
 	ImGui::SameLine(60.0f);
 	ImGui::Text("%06uKB / %06uKB Buffers: %u", ((uint32)(totalSize - freeSize) + 1023) / 1024, ((uint32)totalSize + 1023) / 1024, (uint32)numBuffers);
 
-	memoryManager->GetIndexAllocator().GetStats(numBuffers, totalSize, freeSize);
+	memoryManager->getStagingAllocator().GetStats(numBuffers, totalSize, freeSize);
 	ImGui::Text("Index");
 	ImGui::SameLine(60.0f);
 	ImGui::Text("%06uKB / %06uKB Buffers: %u", ((uint32)(totalSize - freeSize) + 1023) / 1024, ((uint32)totalSize + 1023) / 1024, (uint32)numBuffers);
 
-	ImGui::Text("--- Tex heaps ---");
-	memoryManager->appendOverlayHeapDebugInfo();
+	//ImGui::Text("--- Tex heaps ---");
+	//memoryManager->appendOverlayHeapDebugInfo();
 }
 
 void VKRDestructibleObject::flagForCurrentCommandBuffer()
@@ -4028,7 +4104,7 @@ VKRObjectTexture::~VKRObjectTexture()
 	auto vkr = VulkanRenderer::GetInstance();
 	if (m_allocation)
 	{
-		vkr->GetMemoryManager()->imageMemoryFree(m_allocation);
+		vkr->GetMemoryManager()->imageMemoryFree(m_image, m_allocation);
 		m_allocation = nullptr;
 	}
 	if (m_image)

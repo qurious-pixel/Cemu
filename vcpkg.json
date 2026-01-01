@@ -73,6 +73,7 @@
         "zip"
       ]
     },
+    "vulkan-memory-allocator",
     "libusb"
   ],
   "overrides": [
