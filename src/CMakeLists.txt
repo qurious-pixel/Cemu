@@ -120,6 +120,16 @@ if (MACOS_BUNDLE)
 		COMMAND ${CMAKE_COMMAND} ARGS -E copy "${CMAKE_SOURCE_DIR}/src/resource/update.sh" "${CMAKE_SOURCE_DIR}/bin/${OUTPUT_NAME}.app/Contents/MacOS/update.sh"
 		COMMAND bash -c "install_name_tool -add_rpath @executable_path/../Frameworks ${CMAKE_SOURCE_DIR}/bin/${OUTPUT_NAME}.app/Contents/MacOS/${OUTPUT_NAME}"
 		COMMAND bash -c "install_name_tool -change ${LIBUSB_PATH} @executable_path/../Frameworks/libusb-1.0.0.dylib ${CMAKE_SOURCE_DIR}/bin/${OUTPUT_NAME}.app/Contents/MacOS/${OUTPUT_NAME}")
+else()
+    if(APPLE)
+        find_library(MOLTENVK_LIBRARY NAMES MoltenVK)
+        if(MOLTENVK_LIBRARY)
+            target_link_libraries(CemuBin PRIVATE ${MOLTENVK_LIBRARY})
+        else()
+            target_link_directories(CemuBin PRIVATE "/usr/local/lib")
+        endif()
+        set_target_properties(CemuBin PROPERTIES INSTALL_RPATH "/usr/local/lib;/usr/lib")
+    endif()
 endif()
 
 set_target_properties(CemuBin PROPERTIES
