@@ -101,4 +101,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: cemu-bin-macos-${{ matrix.arch }}-bundle_${{ matrix.bundle }}
-        path: ./bin/
+        path: |
+          bin/Cemu_release
+          bin/Cemu.dmg
