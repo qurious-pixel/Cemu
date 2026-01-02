@@ -122,13 +122,20 @@ if (MACOS_BUNDLE)
 		COMMAND bash -c "install_name_tool -change ${LIBUSB_PATH} @executable_path/../Frameworks/libusb-1.0.0.dylib ${CMAKE_SOURCE_DIR}/bin/${OUTPUT_NAME}.app/Contents/MacOS/${OUTPUT_NAME}")
 else()
     if(APPLE)
-        find_library(MOLTENVK_LIBRARY NAMES MoltenVK)
+        find_library(MOLTENVK_LIBRARY 
+            NAMES MoltenVK moltenvk libMoltenVK.dylib
+            PATHS /usr/local/lib /opt/homebrew/lib
+        )
         if(MOLTENVK_LIBRARY)
+            message(STATUS "Found MoltenVK: ${MOLTENVK_LIBRARY}")
             target_link_libraries(CemuBin PRIVATE ${MOLTENVK_LIBRARY})
         else()
-            target_link_directories(CemuBin PRIVATE "/usr/local/lib")
+            message(WARNING "libMoltenVK.dylib not found")
         endif()
-        set_target_properties(CemuBin PROPERTIES INSTALL_RPATH "/usr/local/lib;/usr/lib")
+        set_target_properties(CemuBin PROPERTIES 
+            BUILD_WITH_INSTALL_RPATH TRUE
+            INSTALL_RPATH "/usr/local/lib;/opt/homebrew/lib"
+        )
     endif()
 endif()
 
