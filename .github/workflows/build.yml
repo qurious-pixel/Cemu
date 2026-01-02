@@ -84,6 +84,7 @@ jobs:
         cmake --build build
 
     - name: Prepare artifact
+      if: ${{ matrix.bundle == 'ON' }}
       run: |
         mkdir bin/Cemu_app
         mv bin/Cemu_release.app bin/Cemu_app/Cemu.app
