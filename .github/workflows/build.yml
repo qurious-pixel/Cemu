@@ -83,6 +83,7 @@ jobs:
     - name: "Build Cemu"
       run: |
         cmake --build build
+        objdump -p bin/Cemu_release | grep RPATH
 
     - name: Prepare artifact
       if: ${{ matrix.bundle == 'ON' }}
