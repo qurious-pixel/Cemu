@@ -53,7 +53,4 @@ object NativeEmulation {
 
     @JvmStatic
     external fun supportsLoadingCustomDriver(): Boolean
-
-    @JvmStatic
-    external fun trimMemoryUsage()
 }
