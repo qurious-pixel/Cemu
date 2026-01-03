@@ -134,7 +134,7 @@ else()
         endif()
         set_target_properties(CemuBin PROPERTIES 
             BUILD_WITH_INSTALL_RPATH TRUE
-            INSTALL_RPATH "/usr/local/lib;/opt/homebrew/lib"
+            INSTALL_RPATH "/usr/local/lib;/opt/homebrew/lib;${CMAKE_PREFIX_PATH}"
         )
     endif()
 endif()
