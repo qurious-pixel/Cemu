@@ -83,7 +83,16 @@ jobs:
     - name: "Build Cemu"
       run: |
         cmake --build build
-        objdump -p bin/Cemu_release | grep RPATH
+
+    - name: "Local Build RPATH"
+      if: ${{ matrix.bundle == 'OFF' }}
+      run: |
+        otool -l bin/Cemu_release | grep -A2 LC_RPATH
+        
+    - name: "Bundle Build RPATH"
+      if: ${{ matrix.bundle == 'ON' }}
+      run: |
+        otool -l bin/Cemu_release.app/Contents/MacOS/Cemu_release | grep -A2 LC_RPATH
 
     - name: Prepare artifact
       if: ${{ matrix.bundle == 'ON' }}
