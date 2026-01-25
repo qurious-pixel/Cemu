@@ -54,7 +54,7 @@ jobs:
           mingw-w64-x86_64-gcc
           mingw-w64-x86_64-libpng
           mingw-w64-x86_64-pkgconf
-          mingw-w64-x86_64-wxwidgets3.3
+          mingw-w64-wxwidgets3.3
           mingw-w64-x86_64-hidapi
           mingw-w64-x86_64-libtiff
           mingw-w64-x86_64-libusb
