@@ -21,13 +21,13 @@ jobs:
     - name: Setup release mode parameters
       run: |
         echo "BUILD_MODE=release" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-        echo "BUILD_FLAGS=-DCMAKE_PREFIX_PATH=/mingw64/ -DENABLE_VCPKG=OFF -DENABLE_DISCORD_RPC=OFF -GNinja" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
+        echo "BUILD_FLAGS=-DENABLE_VCPKG=OFF -DENABLE_DISCORD_RPC=OFF -GNinja" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
         echo "Build mode is release"
 
     - name: Setup msys2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW64
+        msystem: UCRT64
         update: true
         cache: true
         install: |
