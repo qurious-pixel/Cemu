@@ -27,7 +27,7 @@ jobs:
     - name: Setup msys2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: CLANG64
+        msystem: MINGW64
         update: true
         cache: true
         install: |
@@ -43,8 +43,10 @@ jobs:
           mingw-w64-x86_64-libzip
           mingw-w64-x86_64-glslang
           mingw-w64-x86_64-glm
+          mingw-w64-x86_64-cc
           mingw-w64-x86_64-gcc
           mingw-w64-x86_64-libpng
+          mingw-w64-x86_64-pkgconf
           base-devel
           curl
           git
