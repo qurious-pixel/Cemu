@@ -27,7 +27,7 @@ jobs:
     - name: Setup msys2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: MINGW64
+        msystem: CLANG64
         update: true
         cache: true
         install: |
