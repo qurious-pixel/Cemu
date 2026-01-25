@@ -44,7 +44,7 @@ jobs:
           mingw-w64-x86_64-glslang
           mingw-w64-x86_64-glm
           mingw-w64-x86_64-gcc
-          mingw-w64-x86_64-linpng
+          mingw-w64-x86_64-libpng
           base-devel
           curl
           git
