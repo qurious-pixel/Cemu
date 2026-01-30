@@ -123,6 +123,7 @@ else()
     set(IH264D_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
 endif()
 
+message(STATUS "DEBUG: ih264d detected architecture is: ${IH264D_ARCHITECTURE}")
 if (IH264D_ARCHITECTURE MATCHES "x86_64|amd64|AMD64")
     set(LIBAVCDEC_X86_INCLUDES "common/x86" "decoder/x86")
     include_directories("common/" "decoder/" ${LIBAVCDEC_X86_INCLUDES})
