@@ -202,3 +202,6 @@ target_compile_options(ih264d PRIVATE $<$<CONFIG:Release,RelWithDebInfo>:/Ot>) #
 target_compile_options(ih264d PRIVATE "/GS-") # disable runtime checks
 
 endif()
+if(MINGW)
+    add_definitions(-DX86 -D_WIN32)
+endif()
