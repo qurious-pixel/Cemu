@@ -1,12 +1,17 @@
 #pragma once
 
-#ifdef __MINGW32__
-#include <_mingw.h>
-#ifdef __cplusplus
-extern "C++" {
-    #include <propsys.h>
-}
+#ifdef _WIN32
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
 #endif
+
+#ifdef __MINGW32__
+    #include <_mingw.h>
+    #include <windef.h>
+    #include <winnt.h>
+    extern "C++" {
+        #include <propsys.h>
+    }
 #endif
 
 #include <stdlib.h> // for size_t
