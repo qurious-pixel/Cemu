@@ -125,7 +125,7 @@ endif()
 
 if (IH264D_ARCHITECTURE MATCHES "x86_64|amd64|AMD64")
     set(LIBAVCDEC_X86_INCLUDES "common/x86" "decoder/x86")
-    include_directories("common/" "decoder/" ${LIBAVCDEC_X86_INCLUDES}))
+    include_directories("common/" "decoder/" ${LIBAVCDEC_X86_INCLUDES})
     target_sources(ih264d PRIVATE
         "common/x86/ih264_chroma_intra_pred_filters_ssse3.c"
         "common/x86/ih264_deblk_chroma_ssse3.c"
@@ -149,6 +149,7 @@ if (IH264D_ARCHITECTURE MATCHES "x86_64|amd64|AMD64")
     if(MINGW)
         add_definitions(-DX86 -D_WIN32)
         target_compile_options(ih264d PRIVATE -msse4.2 -mssse3)
+        target_compile_options(ih264d PRIVATE -Wno-error=stringop-overflow -Wno-stringop-overflow)
     endif()
 elseif(IH264D_ARCHITECTURE STREQUAL "aarch64" OR IH264D_ARCHITECTURE STREQUAL "arm64")
     enable_language( C CXX ASM )
@@ -193,15 +194,11 @@ elseif(IH264D_ARCHITECTURE STREQUAL "aarch64" OR IH264D_ARCHITECTURE STREQUAL "a
     if(APPLE)
         target_sources(ih264d PRIVATE "common/armv8/macos_arm_symbol_aliases.s")
     endif()
-    else()
+else()
     message(FATAL_ERROR "ih264d unknown architecture: ${IH264D_ARCHITECTURE}")
 endif()
 
 if(MSVC)
     set_property(TARGET ih264d PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    
-    # tune settings for slightly better performance
-    target_compile_options(ih264d PRIVATE $<$<CONFIG:Release,RelWithDebInfo>:/Oi>) # enable intrinsic functions
-    target_compile_options(ih264d PRIVATE $<$<CONFIG:Release,RelWithDebInfo>:/Ot>) # favor speed
-    target_compile_options(ih264d PRIVATE "/GS-") # disable runtime checks
+    target_compile_options(ih264d PRIVATE $<$<CONFIG:Release,RelWithDebInfo>:/Oi> $<$<CONFIG:Release,RelWithDebInfo>:/Ot> "/GS-")
 endif()
