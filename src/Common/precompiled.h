@@ -488,12 +488,20 @@ bool match_any_of(T1&& value, Types&&... others)
 {
 #ifdef _WIN32
     // get current time
-	static const long long _Freq = _Query_perf_frequency();	// doesn't change after system boot
-	const long long _Ctr = _Query_perf_counter();
-	static_assert(std::nano::num == 1, "This assumes period::num == 1.");
-	const long long _Whole = (_Ctr / _Freq) * std::nano::den;
-	const long long _Part = (_Ctr % _Freq) * std::nano::den / _Freq;
-	return (std::chrono::high_resolution_clock::time_point(std::chrono::nanoseconds(_Whole + _Part)));
+	static long long _Freq = 0;
+    if (_Freq == 0) {
+        LARGE_INTEGER li;
+        QueryPerformanceFrequency(&li);
+        _Freq = li.QuadPart;
+    }
+    LARGE_INTEGER li_ctr;
+    QueryPerformanceCounter(&li_ctr);
+    const long long _Ctr = li_ctr.QuadPart;
+
+    static_assert(std::nano::num == 1, "This assumes period::num == 1.");
+    const long long _Whole = (_Ctr / _Freq) * std::nano::den;
+    const long long _Part = (_Ctr % _Freq) * std::nano::den / _Freq;
+    return (std::chrono::high_resolution_clock::time_point(std::chrono::nanoseconds(_Whole + _Part)));
 #else
     return std::chrono::high_resolution_clock::now();
 #endif
@@ -503,12 +511,21 @@ bool match_any_of(T1&& value, Types&&... others)
 {
 #if BOOST_OS_WINDOWS
     // get current time
-	static const long long _Freq = _Query_perf_frequency();	// doesn't change after system boot
-	const long long _Ctr = _Query_perf_counter();
-	static_assert(std::nano::num == 1, "This assumes period::num == 1.");
-	const long long _Whole = (_Ctr / _Freq) * std::nano::den;
-	const long long _Part = (_Ctr % _Freq) * std::nano::den / _Freq;
-	return (std::chrono::steady_clock::time_point(std::chrono::nanoseconds(_Whole + _Part)));
+    static long long _Freq = 0;
+    if (_Freq == 0) {
+        LARGE_INTEGER li_freq;
+        QueryPerformanceFrequency(&li_freq);
+        _Freq = li_freq.QuadPart;
+    }
+    
+    LARGE_INTEGER li_ctr;
+    QueryPerformanceCounter(&li_ctr);
+    const long long _Ctr = li_ctr.QuadPart;
+
+    static_assert(std::nano::num == 1, "This assumes period::num == 1.");
+    const long long _Whole = (_Ctr / _Freq) * std::nano::den;
+    const long long _Part = (_Ctr % _Freq) * std::nano::den / _Freq;
+    return (std::chrono::steady_clock::time_point(std::chrono::nanoseconds(_Whole + _Part)));
 #elif BOOST_OS_LINUX
 	struct timespec tp;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
