@@ -4,7 +4,14 @@
 #include <cstdint>
 
 #if BOOST_OS_WINDOWS
-#include "Common/windows/platform.h"
+    #ifdef __MINGW32__
+        #include <_mingw.h>
+        extern "C++" {
+            #include "Common/windows/platform.h"
+        }
+    #else
+        #include "Common/windows/platform.h"
+    #endif
 #elif BOOST_OS_LINUX || BOOST_OS_BSD
 #if BOOST_OS_LINUX
 #include <byteswap.h>
