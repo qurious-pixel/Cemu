@@ -184,6 +184,8 @@ inline uint64 _swapEndianU64(uint64 v)
 {
 #if BOOST_OS_MACOS
     return OSSwapInt64(v);
+#elif defined(__GNUC__) || defined(__clang__)
+    return __builtin_bswap64(v);
 #elif BOOST_OS_BSD
 #ifdef __OpenBSD__
     return swap64(v);
@@ -199,6 +201,8 @@ inline uint32 _swapEndianU32(uint32 v)
 {
 #if BOOST_OS_MACOS
     return OSSwapInt32(v);
+#elif defined(__GNUC__) || defined(__clang__)
+    return __builtin_bswap32(v);
 #elif BOOST_OS_BSD
 #ifdef __OpenBSD__
     return swap32(v);
@@ -241,6 +245,7 @@ inline uint64 _umul128(uint64 multiplier, uint64 multiplicand, uint64 *highProdu
     return x & 0xFFFFFFFFFFFFFFFF;
 }
 
+#ifndef _WIN32 // Guard these for MinGW/Windows GCC
 typedef uint8_t BYTE;
 typedef uint32_t DWORD;
 typedef int32_t LONG;
@@ -257,6 +262,7 @@ typedef union _LARGE_INTEGER {
     } u;
     LONGLONG QuadPart;
 } LARGE_INTEGER, *PLARGE_INTEGER;
+#endif
 
 #define DEFINE_ENUM_FLAG_OPERATORS(T)                                                                                                                                            \
     inline T operator~ (T a) { return static_cast<T>( ~static_cast<std::underlying_type<T>::type>(a) ); }                                                                       \
