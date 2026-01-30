@@ -1,5 +1,14 @@
 #pragma once
 
+#ifdef __MINGW32__
+#include <_mingw.h>
+#ifdef __cplusplus
+extern "C++" {
+    #include <propsys.h>
+}
+#endif
+#endif
+
 #include <stdlib.h> // for size_t
 
 #include "version.h"
@@ -302,18 +311,16 @@ inline uint64 _udiv128(uint64 highDividend, uint64 lowDividend, uint64 divisor, 
 
 #if defined(_MSC_VER)
     #define UNREACHABLE __assume(false)
-	#define ASSUME(__cond) __assume(__cond)
-	#define TLS_WORKAROUND_NOINLINE // no-op for MSVC as it has a flag for fiber-safe TLS optimizations
-#elif defined(__GNUC__) && !defined(__llvm__)
+    #define ASSUME(__cond) __assume(__cond)
+    #define TLS_WORKAROUND_NOINLINE 
+#elif defined(__GNUC__) || defined(__clang__)
     #define UNREACHABLE __builtin_unreachable()
-	#define ASSUME(__cond) __attribute__((assume(__cond)))
-	#define TLS_WORKAROUND_NOINLINE __attribute__((noinline))
-#elif defined(__clang__)
-	#define UNREACHABLE __builtin_unreachable()
-	#define ASSUME(__cond) __builtin_assume(__cond)
-	#define TLS_WORKAROUND_NOINLINE __attribute__((noinline))
-#else
-    #error Unknown compiler
+    #if defined(__clang__)
+        #define ASSUME(__cond) __builtin_assume(__cond)
+    #else
+        #define ASSUME(__cond) do { if (!(__cond)) UNREACHABLE; } while(0)
+    #endif
+    #define TLS_WORKAROUND_NOINLINE __attribute__((noinline))
 #endif
 
 #if defined(_MSC_VER)
@@ -638,12 +645,14 @@ inline uint32 GetTitleIdLow(uint64 titleId)
 	return titleId & 0xFFFFFFFF;
 }
 
-#if defined(__GNUC__)
-#define memcpy_dwords(__dest, __src, __numDwords) memcpy((__dest), (__src), (__numDwords) * sizeof(uint32))
-#define memcpy_qwords(__dest, __src, __numQwords) memcpy((__dest), (__src), (__numQwords) * sizeof(uint64))
+#if defined(__GNUC__) || defined(__clang__)
+    #include <string.h>
+    #define memcpy_dwords(__dest, __src, __numDwords) memcpy((__dest), (__src), (__numDwords) * sizeof(uint32))
+    #define memcpy_qwords(__dest, __src, __numQwords) memcpy((__dest), (__src), (__numQwords) * sizeof(uint64))
 #else
-#define memcpy_dwords(__dest, __src, __numDwords) __movsd((unsigned long*)(__dest), (const unsigned long*)(__src), __numDwords)
-#define memcpy_qwords(__dest, __src, __numQwords) __movsq((unsigned long long*)(__dest), (const unsigned long long*)(__src), __numQwords)
+    #include <intrin.h>
+    #define memcpy_dwords(__dest, __src, __numDwords) __movsd((unsigned long*)(__dest), (const unsigned long*)(__src), __numDwords)
+    #define memcpy_qwords(__dest, __src, __numQwords) __movsq((unsigned long long*)(__dest), (const unsigned long long*)(__src), __numQwords)
 #endif
 
 // PPC context and memory functions
