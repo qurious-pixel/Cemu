@@ -218,6 +218,8 @@ inline sint32 _swapEndianS32(sint32 v)
 {
 #if BOOST_OS_MACOS
     return (sint32)OSSwapInt32((uint32)v);
+#elif defined(__GNUC__) || defined(__clang__)
+    return (sint32)__builtin_bswap32((uint32)v);
 #elif BOOST_OS_BSD
 #ifdef __OpenBSD__
     return (sint32)swap32((uint32)v);
@@ -316,6 +318,9 @@ inline uint64 _udiv128(uint64 highDividend, uint64 lowDividend, uint64 divisor, 
 
 #if defined(_MSC_VER)
     #define DEBUG_BREAK __debugbreak()
+#elif defined(WIN32) || defined(_WIN32)
+    #include <debugapi.h>
+    #define DEBUG_BREAK DebugBreak() 
 #else
     #include <csignal>
     #define DEBUG_BREAK raise(SIGTRAP) 
