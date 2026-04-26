@@ -91,6 +91,7 @@ jobs:
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
     - name: "cmake"
+      shell: msys2 {0}
       run: |
         mkdir -p build
         cd build
@@ -99,6 +100,7 @@ jobs:
         cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DVCPKG_INSTALL_OPTIONS="--clean-after-build"
 
     - name: "Build Cemu"
+      shell: msys2 {0}
       run: |
         cd build
         cmake --build . --config ${{ env.BUILD_MODE }}
