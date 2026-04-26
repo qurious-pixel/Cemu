@@ -39,6 +39,7 @@ jobs:
         cache: true
         install: |
           mingw-w64-ucrt-x86_64-clang
+          mingw-w64-ucrt-x86_64-llvm
           mingw-w64-ucrt-x86_64-ccache
           mingw-w64-ucrt-x86_64-cmake
           mingw-w64-ucrt-x86_64-lld
