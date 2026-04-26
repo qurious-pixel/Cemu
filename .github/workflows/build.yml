@@ -95,9 +95,18 @@ jobs:
       run: |
         mkdir -p build
         cd build
+        cmake .. \
+          -GNinja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_C_COMPILER=clang \
+          -DCMAKE_CXX_COMPILER=clang++ \
+          -DCMAKE_CXX_FLAGS="-UREGISTERED" \
+          -DENABLE_VCPKG=OFF \
+          -DENABLE_DISCORD_RPC=OFF \
+          -DCMAKE_SYSTEM_NAME=Windows \
+          -DIH264D_ARCHITECTURE=x86_64
         echo "[INFO] BUILD_FLAGS: ${{ env.BUILD_FLAGS }}"
         echo "[INFO] BUILD_MODE: ${{ env.BUILD_MODE }}"
-        cmake .. ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=${{ env.BUILD_MODE }} -DVCPKG_INSTALL_OPTIONS="--clean-after-build"
 
     - name: "Build Cemu"
       shell: msys2 {0}
