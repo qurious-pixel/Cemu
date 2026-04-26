@@ -20,6 +20,16 @@ if(WIN32)
 			XAudio27API.h
 		)
 	endif()
+	if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        # 1. Force the compiler to use the system's XAudio2 (Modern SDK) first
+        target_include_directories(CemuAudio BEFORE PRIVATE "D:/a/_temp/msys64/clang64/include")
+        
+        # 2. Add MSVC compatibility so Clang understands Windows-specific headers/attributes
+        target_compile_options(CemuAudio PRIVATE -fms-extensions -fms-compatibility)
+
+        # 3. Explicitly define the DLL name to satisfy the check in XAudio2API.cpp
+        target_compile_definitions(CemuAudio PRIVATE XAUDIO2_DLL=L"xaudio2_9.dll")
+    endif()
 endif()
 
 if(ENABLE_CUBEB)
