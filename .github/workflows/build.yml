@@ -34,7 +34,7 @@ jobs:
     - name: Setup msys2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: UCRT64
+        msystem: CLANG64
         update: true
         cache: true
         install: |
@@ -93,7 +93,7 @@ jobs:
       shell: msys2 {0}
       run: |
         cd build
-        cmake --build . --config ${{ env.BUILD_MODE }}
+        cmake --build . --config Release
 
     - name: Prepare artifact
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
