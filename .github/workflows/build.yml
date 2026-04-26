@@ -88,7 +88,7 @@ jobs:
           -DCMAKE_AR="llvm-ar" \
           -DCMAKE_RANLIB="llvm-ranlib" \
           -DENABLE_XAUDIO=OFF \
-          -DVCPKG_SETUP_PKGCONFIG=OFF \
+          -DPKG_CONFIG_EXECUTABLE="${VCPKG_INSTALLED_DIR}/x64-mingw-static/tools/pkgconf/pkgconf.exe" \
           -DVCPKG_TARGET_TRIPLET=x64-mingw-static
 
     - name: "Build Cemu"
