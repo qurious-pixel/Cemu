@@ -20,16 +20,28 @@ if(WIN32)
 			XAudio27API.h
 		)
 	endif()
-	if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        # 1. Force the compiler to use the system's XAudio2 (Modern SDK) first
-        target_include_directories(CemuAudio BEFORE PRIVATE "D:/a/_temp/msys64/clang64/include")
-        
-        # 2. Add MSVC compatibility so Clang understands Windows-specific headers/attributes
-        target_compile_options(CemuAudio PRIVATE -fms-extensions -fms-compatibility)
-
-        # 3. Explicitly define the DLL name to satisfy the check in XAudio2API.cpp
-        target_compile_definitions(CemuAudio PRIVATE XAUDIO2_DLL=L"xaudio2_9.dll")
-    endif()
+	if(WIN32 AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	    # 1. DO NOT apply -fms-compatibility globally if using MSYS2 headers.
+	    # Instead, we only use extensions for specific MSVC-isms.
+	    target_compile_options(CemuAudio PRIVATE -fms-extensions)
+	
+	    # 2. Fix the XAudio2 DLL define
+	    target_compile_definitions(CemuAudio PRIVATE XAUDIO2_DLL=L"xaudio2_9.dll")
+	
+	    # 3. FIX: Only add the MSYS2 include path if it's not already at the top.
+	    # But more importantly, ensure the DirectX_2010 dependency is LAST.
+	    target_include_directories(CemuAudio SYSTEM AFTER PRIVATE "${CMAKE_SOURCE_DIR}/dependencies/DirectX_2010")
+	
+	    # 4. If XAudio2API.cpp specifically needs SAL annotations (__out, etc), 
+	    # we define them as empty for Clang instead of using MSVC-compatibility mode.
+	    target_compile_definitions(CemuAudio PRIVATE 
+	        "__out=" 
+	        "__in=" 
+	        "__in_opt=" 
+	        "__out_opt="
+	        "__deref_out="
+	    )
+	endif()
 endif()
 
 if(ENABLE_CUBEB)
