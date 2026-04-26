@@ -44,6 +44,7 @@ jobs:
           mingw-w64-clang-x86_64-cmake
           mingw-w64-clang-x86_64-lld
           mingw-w64-clang-x86_64-ninja
+          mingw-w64-clang-x86_64-pkgconf
           base-devel
           curl
           git
@@ -87,6 +88,7 @@ jobs:
           -DCMAKE_AR="llvm-ar" \
           -DCMAKE_RANLIB="llvm-ranlib" \
           -DENABLE_XAUDIO=OFF \
+          -DVCPKG_SETUP_PKGCONFIG=OFF \
           -DVCPKG_TARGET_TRIPLET=x64-mingw-static
 
     - name: "Build Cemu"
