@@ -13,9 +13,13 @@ if(WIN32)
 		DirectSoundAPI.h
 		XAudio2API.cpp
 		XAudio2API.h
-		XAudio27API.cpp
-		XAudio27API.h
 	)
+	if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_sources(CemuAudio PRIVATE
+			XAudio27API.cpp
+			XAudio27API.h
+		)
+	endif()
 endif()
 
 if(ENABLE_CUBEB)
