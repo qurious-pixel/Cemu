@@ -255,14 +255,12 @@ inline sint16 _swapEndianS16(sint16 v)
     return (sint16)(((uint16)v >> 8) | ((uint16)v << 8));
 }
 
-#ifndef _umul128
+#if !defined(_MSC_VER) && !defined(__clang__) && !defined(__MINGW32__)
 inline uint64 _umul128(uint64 multiplier, uint64 multiplicand, uint64 *highProduct) {
     unsigned __int128 x = (unsigned __int128)multiplier * (unsigned __int128)multiplicand;
     *highProduct = (x >> 64);
     return x & 0xFFFFFFFFFFFFFFFF;
 }
-#define _umul128 _umul128
-#endif
 
 #ifndef _WIN32 // Guard these for MinGW/Windows GCC
 typedef uint8_t BYTE;
@@ -281,6 +279,7 @@ typedef union _LARGE_INTEGER {
     } u;
     LONGLONG QuadPart;
 } LARGE_INTEGER, *PLARGE_INTEGER;
+#endif
 #endif
 
 #ifndef DEFINE_ENUM_FLAG_OPERATORS
