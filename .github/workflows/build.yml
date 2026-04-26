@@ -38,13 +38,13 @@ jobs:
         update: true
         cache: true
         install: |
-          mingw-w64-clang64-x86_64-clang
-          mingw-w64-clang64-x86_64-llvm
-          mingw-w64-clang64-x86_64-ccache
-          mingw-w64-clang64-x86_64-cmake
-          mingw-w64-clang64-x86_64-lld
-          mingw-w64-clang64-x86_64-ninja
-          mingw-w64-clang64-x86_64-pkgconf
+          mingw-w64-clang-x86_64-clang
+          mingw-w64-clang-x86_64-llvm
+          mingw-w64-clang-x86_64-ccache
+          mingw-w64-clang-x86_64-cmake
+          mingw-w64-clang-x86_64-lld
+          mingw-w64-clang-x86_64-ninja
+          mingw-w64-clang-x86_64-pkgconf
           base-devel
           curl
           git
