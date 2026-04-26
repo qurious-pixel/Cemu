@@ -87,7 +87,7 @@ jobs:
           -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld" \
           -DCMAKE_AR="llvm-ar" \
           -DCMAKE_RANLIB="llvm-ranlib" \
-          -DENABLE_PCH=OFF
+          -DENABLE_XAUDIO=OFF 
 
     - name: "Build Cemu"
       shell: msys2 {0}
