@@ -86,11 +86,8 @@ jobs:
           -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld" \
           -DCMAKE_AR="llvm-ar" \
           -DCMAKE_RANLIB="llvm-ranlib" \   
-          -DENABLE_DISCORD_RPC=OFF \
           -DCMAKE_SYSTEM_NAME=Windows \
           -DIH264D_ARCHITECTURE=x86_64
-        echo "[INFO] BUILD_FLAGS: ${{ env.BUILD_FLAGS }}"
-        echo "[INFO] BUILD_MODE: ${{ env.BUILD_MODE }}"
 
     - name: "Build Cemu"
       shell: msys2 {0}
