@@ -85,8 +85,7 @@ jobs:
           -DCMAKE_MODULE_LINKER_FLAGS="-fuse-ld=lld" \
           -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld" \
           -DCMAKE_AR="llvm-ar" \
-          -DCMAKE_RANLIB="llvm-ranlib" \   
-          -DIH264D_ARCHITECTURE=x86_64
+          -DCMAKE_RANLIB="llvm-ranlib"
 
     - name: "Build Cemu"
       shell: msys2 {0}
