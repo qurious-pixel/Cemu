@@ -79,6 +79,7 @@ if (MSVC)
 	# floating point model: precise, fiber safe optimizations
 	add_compile_options(/EHsc /fp:precise)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		add_compile_options(-fms-extensions -fms-compatibility)
 		# Speeds up static linking (especially helpful in incremental compilation)
 		if((CMAKE_LINKER MATCHES ".*lld-link.*") AND (CMAKE_AR MATCHES ".*llvm-lib.*"))
 			set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY STATIC_LIBRARY_OPTIONS /llvmlibthin)
