@@ -158,8 +158,7 @@ target_link_libraries(CemuBin PRIVATE
 	SDL2::SDL2
 )
 
-if(WIN32)
-    # These are standard Windows import libraries available in MinGW/Clang
+if(WIN32 AND MINGW)
     target_link_libraries(CemuBin PRIVATE 
         dbghelp 
         ntdll 
