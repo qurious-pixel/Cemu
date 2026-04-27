@@ -1,6 +1,7 @@
 #include "XAudio27API.h"
 
-#include "../dependencies/DirectX_2010/XAudio2.h"
+//#include "../dependencies/DirectX_2010/XAudio2.h"
+#include <xaudio2.h>
 
 static_assert(IAudioAPI::kBlockCount < XAUDIO2_MAX_QUEUED_BUFFERS, "too many xaudio2 buffers");
 
