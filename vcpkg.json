@@ -59,7 +59,11 @@
         "zip"
       ]
     },
-    "libusb"
+    "libusb",
+    {
+      "name": "pkgconf",
+      "host": true
+    }
   ],
   "overrides": [
     {
