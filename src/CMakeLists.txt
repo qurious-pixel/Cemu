@@ -158,6 +158,16 @@ target_link_libraries(CemuBin PRIVATE
 	SDL2::SDL2
 )
 
+if(WIN32)
+    # These are standard Windows import libraries available in MinGW/Clang
+    target_link_libraries(CemuBin PRIVATE 
+        dbghelp 
+        ntdll 
+        ole32 
+        uuid
+    )
+endif()
+
 if(UNIX AND NOT APPLE)
 	# due to nasm output some linkers will make stack executable
 	# cemu does not require this so we explicity disable it
