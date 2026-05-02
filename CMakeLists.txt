@@ -134,7 +134,7 @@ option(ENABLE_HIDAPI "Build with HIDAPI" ON)
 option(ENABLE_SDL "Enables the SDLController backend" ON)
 
 # audio backends
-if (WIN32)
+if (MSVC)
 	option(ENABLE_DIRECTAUDIO "Enables the directaudio backend" ON)
 	option(ENABLE_XAUDIO "Enables the xaudio backend" ON)
 endif()
