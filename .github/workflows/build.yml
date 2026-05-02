@@ -104,6 +104,7 @@ jobs:
       run: |
         pwd
         ls -al bin
+        ldd bin/Cemu_release.exe
 
     - name: Prepare artifact
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
