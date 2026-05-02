@@ -28,12 +28,18 @@ if(WIN32)
     endif()
 
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        target_compile_definitions(CemuAudio PRIVATE 
-            UNICODE 
-            _UNICODE
-            "__reserved="
-        )
-    endif()
+	    target_compile_definitions(CemuAudio PRIVATE 
+	        UNICODE 
+	        _UNICODE
+	        "__reserved="
+	        # Fix for "wrong <xaudio2.h> included!"
+	        # Cemu looks for this to skip the #error line
+	        XAUDIO2_HELPER_FUNCTIONS 
+	        # Fix for "use of undeclared identifier 'XAUDIO2_DLL'"
+	        # We tell it to look for the Win10+ system DLL
+	        XAUDIO2_DLL=L"xaudio2_9.dll"
+	    )
+	endif()
 endif()
 
 if(ENABLE_CUBEB)
