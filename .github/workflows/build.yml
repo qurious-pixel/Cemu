@@ -10,20 +10,29 @@ env:
   VCPKG_FORCE_DOWNLOADED_BINARIES: true
   
 jobs:
-  build-windows:
-    runs-on: windows-2022
+  build-windows-clang:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - msys2: clang64
+            compiler: clang
+            arch: x86_64
+            os: windows-2025
+            name: X64
+          - msys2: clangarm64
+            compiler: clang
+            arch: aarch64
+            os: windows-11-arm
+            name: ARM64
+    name: build-windows-clang-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
     steps:
     - name: "Checkout repo"
       uses: actions/checkout@v6
       with:
         submodules: "recursive"
-
-    - name: Setup release mode parameters
-      run: |
-        echo "BUILD_MODE=release" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-        echo "BUILD_FLAGS=-DCMAKE_SYSTEM_NAME=Windows -DCMAKE_PREFIX_PATH=D:\a\_temp\msys64/ucrt64 -DIH264D_ARCHITECTURE=x86_64 -DENABLE_VCPKG=OFF -DENABLE_DISCORD_RPC=OFF -GNinja" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
-        echo "Build mode is release"
-
+      
     - name: msys2 path
       if: true
       id: msys2
@@ -40,14 +49,14 @@ jobs:
         update: true
         cache: true
         install: |
-          mingw-w64-clang-x86_64-clang
-          mingw-w64-clang-x86_64-libc++
-          mingw-w64-clang-x86_64-llvm
-          mingw-w64-clang-x86_64-ccache
-          mingw-w64-clang-x86_64-cmake
-          mingw-w64-clang-x86_64-lld
-          mingw-w64-clang-x86_64-ninja
-          mingw-w64-clang-x86_64-pkgconf
+          mingw-w64-clang-${{ matrix.arch }}-clang
+          mingw-w64-clang-${{ matrix.arch }}-libc++
+          mingw-w64-clang-${{ matrix.arch }}-llvm
+          mingw-w64-clang-${{ matrix.arch }}-ccache
+          mingw-w64-clang-${{ matrix.arch }}-cmake
+          mingw-w64-clang-${{ matrix.arch }}-lld
+          mingw-w64-clang-${{ matrix.arch }}-ninja
+          mingw-w64-clang-${{ matrix.arch }}-pkgconf
           base-devel
           curl
           git
@@ -107,7 +116,6 @@ jobs:
         pwd
         ls -al
         ldd Cemu_release.exe
-        ldd Cemu_release.exe | grep -v '/c/Windows' | grep '=> /' | awk '{print $3}' | xargs -I {} cp {} .
 
     - name: Prepare artifact
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
@@ -115,6 +123,6 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v5
       with:
-        name: cemu-bin-windows-x64
+        name: cemu-bin-windows-clang-${{ matrix.arch }}
         path: ./bin
 
