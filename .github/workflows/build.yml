@@ -14,7 +14,7 @@ jobs:
     runs-on: windows-2022
     steps:
     - name: "Checkout repo"
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         submodules: "recursive"
 
@@ -41,6 +41,7 @@ jobs:
         cache: true
         install: |
           mingw-w64-clang-x86_64-clang
+          mingw-w64-clang-x86_64-libc++
           mingw-w64-clang-x86_64-llvm
           mingw-w64-clang-x86_64-ccache
           mingw-w64-clang-x86_64-cmake
@@ -112,7 +113,7 @@ jobs:
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: cemu-bin-windows-x64
         path: ./bin
