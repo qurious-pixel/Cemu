@@ -239,7 +239,7 @@ jobs:
     - name: Setup msys2
       uses: msys2/setup-msys2@v2
       with:
-        msystem: CLANG64
+        msystem: ${{ matrix.msys2 }}
         update: true
         cache: true
         install: |
