@@ -204,6 +204,122 @@ jobs:
         name: cemu-installer-windows-x64
         path: ./src/resource/cemu-${{ inputs.next_version_major }}.${{ inputs.next_version_minor }}-windows-x64-installer.exe
 
+  build-windows-clang:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - msys2: clang64
+            compiler: clang
+            arch: x86_64
+            os: windows-2025
+            name: X64
+          - msys2: clangarm64
+            compiler: clang
+            arch: aarch64
+            os: windows-11-arm
+            name: ARM64
+    name: build-windows-clang-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: "Checkout repo"
+      uses: actions/checkout@v6
+      with:
+        submodules: "recursive"
+      
+    - name: msys2 path
+      if: true
+      id: msys2
+      env:
+        MSYS2_LOCATION: ${{ steps.msys2.outputs.msys2-location }}
+      run: |
+        echo "$env:MSYS2_LOCATION"
+        echo "D:/a/_temp/msys64/clang64/bin" >> $GITHUB_PATH
+      
+    - name: Setup msys2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: CLANG64
+        update: true
+        cache: true
+        install: |
+          mingw-w64-clang-${{ matrix.arch }}-clang
+          mingw-w64-clang-${{ matrix.arch }}-libc++
+          mingw-w64-clang-${{ matrix.arch }}-llvm
+          mingw-w64-clang-${{ matrix.arch }}-ccache
+          mingw-w64-clang-${{ matrix.arch }}-cmake
+          mingw-w64-clang-${{ matrix.arch }}-lld
+          mingw-w64-clang-${{ matrix.arch }}-ninja
+          mingw-w64-clang-${{ matrix.arch }}-pkgconf
+          base-devel
+          curl
+          git
+          zlib
+          zstd
+          openssl
+          fmt
+  
+    - name: "Bootstrap vcpkg"
+      run: |
+        ./dependencies/vcpkg/bootstrap-vcpkg.bat
+
+    - name: 'Setup NuGet Credentials for vcpkg'
+      shell: 'bash'
+      run: |
+        `./dependencies/vcpkg/vcpkg.exe fetch nuget | tail -n 1` \
+        sources add \
+        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+        -storepasswordincleartext \
+        -name "GitHub" \
+        -username "${{ github.repository_owner }}" \
+        -password "${{ secrets.GITHUB_TOKEN }}"
+        `./dependencies/vcpkg/vcpkg.exe fetch nuget | tail -n 1` \
+        setapikey "${{ secrets.GITHUB_TOKEN }}" \
+        -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+
+    - name: "cmake"
+      shell: msys2 {0}
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. \
+          -GNinja \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_C_COMPILER=clang \
+          -DCMAKE_CXX_COMPILER=clang++ \
+          -DCMAKE_CXX_FLAGS="-D_NB30_ -DNOMINMAX -DWIN32_LEAN_AND_MEAN -D__DEFINE_CPP_ENUM_FLAG_OPERATORS -Wno-invalid-offsetof" \
+          -DCMAKE_EXE_LINKER_FLAGS="-fuse-ld=lld" \
+          -DCMAKE_MODULE_LINKER_FLAGS="-fuse-ld=lld" \
+          -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld" \
+          -DCMAKE_AR="llvm-ar" \
+          -DCMAKE_RANLIB="llvm-ranlib" \
+          -DENABLE_XAUDIO=OFF \
+          -DPKG_CONFIG_EXECUTABLE="${VCPKG_INSTALLED_DIR}/x64-mingw-static/tools/pkgconf/pkgconf.exe" \
+          -DVCPKG_TARGET_TRIPLET=x64-mingw-static
+
+    - name: "Build Cemu"
+      shell: msys2 {0}
+      run: |
+        cd build
+        cmake --build . --config Release
+
+    - name: "Cemu dependencies"
+      shell: msys2 {0}
+      run: |
+        cd bin
+        pwd
+        ls -al
+        ldd Cemu_release.exe
+
+    - name: Prepare artifact
+      run: Rename-Item bin/Cemu_release.exe Cemu.exe
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v5
+      with:
+        name: cemu-bin-windows-clang-${{ matrix.arch }}
+        path: ./bin
+
   build-macos:
     runs-on: macos-14
     strategy:
