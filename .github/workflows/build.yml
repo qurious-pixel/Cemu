@@ -105,6 +105,7 @@ jobs:
         pwd
         ls -al bin
         ldd bin/Cemu_release.exe
+        cp $(ldd my_app.exe | grep /mingw64 | colrm 1 35 | cut -d" " -f1) .
 
     - name: Prepare artifact
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
@@ -113,5 +114,5 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: cemu-bin-windows-x64
-        path: ./bin/Cemu.exe
+        path: ./bin
 
