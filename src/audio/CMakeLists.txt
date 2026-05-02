@@ -13,12 +13,21 @@ if(WIN32)
         DirectSoundAPI.h
         XAudio2API.cpp
         XAudio2API.h
-        XAudio27API.cpp  # Moved outside the NOT Clang check
-        XAudio27API.h    # Moved outside the NOT Clang check
     )
     
+    # Only compile XAudio 2.7 if NOT using Clang/MinGW
+    # Or if you have a specific way to provide the legacy DXSDK headers
+    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_sources(CemuAudio PRIVATE
+            XAudio27API.cpp
+            XAudio27API.h
+        )
+    else()
+        # Ensure Clang knows to skip XAudio 2.7 logic if there are references elsewhere
+        target_compile_definitions(CemuAudio PRIVATE SKIP_XAUDIO_2_7)
+    endif()
+
     if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        # Your existing Clang-specific fixes...
         target_compile_definitions(CemuAudio PRIVATE 
             UNICODE 
             _UNICODE
