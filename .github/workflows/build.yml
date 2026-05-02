@@ -102,10 +102,11 @@ jobs:
     - name: "Cemu dependencies"
       shell: msys2 {0}
       run: |
+        cd bin
         pwd
-        ls -al bin
-        ldd bin/Cemu_release.exe
-        cp $(ldd my_app.exe | grep /mingw64 | colrm 1 35 | cut -d" " -f1) .
+        ls -al
+        ldd Cemu_release.exe
+        ldd Cemu_release.exe | grep -v '/c/Windows' | grep '=> /' | awk '{print $3}' | xargs -I {} cp {} .
 
     - name: Prepare artifact
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
