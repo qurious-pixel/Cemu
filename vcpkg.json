@@ -1,7 +1,7 @@
 {
   "name": "cemu",
   "version-string": "1.0",
-  "builtin-baseline": "f0fb3ddba5135b80982668de39dbaa139c00d281",
+  "builtin-baseline": "4ebb30167f14487dcb71fac13efbf63273ab6a3f",
   "dependencies": [
     "pugixml",
     "zlib",
