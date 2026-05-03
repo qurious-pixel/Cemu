@@ -188,9 +188,16 @@ elseif(IH264D_ARCHITECTURE MATCHES "aarch64|arm64|ARM64")
         "decoder/arm/ih264d_function_selector_av8.c"
         "decoder/arm/ih264d_function_selector.c"
     )
-    target_compile_options(ih264d PRIVATE -DARMV8 $<$<COMPILE_LANGUAGE:ASM,Clang>:-Wno-unused-command-line-argument>)
-    if(NOT MSVC)
-        set(CMAKE_ASM_FLAGS "${CFLAGS} -x assembler-with-cpp")
+    if(WIN32 AND CMAKE_SYSTEM_PROCESSOR MATCHES "ARM64|aarch64")
+        # Windows ARM64 (COFF) doesn't support the ELF relocation syntax in these .s files
+        # It is safer to disable the ASM optimized kernels and use C fallbacks
+        message(STATUS "Disabling IH264D ASM for Windows ARM64 compatibility")
+        set(ENABLE_ARM_ASM OFF) 
+    else()
+        target_compile_options(ih264d PRIVATE -DARMV8 $<$<COMPILE_LANGUAGE:ASM,Clang>:-Wno-unused-command-line-argument>)
+        if(NOT MSVC)
+            set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -x assembler-with-cpp")
+        endif()
     endif()
     if(APPLE)
         target_sources(ih264d PRIVATE "common/armv8/macos_arm_symbol_aliases.s")
