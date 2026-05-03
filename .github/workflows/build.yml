@@ -105,7 +105,7 @@ jobs:
           -DCMAKE_SHARED_LINKER_FLAGS="-fuse-ld=lld" \
           -DCMAKE_AR="llvm-ar" \
           -DCMAKE_RANLIB="llvm-ranlib" \
-          -DENABLE_XAUDIO=OFF \
+          -DIH264D_ARCHITECTURE=${{ matrix.arch }} \
           -DPKG_CONFIG_EXECUTABLE="${VCPKG_INSTALLED_DIR}/x64-mingw-static/tools/pkgconf/pkgconf.exe" \
           -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg }}
 
