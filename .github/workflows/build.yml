@@ -70,7 +70,9 @@ jobs:
     - name: "Bootstrap vcpkg"
       run: |
         cd dependencies/vcpkg
-        git pull
+        git remote add upstream https://github.com/microsoft/vcpkg.git || git remote set-url upstream https://github.com/microsoft/vcpkg.git
+        git fetch upstream master
+        git reset --hard upstream/master
         ./bootstrap-vcpkg.bat
 
     - name: 'Setup NuGet Credentials for vcpkg'
