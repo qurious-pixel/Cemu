@@ -623,7 +623,7 @@ else()
 endif()
 
 target_link_libraries(CemuCafe PRIVATE
-	CemuCommon
+  CemuCommon
   CemuGui
   ZArchive::zarchive
   imguiImpl
@@ -643,7 +643,11 @@ endif()
 
 if (ENABLE_VCPKG)
   if(WIN32)
-    set(PKG_CONFIG_EXECUTABLE "${VCPKG_INSTALLED_DIR}/x64-windows/tools/pkgconf/pkgconf.exe")
+  	if(CEMU_ARCHITECTURE MATCHES "(aarch64)|(AARCH64)|(arm64)|(ARM64)")
+		set(PKG_CONFIG_EXECUTABLE "${VCPKG_INSTALLED_DIR}/arm64-windows/tools/pkgconf/pkgconf.exe")
+	else()
+	  	set(PKG_CONFIG_EXECUTABLE "${VCPKG_INSTALLED_DIR}/x64-windows/tools/pkgconf/pkgconf.exe")
+	endif()
   endif()
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(libusb REQUIRED IMPORTED_TARGET libusb-1.0)
