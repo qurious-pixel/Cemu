@@ -26,7 +26,7 @@ jobs:
             arch: aarch64
             os: windows-11-arm
             name: ARM64
-            vcpkg: arm-mingw-static
+            vcpkg: arm64-mingw-static
     name: build-windows-clang-${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     steps:
