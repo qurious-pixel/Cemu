@@ -122,7 +122,7 @@ jobs:
         pwd
         ls -al
         ldd Cemu_release.exe
-        find /clang64 -name "libc++.a"
+        ldd Cemu_release.exe | grep -v '/c/Windows' | grep '=> /' | awk '{print $3}' | xargs -I {} cp {} .
 
     - name: Prepare artifact
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
