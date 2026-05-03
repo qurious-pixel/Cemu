@@ -101,6 +101,7 @@ jobs:
           -DCMAKE_AR="llvm-ar" \
           -DCMAKE_RANLIB="llvm-ranlib" \
           -DIH264D_ARCHITECTURE=${{ matrix.arch }} \
+          -DPORTABLE_C=ON \
           -DVCPKG_TARGET_TRIPLET=${{ matrix.name }}
 
           # -DCMAKE_CXX_FLAGS="-D_NB30_ -DNOMINMAX -DWIN32_LEAN_AND_MEAN -D__DEFINE_CPP_ENUM_FLAG_OPERATORS -Wno-invalid-offsetof" \
