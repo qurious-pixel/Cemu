@@ -55,7 +55,7 @@ if (ENABLE_VCPKG)
 		        set(VCPKG_HOST_TRIPLET "x64-mingw-static" CACHE STRING "")
 			else()
 		        set(VCPKG_TARGET_TRIPLET "arm64-mingw-static" CACHE STRING "")
-		        set(VCPKG_HOST_TRIPLET "arm64-mingw-static" CACHE STRING ""
+		        set(VCPKG_HOST_TRIPLET "arm64-mingw-static" CACHE STRING "")
 	    else()
 	        set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
 			set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "")
