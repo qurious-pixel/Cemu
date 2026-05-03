@@ -89,6 +89,9 @@ jobs:
     - name: "cmake"
       shell: msys2 {0}
       run: |
+        ls dependencies/xbyak_aarch64/xbyak_aarch64/
+        sed -i 's/#if defined(__GNUC__)/#if defined(__GNUC__) && !defined(_WIN32)/g' dependencies/xbyak_aarch64/xbyak_aarch64/xbyak_aarch64.h 
+
         mkdir -p build
         cd build
         cmake .. \
@@ -106,8 +109,6 @@ jobs:
           -DVCPKG_TARGET_TRIPLET=${{ matrix.name }}
 
           # -DCMAKE_CXX_FLAGS="-D_NB30_ -DNOMINMAX -DWIN32_LEAN_AND_MEAN -D__DEFINE_CPP_ENUM_FLAG_OPERATORS -Wno-invalid-offsetof" \
-          ls dependencies/xbyak_aarch64/xbyak_aarch64
-          sed -i 's/#if defined(__GNUC__)/#if defined(__GNUC__) && !defined(_WIN32)/g' dependencies/xbyak_aarch64/xbyak_aarch64.h 
 
     - name: "Build Cemu"
       shell: msys2 {0}
