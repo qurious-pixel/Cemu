@@ -20,11 +20,13 @@ jobs:
             arch: x86_64
             os: windows-2025
             name: X64
+            vcpkg: x64-mingw-static
           - msys2: clangarm64
             compiler: clang
             arch: aarch64
             os: windows-11-arm
             name: ARM64
+            vcpkg: arm-mingw-static
     name: build-windows-clang-${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -101,7 +103,7 @@ jobs:
           -DCMAKE_RANLIB="llvm-ranlib" \
           -DENABLE_XAUDIO=OFF \
           -DPKG_CONFIG_EXECUTABLE="${VCPKG_INSTALLED_DIR}/x64-mingw-static/tools/pkgconf/pkgconf.exe" \
-          -DVCPKG_TARGET_TRIPLET=x64-mingw-static
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg }}
 
     - name: "Build Cemu"
       shell: msys2 {0}
