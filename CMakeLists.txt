@@ -254,6 +254,14 @@ else()
 	set(CEMU_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
 endif()
 if(CEMU_ARCHITECTURE MATCHES "(aarch64)|(AARCH64)|(arm64)|(ARM64)")
+	if(WIN32 AND NOT MSVC)
+        message(STATUS "Patching xbyak_aarch64 for Windows Clang build")
+        # Pre-emptively set these so xbyak's internal __GNUC__ logic doesn't 
+        # try to include <sys/mman.h>
+        add_definitions(-DXBYAK_USE_MMAP_ALLOCATOR=0)
+        add_definitions(-DXBYAK_AARCH64_USE_MMAP_ALLOCATOR=0)
+        add_definitions(-DNOMINMAX)
+    endif()
 	add_subdirectory("dependencies/xbyak_aarch64" EXCLUDE_FROM_ALL)
 endif()
 
