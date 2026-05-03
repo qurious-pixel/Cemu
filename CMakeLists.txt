@@ -54,8 +54,11 @@ if (ENABLE_VCPKG)
 	        set(VCPKG_HOST_TRIPLET "x64-mingw-static" CACHE STRING "")
 			add_link_options("-static-libgcc")
 			if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-				set(BUILD_SHARED_LIBS OFF CACHE BOOL "Force static libraries" FORCE)
-	            add_link_options("-Wl,-Bstatic" "-lc++" "-lc++abi" "-lunwind" "-Wl,-Bdynamic")
+				target_link_libraries(${PROJECT_NAME} PRIVATE 
+		            "/clang64/lib/libc++.a"
+		            "/clang64/lib/libc++abi.a"
+		            "/clang64/lib/libunwind.a"
+		        )
 	        else()
 	            add_link_options("-Wl,-Bstatic" "-lstdc++" "-lpthread" "-Wl,-Bdynamic")
 	        endif()
