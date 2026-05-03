@@ -50,18 +50,12 @@ if (ENABLE_VCPKG)
 	set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
 	if(WIN32)
 	    if(MINGW)
-	        set(VCPKG_TARGET_TRIPLET "x64-mingw-static" CACHE STRING "")
-	        set(VCPKG_HOST_TRIPLET "x64-mingw-static" CACHE STRING "")
-			add_link_options("-static-libgcc")
-			if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-				target_link_libraries(${PROJECT_NAME} PRIVATE 
-		            "/clang64/lib/libc++.a"
-		            "/clang64/lib/libc++abi.a"
-		            "/clang64/lib/libunwind.a"
-		        )
-	        else()
-	            add_link_options("-Wl,-Bstatic" "-lstdc++" "-lpthread" "-Wl,-Bdynamic")
-	        endif()
+			if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64")
+		        set(VCPKG_TARGET_TRIPLET "x64-mingw-static" CACHE STRING "")
+		        set(VCPKG_HOST_TRIPLET "x64-mingw-static" CACHE STRING "")
+			else()
+		        set(VCPKG_TARGET_TRIPLET "arm64-mingw-static" CACHE STRING "")
+		        set(VCPKG_HOST_TRIPLET "arm64-mingw-static" CACHE STRING ""
 	    else()
 	        set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
 			set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "")
