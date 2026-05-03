@@ -191,7 +191,7 @@ elseif(IH264D_ARCHITECTURE MATCHES "aarch64|arm64|ARM64")
     # Only enable ARMv8 ASM if we are NOT on Windows
     if(NOT WIN32)
         target_compile_options(ih264d PRIVATE -DARMV8 $<$<COMPILE_LANGUAGE:ASM,Clang>:-Wno-unused-command-line-argument>)
-        if(NOT MSVC)
+        if(NOT MSVC OR MINGW)
             set(CMAKE_ASM_FLAGS "${CFLAGS} -x assembler-with-cpp")
         endif()
     else()
