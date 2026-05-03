@@ -188,15 +188,17 @@ elseif(IH264D_ARCHITECTURE MATCHES "aarch64|arm64|ARM64")
         "decoder/arm/ih264d_function_selector_av8.c"
         "decoder/arm/ih264d_function_selector.c"
     )
-    # Only enable ARMv8 ASM if we are NOT on Windows
-    if(NOT WIN32)
-        target_compile_options(ih264d PRIVATE -DARMV8 $<$<COMPILE_LANGUAGE:ASM,Clang>:-Wno-unused-command-line-argument>)
-        if(NOT MSVC OR MINGW)
-            set(CMAKE_ASM_FLAGS "${CFLAGS} -x assembler-with-cpp")
+    # Only enable ARMv8 ASM if we are NOT on Windows MSVC
+    if(NOT MSVC)
+        message(STATUS "ARM64 Clang/GCC detected: Enabling ih264d assembly optimization.")
+        target_compile_options(ih264d PRIVATE -DARMV8)
+        set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -x assembler-with-cpp")
+        
+        if(CMAKE_ASM_COMPILER_ID MATCHES "Clang")
+            target_compile_options(ih264d PRIVATE $<$<COMPILE_LANGUAGE:ASM>:-Wno-unused-command-line-argument>)
         endif()
     else()
-        # On Windows ARM64, we force the C implementation to avoid relocation errors
-        message(STATUS "Windows ARM64 detected: Disabling ih264d assembly optimization.")
+        message(STATUS "MSVC ARM64 detected: Forcing portable C implementation for ih264d.")
         target_compile_definitions(ih264d PRIVATE PORTABLE_C)
     endif()
     if(APPLE)
