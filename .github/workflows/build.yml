@@ -69,6 +69,8 @@ jobs:
   
     - name: "Bootstrap vcpkg"
       run: |
+        cd dependencies/vcpkg
+        git pull
         ./dependencies/vcpkg/bootstrap-vcpkg.bat
 
     - name: 'Setup NuGet Credentials for vcpkg'
