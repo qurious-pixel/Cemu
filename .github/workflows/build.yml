@@ -116,6 +116,7 @@ jobs:
         pwd
         ls -al
         ldd Cemu_release.exe
+        find /clang64 -name "libc++.a"
 
     - name: Prepare artifact
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
