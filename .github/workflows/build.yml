@@ -89,8 +89,7 @@ jobs:
     - name: "cmake"
       shell: msys2 {0}
       run: |
-        ls dependencies/xbyak_aarch64/xbyak_aarch64/
-        sed -i 's/#if defined(__GNUC__)/#if defined(__GNUC__) && !defined(_WIN32)/g' dependencies/xbyak_aarch64/xbyak_aarch64/xbyak_aarch64.h 
+        sed -i '49s/#if defined(__GNUC__)/#if defined(__GNUC__) \&\& !defined(_WIN32)/' dependencies/xbyak_aarch64/xbyak_aarch64/xbyak_aarch64.h 
 
         mkdir -p build
         cd build
