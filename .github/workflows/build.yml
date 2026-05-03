@@ -16,17 +16,13 @@ jobs:
       matrix:
         include:
           - msys2: clang64
-            compiler: clang
             arch: x86_64
             os: windows-2025
-            name: X64
-            vcpkg: x64-mingw-static
+            name: x64-mingw-static
           - msys2: clangarm64
-            compiler: clang
             arch: aarch64
             os: windows-11-arm
-            name: ARM64
-            vcpkg: arm64-mingw-static
+            name: arm64-mingw-static
     name: build-windows-clang-${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -106,8 +102,8 @@ jobs:
           -DCMAKE_AR="llvm-ar" \
           -DCMAKE_RANLIB="llvm-ranlib" \
           -DIH264D_ARCHITECTURE=${{ matrix.arch }} \
-          -DPKG_CONFIG_EXECUTABLE="${VCPKG_INSTALLED_DIR}/x64-mingw-static/tools/pkgconf/pkgconf.exe" \
-          -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg }}
+          -DPKG_CONFIG_EXECUTABLE="${VCPKG_INSTALLED_DIR}/${{ matrix.name }}/tools/pkgconf/pkgconf.exe" \
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.name }}
 
     - name: "Build Cemu"
       shell: msys2 {0}
