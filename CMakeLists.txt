@@ -260,7 +260,7 @@ if(CEMU_ARCHITECTURE MATCHES "(aarch64)|(AARCH64)|(arm64)|(ARM64)")
 		if(TARGET xbyak_aarch64)
 		    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 		        # Use PRIVATE so it doesn't leak to Cemu or other dependencies
-		        target_compile_options(xbyak_aarch64 PRIVATE "-fno-gnuc-version")
+		        target_compile_options(xbyak_aarch64 PRIVATE "-U__GNUC__")
 		    endif()
 		endif()
     endif()
