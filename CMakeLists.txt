@@ -254,16 +254,16 @@ else()
 	set(CEMU_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
 endif()
 if(CEMU_ARCHITECTURE MATCHES "(aarch64)|(AARCH64)|(arm64)|(ARM64)")
+	add_subdirectory("dependencies/xbyak_aarch64" EXCLUDE_FROM_ALL)
 	if(WIN32 AND NOT MSVC)
         message(STATUS "Patching xbyak_aarch64 for Windows Clang build")
-        # Pre-emptively set these so xbyak's internal __GNUC__ logic doesn't 
-        # try to include <sys/mman.h>
-        add_definitions(-DXBYAK_USE_MMAP_ALLOCATOR=0)
-        add_definitions(-DXBYAK_AARCH64_USE_MMAP_ALLOCATOR=0)
-        add_definitions(-DNOMINMAX)
-		add_definitions(-DCMAKE_SYSTEM_NAME=Windows)
+		if(TARGET xbyak_aarch64)
+		    if(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+		        # Use PRIVATE so it doesn't leak to Cemu or other dependencies
+		        target_compile_options(xbyak_aarch64 PRIVATE "-fno-gnuc-version")
+		    endif()
+		endif()
     endif()
-	add_subdirectory("dependencies/xbyak_aarch64" EXCLUDE_FROM_ALL)
 endif()
 
 find_package(ZArchive)
