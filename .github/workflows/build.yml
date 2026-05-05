@@ -68,8 +68,8 @@ jobs:
       run: |
         cd dependencies/vcpkg
         git remote add upstream https://github.com/microsoft/vcpkg.git || git remote set-url upstream https://github.com/microsoft/vcpkg.git
-        git fetch upstream master
-        git reset --hard upstream/master
+        git fetch upstream tag 2026.04.27
+        git checkout 2026.04.27
         ./bootstrap-vcpkg.bat
 
     - name: "Fetch Modified Xybak"
