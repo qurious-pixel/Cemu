@@ -72,6 +72,14 @@ jobs:
         git reset --hard upstream/master
         ./bootstrap-vcpkg.bat
 
+    - name: "Fetch Modified Xybak"
+      run: |
+        cd dependencies/xbyak_aarch64/
+        git remote add upstream https://github.com/qurious-pixel/xbyak_aarch64.git || git remote set-url upstream https://github.com/qurious-pixel/xbyak_aarch64.git
+        git fetch upstream win-arm
+        git reset --hard upstream/win-arm
+        cat xbyak_aarch64/xbyak_aarch64.h
+
     - name: 'Setup NuGet Credentials for vcpkg'
       shell: 'bash'
       run: |
