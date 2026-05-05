@@ -155,32 +155,39 @@ void debugger_updateMemoryBreakpoint(DebuggerBreakpoint* bp)
 		CONTEXT ctx{};
 		ctx.ContextFlags = CONTEXT_DEBUG_REGISTERS;
 		SuspendThread(hThread);
-		GetThreadContext(hThread, &ctx);
-		if (debuggerState.activeMemoryBreakpoint)
+		if (GetThreadContext(hThread, &ctx))
 		{
-			ctx.Dr0 = (DWORD64)memory_getPointerFromVirtualOffset(bp->address);
-			ctx.Dr1 = (DWORD64)memory_getPointerFromVirtualOffset(bp->address);
-			// breakpoint 0
-			SetBits(ctx.Dr7, 0, 1, 1);  // breakpoint #0 enabled: true
-			SetBits(ctx.Dr7, 16, 2, 1); // breakpoint #0 condition: 1 (write)
-			SetBits(ctx.Dr7, 18, 2, 3); // breakpoint #0 length: 3 (4 bytes)
-			// breakpoint 1
-			SetBits(ctx.Dr7, 2, 1, 1);  // breakpoint #1 enabled: true
-			SetBits(ctx.Dr7, 20, 2, 3); // breakpoint #1 condition: 3 (read & write)
-			SetBits(ctx.Dr7, 22, 2, 3); // breakpoint #1 length: 3 (4 bytes)
+#if defined(_M_X64) || defined(__x86_64__)
+			if (debuggerState.activeMemoryBreakpoint)
+			{
+				ctx.Dr0 = (DWORD64)memory_getPointerFromVirtualOffset(bp->address);
+				ctx.Dr1 = (DWORD64)memory_getPointerFromVirtualOffset(bp->address);
+				// breakpoint 0
+				SetBits(ctx.Dr7, 0, 1, 1);  // breakpoint #0 enabled: true
+				SetBits(ctx.Dr7, 16, 2, 1); // breakpoint #0 condition: 1 (write)
+				SetBits(ctx.Dr7, 18, 2, 3); // breakpoint #0 length: 3 (4 bytes)
+				// breakpoint 1
+				SetBits(ctx.Dr7, 2, 1, 1);  // breakpoint #1 enabled: true
+				SetBits(ctx.Dr7, 20, 2, 3); // breakpoint #1 condition: 3 (read & write)
+				SetBits(ctx.Dr7, 22, 2, 3); // breakpoint #1 length: 3 (4 bytes)
+			}
+			else
+			{
+				// breakpoint 0
+				SetBits(ctx.Dr7, 0, 1, 0);  // breakpoint #0 enabled: false
+				SetBits(ctx.Dr7, 16, 2, 0); // breakpoint #0 condition: 1 (write)
+				SetBits(ctx.Dr7, 18, 2, 0); // breakpoint #0 length: 3 (4 bytes)
+				// breakpoint 1
+				SetBits(ctx.Dr7, 2, 1, 0);  // breakpoint #1 enabled: false
+				SetBits(ctx.Dr7, 20, 2, 0); // breakpoint #1 condition: 3 (read & write)
+				SetBits(ctx.Dr7, 22, 2, 0); // breakpoint #1 length: 3 (4 bytes)
+			}
+			SetThreadContext(hThread, &ctx);
+#elif defined(_M_ARM64) || defined(__aarch64__)
+            // For ARM64, we can leave this empty for now or 
+            // implement hardware breakpoints using ctx.Bvr/Wvr later.
+#endif
 		}
-		else
-		{
-			// breakpoint 0
-			SetBits(ctx.Dr7, 0, 1, 0);  // breakpoint #0 enabled: false
-			SetBits(ctx.Dr7, 16, 2, 0); // breakpoint #0 condition: 1 (write)
-			SetBits(ctx.Dr7, 18, 2, 0); // breakpoint #0 length: 3 (4 bytes)
-			// breakpoint 1
-			SetBits(ctx.Dr7, 2, 1, 0);  // breakpoint #1 enabled: false
-			SetBits(ctx.Dr7, 20, 2, 0); // breakpoint #1 condition: 3 (read & write)
-			SetBits(ctx.Dr7, 22, 2, 0); // breakpoint #1 length: 3 (4 bytes)
-		}
-		SetThreadContext(hThread, &ctx);
 		ResumeThread(hThread);
 	}
 	#else
