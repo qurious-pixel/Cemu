@@ -209,14 +209,23 @@ void createCrashlog(EXCEPTION_POINTERS* e, PCONTEXT context)
 	// register info
 	sprintf(dumpLine, "\n");
 	cemuLog_writePlainToLog(dumpLine);
-	sprintf(dumpLine, "RAX=%016I64x RBX=%016I64x RCX=%016I64x RDX=%016I64x\n", context->Rax, context->Rbx, context->Rcx, context->Rdx);
-	cemuLog_writePlainToLog(dumpLine);
-	sprintf(dumpLine, "RSP=%016I64x RBP=%016I64x RDI=%016I64x RSI=%016I64x\n", context->Rsp, context->Rbp, context->Rdi, context->Rsi);
-	cemuLog_writePlainToLog(dumpLine);
-	sprintf(dumpLine, "R8 =%016I64x R9 =%016I64x R10=%016I64x R11=%016I64x\n", context->R8, context->R9, context->R10, context->R11);
-	cemuLog_writePlainToLog(dumpLine);
-	sprintf(dumpLine, "R12=%016I64x R13=%016I64x R14=%016I64x R15=%016I64x\n", context->R12, context->R13, context->R14, context->R15);
-	cemuLog_writePlainToLog(dumpLine);
+#if defined(_M_AMD64) || defined(__x86_64__)
+    sprintf(dumpLine, "RAX=%016I64x RBX=%016I64x RCX=%016I64x RDX=%016I64x\n", context->Rax, context->Rbx, context->Rcx, context->Rdx);
+    cemuLog_writePlainToLog(dumpLine);
+    sprintf(dumpLine, "RSP=%016I64x RBP=%016I64x RDI=%016I64x RSI=%016I64x\n", context->Rsp, context->Rbp, context->Rdi, context->Rsi);
+    cemuLog_writePlainToLog(dumpLine);
+    sprintf(dumpLine, "R8 =%016I64x R9 =%016I64x R10=%016I64x R11=%016I64x\n", context->R8, context->R9, context->R10, context->R11);
+    cemuLog_writePlainToLog(dumpLine);
+    sprintf(dumpLine, "R12=%016I64x R13=%016I64x R14=%016I64x R15=%016I64x\n", context->R12, context->R13, context->R14, context->R15);
+    cemuLog_writePlainToLog(dumpLine);
+#elif defined(_M_ARM64) || defined(__aarch64__)
+    sprintf(dumpLine, "X0 =%016I64x X1 =%016I64x X2 =%016I64x X3 =%016I64x\n", context->X0, context->X1, context->X2, context->X3);
+    cemuLog_writePlainToLog(dumpLine);
+    sprintf(dumpLine, "X4 =%016I64x X5 =%016I64x X6 =%016I64x X7 =%016I64x\n", context->X4, context->X5, context->X6, context->X7);
+    cemuLog_writePlainToLog(dumpLine);
+    sprintf(dumpLine, "SP =%016I64x FP =%016I64x LR =%016I64x PC =%016I64x\n", context->Sp, context->Fp, context->Lr, context->Pc);
+    cemuLog_writePlainToLog(dumpLine);
+#endif
 
     CrashLog_SetOutputChannels(false, true);
     ExceptionHandler_LogGeneralInfo();
@@ -264,10 +273,15 @@ LONG WINAPI VectoredExceptionHandler(PEXCEPTION_POINTERS pExceptionInfo)
 		if (r != EXCEPTION_CONTINUE_SEARCH)
 			return r;
 
+#if defined(_M_AMD64) || defined(__x86_64__)
 		if (GetBits(pExceptionInfo->ContextRecord->Dr6, 0, 1) || GetBits(pExceptionInfo->ContextRecord->Dr6, 1, 1))
 			debugger_handleSingleStepException(pExceptionInfo->ContextRecord->Dr6);
 		else if (GetBits(pExceptionInfo->ContextRecord->Dr6, 2, 1) || GetBits(pExceptionInfo->ContextRecord->Dr6, 3, 1))
 			g_gdbstub->HandleAccessException(pExceptionInfo->ContextRecord->Dr6);
+#elif defined(_M_ARM64) || defined(__aarch64__)
+        // ARM64 hardware breakpoints/watchpoints logic would go here.
+        // For now, we skip x86-specific DR6 logic.
+#endif
 		return EXCEPTION_CONTINUE_EXECUTION;
 	}
 	return EXCEPTION_CONTINUE_SEARCH;
