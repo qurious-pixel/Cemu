@@ -163,6 +163,10 @@ namespace NAPI
 		std::string deviceToken;
 	};
 
+#ifdef REGISTERED
+#undef REGISTERED
+#endif
+
 	struct NAPI_ECSGetAccountStatus_Result : public _NAPI_CommonResultSOAP
 	{
 		enum class AccountStatus
