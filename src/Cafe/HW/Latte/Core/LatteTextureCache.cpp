@@ -146,7 +146,7 @@ uint32 LatteTexture_CalculateTextureDataHash(LatteTexture* hostTexture)
 		bool isCompressedFormat = hostTexture->IsCompressedFormat();
 		if( isCompressedFormat == false )
 		{
-#if BOOST_OS_WINDOWS
+#if BOOST_OS_WINDOWS && (defined(_M_X64) || defined(__x86_64__))
 			if (g_CPUFeatures.x86.avx2)
 			{
 				__m256i h256 = { 0 };
@@ -166,10 +166,8 @@ uint32 LatteTexture_CalculateTextureDataHash(LatteTexture* hostTexture)
               h256.m256i_u32[4] + h256.m256i_u32[5] + h256.m256i_u32[6] + h256.m256i_u32[7];
 #endif
 			}
-#else
-			if( false ) {}
-#endif
 			else
+#endif
 			{
 				memRange /= (32 * sizeof(uint64));
 				uint64 h64 = 0;
