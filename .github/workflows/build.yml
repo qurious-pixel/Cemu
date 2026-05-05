@@ -15,10 +15,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #- msys2: clang64
-          #  arch: x86_64
-          #  os: windows-2025
-          #  name: x64-mingw-static
+          - msys2: clang64
+            arch: x86_64
+            os: windows-2025
+            name: x64-mingw-static
           - msys2: clangarm64
             arch: aarch64
             os: windows-11-arm
