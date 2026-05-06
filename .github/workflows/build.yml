@@ -304,9 +304,9 @@ jobs:
 
     - name: Prepare artifact
       run: |
-      	cd bin
+        cd bin
         ldd Cemu_release.exe | grep -v '/c/Windows' | grep '=> /' | awk '{print $3}' | xargs -I {} cp {} .
-      	mv Cemu_release.exe Cemu.exe
+        mv Cemu_release.exe Cemu.exe
 
     - name: Upload artifact
       uses: actions/upload-artifact@v5
