@@ -146,7 +146,7 @@ uint32 LatteTexture_CalculateTextureDataHash(LatteTexture* hostTexture)
 		bool isCompressedFormat = hostTexture->IsCompressedFormat();
 		if( isCompressedFormat == false )
 		{
-#if BOOST_OS_WINDOWS
+#if BOOST_OS_WINDOWS && (defined(_M_X64) || defined(__x86_64__))
 			if (g_CPUFeatures.x86.avx2)
 			{
 				__m256i h256 = { 0 };
@@ -158,16 +158,16 @@ uint32 LatteTexture_CalculateTextureDataHash(LatteTexture* hostTexture)
 					readPtr += (288 / 32);
 					h256 = _mm256_xor_si256(h256, temp);
 				}
-#ifdef __clang__
-				hashVal = h256[0] + h256[1] + h256[2] + h256[3] + h256[4] + h256[5] + h256[6] + h256[7];
+#if defined(__clang__) || defined(__GNUC__)
+    auto v = reinterpret_cast<const uint32_t*>(&h256);
+    hashVal = v[0] + v[1] + v[2] + v[3] + v[4] + v[5] + v[6] + v[7];
 #else
-				hashVal = h256.m256i_u32[0] + h256.m256i_u32[1] + h256.m256i_u32[2] + h256.m256i_u32[3] + h256.m256i_u32[4] + h256.m256i_u32[5] + h256.m256i_u32[6] + h256.m256i_u32[7];
+    hashVal = h256.m256i_u32[0] + h256.m256i_u32[1] + h256.m256i_u32[2] + h256.m256i_u32[3] + 
+              h256.m256i_u32[4] + h256.m256i_u32[5] + h256.m256i_u32[6] + h256.m256i_u32[7];
 #endif
 			}
-#else
-			if( false ) {}
-#endif
 			else
+#endif
 			{
 				memRange /= (32 * sizeof(uint64));
 				uint64 h64 = 0;

@@ -1,5 +1,19 @@
 #pragma once
 
+#ifdef _WIN32
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+#endif
+
+#ifdef __MINGW32__
+    #include <_mingw.h>
+    #include <windef.h>
+    #include <winnt.h>
+    extern "C++" {
+        #include <propsys.h>
+    }
+#endif
+
 #include <stdlib.h> // for size_t
 
 #include "version.h"
@@ -75,11 +89,11 @@
 #include <optional>
 #include <span>
 #include <ranges>
-#include <variant>
 
 #include <boost/predef.h>
 #include <boost/nowide/convert.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/asio.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
@@ -184,6 +198,8 @@ inline uint64 _swapEndianU64(uint64 v)
 {
 #if BOOST_OS_MACOS
     return OSSwapInt64(v);
+#elif defined(__GNUC__) || defined(__clang__)
+    return __builtin_bswap64(v);
 #elif BOOST_OS_BSD
 #ifdef __OpenBSD__
     return swap64(v);
@@ -199,6 +215,8 @@ inline uint32 _swapEndianU32(uint32 v)
 {
 #if BOOST_OS_MACOS
     return OSSwapInt32(v);
+#elif defined(__GNUC__) || defined(__clang__)
+    return __builtin_bswap32(v);
 #elif BOOST_OS_BSD
 #ifdef __OpenBSD__
     return swap32(v);
@@ -214,6 +232,8 @@ inline sint32 _swapEndianS32(sint32 v)
 {
 #if BOOST_OS_MACOS
     return (sint32)OSSwapInt32((uint32)v);
+#elif defined(__GNUC__) || defined(__clang__)
+    return (sint32)__builtin_bswap32((uint32)v);
 #elif BOOST_OS_BSD
 #ifdef __OpenBSD__
     return (sint32)swap32((uint32)v);
@@ -235,12 +255,14 @@ inline sint16 _swapEndianS16(sint16 v)
     return (sint16)(((uint16)v >> 8) | ((uint16)v << 8));
 }
 
+#if !defined(_MSC_VER) && !defined(__clang__) && !defined(__MINGW32__)
 inline uint64 _umul128(uint64 multiplier, uint64 multiplicand, uint64 *highProduct) {
     unsigned __int128 x = (unsigned __int128)multiplier * (unsigned __int128)multiplicand;
     *highProduct = (x >> 64);
     return x & 0xFFFFFFFFFFFFFFFF;
 }
 
+#ifndef _WIN32 // Guard these for MinGW/Windows GCC
 typedef uint8_t BYTE;
 typedef uint32_t DWORD;
 typedef int32_t LONG;
@@ -257,7 +279,10 @@ typedef union _LARGE_INTEGER {
     } u;
     LONGLONG QuadPart;
 } LARGE_INTEGER, *PLARGE_INTEGER;
+#endif
+#endif
 
+#ifndef DEFINE_ENUM_FLAG_OPERATORS
 #define DEFINE_ENUM_FLAG_OPERATORS(T)                                                                                                                                            \
     inline T operator~ (T a) { return static_cast<T>( ~static_cast<std::underlying_type<T>::type>(a) ); }                                                                       \
     inline T operator| (T a, T b) { return static_cast<T>( static_cast<std::underlying_type<T>::type>(a) | static_cast<std::underlying_type<T>::type>(b) ); }                   \
@@ -266,6 +291,7 @@ typedef union _LARGE_INTEGER {
     inline T& operator|= (T& a, T b) { return reinterpret_cast<T&>( reinterpret_cast<std::underlying_type<T>::type&>(a) |= static_cast<std::underlying_type<T>::type>(b) ); }   \
     inline T& operator&= (T& a, T b) { return reinterpret_cast<T&>( reinterpret_cast<std::underlying_type<T>::type&>(a) &= static_cast<std::underlying_type<T>::type>(b) ); }   \
     inline T& operator^= (T& a, T b) { return reinterpret_cast<T&>( reinterpret_cast<std::underlying_type<T>::type&>(a) ^= static_cast<std::underlying_type<T>::type>(b) ); }
+#endif
 #endif
 
 template<typename T>
@@ -294,22 +320,23 @@ inline uint64 _udiv128(uint64 highDividend, uint64 lowDividend, uint64 divisor, 
 
 #if defined(_MSC_VER)
     #define UNREACHABLE __assume(false)
-	#define ASSUME(__cond) __assume(__cond)
-	#define TLS_WORKAROUND_NOINLINE // no-op for MSVC as it has a flag for fiber-safe TLS optimizations
-#elif defined(__GNUC__) && !defined(__llvm__)
+    #define ASSUME(__cond) __assume(__cond)
+    #define TLS_WORKAROUND_NOINLINE 
+#elif defined(__GNUC__) || defined(__clang__)
     #define UNREACHABLE __builtin_unreachable()
-	#define ASSUME(__cond) __attribute__((assume(__cond)))
-	#define TLS_WORKAROUND_NOINLINE __attribute__((noinline))
-#elif defined(__clang__)
-	#define UNREACHABLE __builtin_unreachable()
-	#define ASSUME(__cond) __builtin_assume(__cond)
-	#define TLS_WORKAROUND_NOINLINE __attribute__((noinline))
-#else
-    #error Unknown compiler
+    #if defined(__clang__)
+        #define ASSUME(__cond) __builtin_assume(__cond)
+    #else
+        #define ASSUME(__cond) do { if (!(__cond)) UNREACHABLE; } while(0)
+    #endif
+    #define TLS_WORKAROUND_NOINLINE __attribute__((noinline))
 #endif
 
 #if defined(_MSC_VER)
     #define DEBUG_BREAK __debugbreak()
+#elif defined(WIN32) || defined(_WIN32)
+    #include <debugapi.h>
+    #define DEBUG_BREAK DebugBreak() 
 #else
     #include <csignal>
     #define DEBUG_BREAK raise(SIGTRAP) 
@@ -482,12 +509,20 @@ bool match_any_of(T1&& value, Types&&... others)
 {
 #ifdef _WIN32
     // get current time
-	static const long long _Freq = _Query_perf_frequency();	// doesn't change after system boot
-	const long long _Ctr = _Query_perf_counter();
-	static_assert(std::nano::num == 1, "This assumes period::num == 1.");
-	const long long _Whole = (_Ctr / _Freq) * std::nano::den;
-	const long long _Part = (_Ctr % _Freq) * std::nano::den / _Freq;
-	return (std::chrono::high_resolution_clock::time_point(std::chrono::nanoseconds(_Whole + _Part)));
+	static long long _Freq = 0;
+    if (_Freq == 0) {
+        LARGE_INTEGER li;
+        QueryPerformanceFrequency(&li);
+        _Freq = li.QuadPart;
+    }
+    LARGE_INTEGER li_ctr;
+    QueryPerformanceCounter(&li_ctr);
+    const long long _Ctr = li_ctr.QuadPart;
+
+    static_assert(std::nano::num == 1, "This assumes period::num == 1.");
+    const long long _Whole = (_Ctr / _Freq) * std::nano::den;
+    const long long _Part = (_Ctr % _Freq) * std::nano::den / _Freq;
+    return (std::chrono::high_resolution_clock::time_point(std::chrono::nanoseconds(_Whole + _Part)));
 #else
     return std::chrono::high_resolution_clock::now();
 #endif
@@ -497,12 +532,21 @@ bool match_any_of(T1&& value, Types&&... others)
 {
 #if BOOST_OS_WINDOWS
     // get current time
-	static const long long _Freq = _Query_perf_frequency();	// doesn't change after system boot
-	const long long _Ctr = _Query_perf_counter();
-	static_assert(std::nano::num == 1, "This assumes period::num == 1.");
-	const long long _Whole = (_Ctr / _Freq) * std::nano::den;
-	const long long _Part = (_Ctr % _Freq) * std::nano::den / _Freq;
-	return (std::chrono::steady_clock::time_point(std::chrono::nanoseconds(_Whole + _Part)));
+    static long long _Freq = 0;
+    if (_Freq == 0) {
+        LARGE_INTEGER li_freq;
+        QueryPerformanceFrequency(&li_freq);
+        _Freq = li_freq.QuadPart;
+    }
+    
+    LARGE_INTEGER li_ctr;
+    QueryPerformanceCounter(&li_ctr);
+    const long long _Ctr = li_ctr.QuadPart;
+
+    static_assert(std::nano::num == 1, "This assumes period::num == 1.");
+    const long long _Whole = (_Ctr / _Freq) * std::nano::den;
+    const long long _Part = (_Ctr % _Freq) * std::nano::den / _Freq;
+    return (std::chrono::steady_clock::time_point(std::chrono::nanoseconds(_Whole + _Part)));
 #elif BOOST_OS_LINUX
 	struct timespec tp;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &tp);
@@ -610,12 +654,14 @@ inline uint32 GetTitleIdLow(uint64 titleId)
 	return titleId & 0xFFFFFFFF;
 }
 
-#if defined(__GNUC__)
-#define memcpy_dwords(__dest, __src, __numDwords) memcpy((__dest), (__src), (__numDwords) * sizeof(uint32))
-#define memcpy_qwords(__dest, __src, __numQwords) memcpy((__dest), (__src), (__numQwords) * sizeof(uint64))
+#if defined(__GNUC__) || defined(__clang__)
+    #include <string.h>
+    #define memcpy_dwords(__dest, __src, __numDwords) memcpy((__dest), (__src), (__numDwords) * sizeof(uint32))
+    #define memcpy_qwords(__dest, __src, __numQwords) memcpy((__dest), (__src), (__numQwords) * sizeof(uint64))
 #else
-#define memcpy_dwords(__dest, __src, __numDwords) __movsd((unsigned long*)(__dest), (const unsigned long*)(__src), __numDwords)
-#define memcpy_qwords(__dest, __src, __numQwords) __movsq((unsigned long long*)(__dest), (const unsigned long long*)(__src), __numQwords)
+    #include <intrin.h>
+    #define memcpy_dwords(__dest, __src, __numDwords) __movsd((unsigned long*)(__dest), (const unsigned long*)(__src), __numDwords)
+    #define memcpy_qwords(__dest, __src, __numQwords) __movsq((unsigned long long*)(__dest), (const unsigned long long*)(__src), __numQwords)
 #endif
 
 // PPC context and memory functions
@@ -624,7 +670,7 @@ inline uint32 GetTitleIdLow(uint64 titleId)
 #include "Cafe/HW/Espresso/PPCCallback.h"
 
 // PPC stack trace printer
-void DebugLogStackTrace(struct OSThread_t* thread, MPTR sp);
+void DebugLogStackTrace(struct OSThread_t* thread, MPTR sp, bool printSymbols = false);
 
 // generic formatter for enums (to underlying)
 template <typename Enum>

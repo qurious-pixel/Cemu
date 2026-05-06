@@ -301,22 +301,30 @@ fastfloat_really_inline uint64_t _umul128(uint64_t ab, uint64_t cd,
 
 
 // compute 64-bit a*b
-fastfloat_really_inline value128 full_multiplication(uint64_t a,
-                                                     uint64_t b) {
+fastfloat_really_inline value128 full_multiplication(uint64_t a, uint64_t b) {
   value128 answer;
-#ifdef _M_ARM64
-  // ARM64 has native support for 64-bit multiplications, no need to emulate
-  answer.high = __umulh(a, b);
-  answer.low = a * b;
-#elif defined(FASTFLOAT_32BIT) || (defined(_WIN64) && !defined(__clang__))
-  answer.low = _umul128(a, b, &answer.high); // _umul128 not available on ARM64
-#elif defined(FASTFLOAT_64BIT)
-  __uint128_t r = ((__uint128_t)a) * b;
+  
+#if defined(_M_ARM64) || defined(__aarch64__)
+  #if defined(_MSC_VER) && !defined(__clang__)
+    answer.high = __umulh(a, b);
+    answer.low = a * b;
+  #else
+    unsigned __int128 r = ((unsigned __int128)a) * b;
+    answer.low = uint64_t(r);
+    answer.high = uint64_t(r >> 64);
+  #endif
+#elif defined(_WIN64) && !defined(__clang__)
+  answer.low = _umul128(a, b, &answer.high);
+#elif defined(FASTFLOAT_64BIT) && defined(__SIZEOF_INT128__)
+  unsigned __int128 r = ((unsigned __int128)a) * b;
   answer.low = uint64_t(r);
   answer.high = uint64_t(r >> 64);
+#elif defined(FASTFLOAT_32BIT)
+  answer.low = _umul128(a, b, &answer.high);
 #else
-  #error Not implemented
+  #error "Full multiplication not implemented for this architecture/compiler combination."
 #endif
+
   return answer;
 }
 
@@ -2976,5 +2984,4 @@ from_chars_result from_chars_advanced(const char *first, const char *last,
 } // namespace fast_float
 
 #endif
-
 

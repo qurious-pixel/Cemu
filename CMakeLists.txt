@@ -9,8 +9,6 @@ set(EMULATOR_VERSION_MAJOR "0" CACHE STRING "")
 set(EMULATOR_VERSION_MINOR "0" CACHE STRING "")
 set(EMULATOR_VERSION_PATCH "0" CACHE STRING "")
 
-set(THREADS_PREFER_PTHREAD_FLAG true) # needs to be set before vcpkg
-
 execute_process(
 		COMMAND git log --format=%h -1
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
@@ -50,8 +48,19 @@ if (ENABLE_VCPKG)
 	# Set this so that all the various find_package() calls don't need an explicit
 	# CONFIG option
 	set(CMAKE_FIND_PACKAGE_PREFER_CONFIG TRUE)
-	if (WIN32)
-		set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
+	if(WIN32)
+	    if(MINGW)
+			if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64")
+		        set(VCPKG_TARGET_TRIPLET "x64-mingw-static" CACHE STRING "" FORCE)
+		        set(VCPKG_HOST_TRIPLET "x64-mingw-static" CACHE STRING "" FORCE)
+			else()
+		        set(VCPKG_TARGET_TRIPLET "arm64-mingw-static" CACHE STRING "" FORCE)
+		        set(VCPKG_HOST_TRIPLET "arm64-mingw-static" CACHE STRING "" FORCE)
+			endif()
+	    else()
+	        set(VCPKG_TARGET_TRIPLET "x64-windows-static" CACHE STRING "")
+			set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "")
+	    endif()
 	endif()
 endif()
 
@@ -81,6 +90,7 @@ if (MSVC)
 	# floating point model: precise, fiber safe optimizations
 	add_compile_options(/EHsc /fp:precise)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		add_compile_options(-fms-extensions -fms-compatibility)
 		# Speeds up static linking (especially helpful in incremental compilation)
 		if((CMAKE_LINKER MATCHES ".*lld-link.*") AND (CMAKE_AR MATCHES ".*llvm-lib.*"))
 			set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY STATIC_LIBRARY_OPTIONS /llvmlibthin)
@@ -91,10 +101,6 @@ if (MSVC)
 	# enable additional optimization flags for release builds
 	add_compile_options($<$<CONFIG:Release,RelWithDebInfo>:/Oi>) # enable intrinsic functions
 	add_compile_options($<$<CONFIG:Release,RelWithDebInfo>:/Ot>) # favor speed
-endif()
-
-if(CMAKE_GENERATOR STREQUAL "Xcode")
-	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY XCODE_STARTUP_PROJECT CemuBin)
 endif()
 
 if (APPLE)
@@ -132,14 +138,9 @@ endif()
 
 option(ENABLE_HIDAPI "Build with HIDAPI" ON)
 option(ENABLE_SDL "Enables the SDLController backend" ON)
-option(ENABLE_LIBUSB "Build with libusb support" ON)
-
-if (ENABLE_LIBUSB)
-	add_compile_definitions(HAS_LIBUSB)
-endif()
 
 # audio backends
-if (WIN32)
+if (MSVC)
 	option(ENABLE_DIRECTAUDIO "Enables the directaudio backend" ON)
 	option(ENABLE_XAUDIO "Enables the xaudio backend" ON)
 endif()
@@ -147,6 +148,7 @@ option(ENABLE_CUBEB "Enabled cubeb backend" ON)
 
 option(ENABLE_WXWIDGETS "Build with wxWidgets UI (Currently required)" ON)
 
+set(THREADS_PREFER_PTHREAD_FLAG true)
 find_package(Threads REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(CURL REQUIRED)
@@ -255,7 +257,7 @@ if(CEMU_ARCHITECTURE MATCHES "(aarch64)|(AARCH64)|(arm64)|(ARM64)")
 	add_subdirectory("dependencies/xbyak_aarch64" EXCLUDE_FROM_ALL)
 endif()
 
-find_package(ZArchive QUIET)
+find_package(ZArchive)
 if (NOT ZArchive_FOUND)
 	add_subdirectory("dependencies/ZArchive" EXCLUDE_FROM_ALL)
 endif()

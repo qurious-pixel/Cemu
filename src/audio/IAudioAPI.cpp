@@ -1,11 +1,16 @@
 #include "IAudioAPI.h"
 
 #if BOOST_OS_WINDOWS
-#include "XAudio2API.h"
-#include "XAudio27API.h"
+#include "config/CemuConfig.h"
+#endif
+
+#ifdef HAS_DIRECTSOUND
 #include "DirectSoundAPI.h"
 #endif
-#include "config/CemuConfig.h"
+#ifdef HAS_XAUDIO2
+#include "XAudio2API.h"
+#include "XAudio27API.h"
+#endif
 #if HAS_CUBEB
 #include "CubebAPI.h"
 #endif
@@ -79,10 +84,14 @@ void IAudioAPI::InitializeStatic()
 	s_audioDelay = GetConfig().audio_delay;
 
 #if BOOST_OS_WINDOWS
+#ifdef HAS_DIRECTSOUND
 	s_availableApis[DirectSound] = true;
+#endif
+#ifdef HAS_XAUDIO2
 	s_availableApis[XAudio2] = XAudio2API::InitializeStatic();
 	if (!s_availableApis[XAudio2]) // don't try to initialize the older lib if the newer version is available
 		s_availableApis[XAudio27] = XAudio27API::InitializeStatic();
+#endif
 #endif
 #if HAS_CUBEB
 	s_availableApis[Cubeb] = CubebAPI::InitializeStatic();
@@ -141,11 +150,14 @@ AudioAPIPtr IAudioAPI::CreateDevice(AudioAPI api, const DeviceDescriptionPtr& de
 	switch (api)
 	{
 #if BOOST_OS_WINDOWS
+#ifdef HAS_DIRECTSOUND
 	case DirectSound:
 	{
 		const auto tmp = std::dynamic_pointer_cast<DirectSoundAPI::DirectSoundDeviceDescription>(device);
 		return std::make_unique<DirectSoundAPI>(tmp->GetGUID(), samplerate, channels, samples_per_block, bits_per_sample);
 	}
+#endif
+#ifdef HAS_XAUDIO2
 	case XAudio27:
 	{
 		const auto tmp = std::dynamic_pointer_cast<XAudio27API::XAudio27DeviceDescription>(device);
@@ -156,6 +168,7 @@ AudioAPIPtr IAudioAPI::CreateDevice(AudioAPI api, const DeviceDescriptionPtr& de
 		const auto tmp = std::dynamic_pointer_cast<XAudio2API::XAudio2DeviceDescription>(device);
 		return std::make_unique<XAudio2API>(tmp->GetDeviceId(), samplerate, channels, samples_per_block, bits_per_sample);
 	}
+#endif
 #endif
 #if HAS_CUBEB
 	case Cubeb:
@@ -177,10 +190,13 @@ std::vector<IAudioAPI::DeviceDescriptionPtr> IAudioAPI::GetDevices(AudioAPI api)
 	switch (api)
 	{
 #if BOOST_OS_WINDOWS
+#ifdef HAS_DIRECTSOUND
 	case DirectSound:
 	{
 		return DirectSoundAPI::GetDevices();
 	}
+#endif	
+#ifdef HAS_XAUDIO2
 	case XAudio27:
 	{
 		return XAudio27API::GetDevices();
@@ -189,6 +205,7 @@ std::vector<IAudioAPI::DeviceDescriptionPtr> IAudioAPI::GetDevices(AudioAPI api)
 	{
 		return XAudio2API::GetDevices();
 	}
+#endif
 #endif
 #if HAS_CUBEB
 	case Cubeb:
