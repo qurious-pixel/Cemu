@@ -1,6 +1,7 @@
 name: Build Cemu
 
 on:
+  push: 
   workflow_call:
     inputs:
       next_version_major:
@@ -317,6 +318,7 @@ jobs:
   build-macos:
     runs-on: macos-14
     strategy:
+      fail-fast: false
       matrix:
         arch: [x86_64, arm64]
     steps:
