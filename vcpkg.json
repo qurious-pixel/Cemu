@@ -1,7 +1,7 @@
 {
   "name": "cemu",
   "version-string": "1.0",
-  "builtin-baseline": "f0fb3ddba5135b80982668de39dbaa139c00d281",
+  "builtin-baseline": "56bb2411609227288b70117ead2c47585ba07713",
   "dependencies": [
     "pugixml",
     "zlib",
@@ -59,7 +59,11 @@
         "zip"
       ]
     },
-    "libusb"
+    "libusb",
+    {
+      "name": "pkgconf",
+      "host": true
+    }
   ],
   "overrides": [
     {

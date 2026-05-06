@@ -429,9 +429,12 @@ ih264_intra_pred_chroma_8x8_mode_plane_av8:
     rev64     v7.4h, v2.4h
     ld1       {v3.2s}, [x10]
     sub       x5, x3, #8
-#ifdef __APPLE__
+#if defined(__APPLE__)
     adrp      x12, _ih264_gai1_intrapred_chroma_plane_coeffs1@GOTPAGE
     ldr       x12, [x12, _ih264_gai1_intrapred_chroma_plane_coeffs1@GOTPAGEOFF]
+#elif defined(_WIN32)
+    adrp      x12, ih264_gai1_intrapred_chroma_plane_coeffs1
+    add       x12, x12, :lo12:ih264_gai1_intrapred_chroma_plane_coeffs1
 #else
     adrp      x12, :got:ih264_gai1_intrapred_chroma_plane_coeffs1
     ldr       x12, [x12, #:got_lo12:ih264_gai1_intrapred_chroma_plane_coeffs1]
@@ -489,9 +492,12 @@ ih264_intra_pred_chroma_8x8_mode_plane_av8:
     zip1      v1.8h, v0.8h, v2.8h
     zip2      v2.8h, v0.8h, v2.8h
     mov       v0.16b, v1.16b
-#ifdef __APPLE__
+#if defined(__APPLE__)
     adrp      x12, _ih264_gai1_intrapred_chroma_plane_coeffs2@GOTPAGE
     ldr       x12, [x12, _ih264_gai1_intrapred_chroma_plane_coeffs2@GOTPAGEOFF]
+#elif defined(_WIN32)
+    adrp      x12, ih264_gai1_intrapred_chroma_plane_coeffs2
+    add       x12, x12, :lo12:ih264_gai1_intrapred_chroma_plane_coeffs2
 #else
     adrp      x12, :got:ih264_gai1_intrapred_chroma_plane_coeffs2
     ldr       x12, [x12, #:got_lo12:ih264_gai1_intrapred_chroma_plane_coeffs2]
@@ -577,6 +583,3 @@ end_func_plane:
     ldp       x19, x20, [sp], #16
     pop_v_regs
     ret
-
-
-

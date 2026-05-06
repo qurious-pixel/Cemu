@@ -24,4 +24,5 @@
 	shallow = true
 [submodule "dependencies/xbyak_aarch64"]
 	path = dependencies/xbyak_aarch64
-	url = https://github.com/fujitsu/xbyak_aarch64
+	url = https://github.com/qurious-pixel/xbyak_aarch64
+	branch = win-arm

@@ -3,10 +3,20 @@
 #include "util/helpers/fspinlock.h"
 #include "util/highresolutiontimer/HighResolutionTimer.h"
 #include "Common/cpu_features.h"
+#include <cstdint>
 
 #if defined(ARCH_X86_64)
 #include <immintrin.h>
 #pragma intrinsic(__rdtsc)
+#endif
+
+#if defined(_M_ARM64) || defined(__aarch64__)
+static inline uint64_t arm64_umul128(uint64_t multiplier, uint64_t multiplicand, uint64_t* high) {
+    unsigned __int128 product = (unsigned __int128)multiplier * (unsigned __int128)multiplicand;
+    *high = (uint64_t)(product >> 64);
+    return (uint64_t)product;
+}
+#define _umul128 arm64_umul128
 #endif
 
 uint64 _rdtscLastMeasure = 0;
