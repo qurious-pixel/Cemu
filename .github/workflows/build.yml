@@ -192,7 +192,7 @@ jobs:
         git remote add upstream https://github.com/microsoft/vcpkg.git || git remote set-url upstream https://github.com/microsoft/vcpkg.git
         git fetch upstream tag 2026.04.27
         git checkout 2026.04.27
-        bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
+        bash ./bootstrap-vcpkg.sh
 
     - name: 'Setup NuGet Credentials for vcpkg'
       shell: 'bash'
@@ -295,7 +295,7 @@ jobs:
         git remote add upstream https://github.com/microsoft/vcpkg.git || git remote set-url upstream https://github.com/microsoft/vcpkg.git
         git fetch upstream tag 2026.04.27
         git checkout 2026.04.27
-        ./dependencies/vcpkg/bootstrap-vcpkg.bat
+        ./bootstrap-vcpkg.bat
 
     - name: 'Setup NuGet Credentials for vcpkg'
       shell: 'bash'
@@ -391,7 +391,7 @@ jobs:
         git remote add upstream https://github.com/microsoft/vcpkg.git || git remote set-url upstream https://github.com/microsoft/vcpkg.git
         git fetch upstream tag 2026.04.27
         git checkout 2026.04.27
-        bash ./dependencies/vcpkg/bootstrap-vcpkg.sh
+        bash ./bootstrap-vcpkg.sh
 
     - name: 'Setup NuGet Credentials for vcpkg'
       shell: 'bash'
