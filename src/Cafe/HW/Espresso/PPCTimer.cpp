@@ -15,45 +15,32 @@
 #endif
 
 #if defined(__aarch64__) || defined(_M_ARM64)
-    // ARM64 fallback for RDTSC (using the virtual counter)
+    #ifndef __rdtsc
     static inline uint64_t __rdtsc() {
         uint64_t val;
         asm volatile("mrs %0, cntvct_el0" : "=r" (val));
         return val;
     }
+    #endif
+    #ifndef _mm_mfence
     static inline void _mm_mfence() {
         asm volatile("dmb sy" ::: "memory");
     }
+    #endif
 #elif !defined(ARCH_X86_64) && !defined(_M_X64)
-    // Generic fallback for other architectures
     static inline uint64_t __rdtsc() { return 0; }
     static inline void _mm_mfence() {}
 #endif
 
 #if !defined(_MSC_VER) || defined(__clang__)
+    #ifndef _umul128
     static inline uint64_t portable_umul128(uint64_t a, uint64_t b, uint64_t* high) {
         unsigned __int128 res = (unsigned __int128)a * b;
         *high = (uint64_t)(res >> 64);
         return (uint64_t)res;
     }
-    #undef _umul128
     #define _umul128 portable_umul128
-#endif
-
-#if !defined(_MSC_VER)
-    // MSVC provides _udiv128, GCC/Clang do not.
-    static inline uint64_t _udiv128(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder) {
-        unsigned __int128 dividend = ((unsigned __int128)high << 64) | low;
-        *remainder = (uint64_t)(dividend % divisor);
-        return (uint64_t)(dividend / divisor);
-    }
-#endif
-
-#ifndef _WIN32
-static inline uint32_t GetTickCount() {
-    auto now = std::chrono::steady_clock::now();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
-}
+    #endif
 #endif
 
 uint64 _rdtscLastMeasure = 0;
