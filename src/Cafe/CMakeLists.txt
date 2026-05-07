@@ -471,8 +471,6 @@ add_library(CemuCafe
   OS/libs/nsyshid/Whitelist.h
   OS/libs/nsyshid/BackendEmulated.cpp
   OS/libs/nsyshid/BackendEmulated.h
-  OS/libs/nsyshid/BackendLibusb.cpp
-  OS/libs/nsyshid/BackendLibusb.h
   OS/libs/nsyshid/Dimensions.cpp
   OS/libs/nsyshid/Dimensions.h
   OS/libs/nsyshid/Infinity.cpp
@@ -525,6 +523,7 @@ add_library(CemuCafe
   OS/RPL/rpl_structs.h
   OS/RPL/rpl_symbol_storage.cpp
   OS/RPL/rpl_symbol_storage.h
+  TitleList/GameInfo.cpp
   TitleList/GameInfo.h
   TitleList/ParsedMetaXml.h
   TitleList/SaveInfo.cpp
@@ -614,6 +613,15 @@ endif()
 
 set_property(TARGET CemuCafe PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
+cemu_use_precompiled_header(CemuCafe)
+
+if (ENABLE_LIBUSB)
+  target_sources(CemuCafe PRIVATE
+    OS/libs/nsyshid/BackendLibusb.cpp
+    OS/libs/nsyshid/BackendLibusb.h
+  )
+endif()
+
 target_include_directories(CemuCafe PUBLIC "../")
 
 if (glslang_VERSION VERSION_LESS "15.0.0")
@@ -631,6 +639,7 @@ target_link_libraries(CemuCafe PRIVATE
   ZLIB::ZLIB
   CURL::libcurl
   ih264d
+  zstd::zstd
   ${glslang_target}
   PUBLIC
   OpenSSL::SSL
@@ -641,25 +650,28 @@ if (ENABLE_WAYLAND)
   target_link_libraries(CemuCafe PUBLIC Wayland::Client)
 endif()
 
-if (ENABLE_VCPKG)
-  if(WIN32)
-  	if(CEMU_ARCHITECTURE MATCHES "(aarch64)|(AARCH64)|(arm64)|(ARM64)")
-		set(PKG_CONFIG_EXECUTABLE "${VCPKG_INSTALLED_DIR}/arm64-windows/tools/pkgconf/pkgconf.exe")
-	else()
-	  	set(PKG_CONFIG_EXECUTABLE "${VCPKG_INSTALLED_DIR}/x64-windows/tools/pkgconf/pkgconf.exe")
-	endif()
-  endif()
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(libusb REQUIRED IMPORTED_TARGET libusb-1.0)
-  target_link_libraries(CemuCafe PRIVATE PkgConfig::libusb)
-else ()
-  find_package(libusb MODULE REQUIRED)
-  target_link_libraries(CemuCafe PRIVATE libusb::libusb)
+if (ENABLE_LIBUSB)
+	if (ENABLE_VCPKG)
+	  if(WIN32)
+	  	if(CEMU_ARCHITECTURE MATCHES "(aarch64)|(AARCH64)|(arm64)|(ARM64)")
+			set(PKG_CONFIG_EXECUTABLE "${VCPKG_INSTALLED_DIR}/arm64-windows/tools/pkgconf/pkgconf.exe")
+		else()
+		  	set(PKG_CONFIG_EXECUTABLE "${VCPKG_INSTALLED_DIR}/x64-windows/tools/pkgconf/pkgconf.exe")
+		endif()
+	  endif()
+	  find_package(PkgConfig REQUIRED)
+	  pkg_check_modules(libusb REQUIRED IMPORTED_TARGET libusb-1.0)
+	  target_link_libraries(CemuCafe PRIVATE PkgConfig::libusb)
+	else ()
+	  find_package(libusb MODULE REQUIRED)
+	  target_link_libraries(CemuCafe PRIVATE libusb::libusb)
+	endif ()
 endif ()
 
 if(WIN32)
 	target_link_libraries(CemuCafe PRIVATE iphlpapi)
 endif()
+
 if(MINGW)
     if(NOT CMAKE_SYSTEM_PROCESSOR MATCHES "(aarch64)|(AARCH64)|(arm64)|(ARM64)")
         target_compile_options(CemuCafe PRIVATE -mavx -mavx2)
