@@ -2,6 +2,17 @@
 #include "Cafe/HW/Latte/LatteAddrLib/LatteAddrLib.h"
 #include "Cafe/OS/libs/gx2/GX2_Surface.h"
 
+#include <cstdint>
+
+#if !defined(_MSC_VER)
+    typedef uint32_t DWORD;
+    static inline uint8_t _BitScanReverse(DWORD* index, uint32_t mask) {
+        if (mask == 0) return 0;
+        *index = 31 - __builtin_clz(mask);
+        return 1;
+    }
+#endif
+
 using namespace Latte;
 
 namespace LatteAddrLib
