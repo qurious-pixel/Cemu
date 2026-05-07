@@ -39,12 +39,17 @@ jobs:
 
     - name: Checkout dependency commits
       run: |
-        git fetch --recurse-submodules
+        git -C dependencies/Vulkan-Headers fetch --unshallow || git -C dependencies/Vulkan-Headers fetch --all --tags
         git -C dependencies/Vulkan-Headers checkout 9b9fd871b08110cd8f0b74e721b03213d9cc3081
+        git -C dependencies/ZArchive fetch --unshallow || git -C dependencies/ZArchive fetch --all --tags
         git -C dependencies/ZArchive checkout d2c717730092c7bf8cbb033b12fd4001b7c4d932
+        git -C dependencies/cubeb fetch --unshallow || git -C dependencies/cubeb fetch --all --tags
         git -C dependencies/cubeb checkout 2071354a69aca7ed6df3b4222e305746c2113f60
+        git -C dependencies/imgui fetch --unshallow || git -C dependencies/imgui fetch --all --tags
         git -C dependencies/imgui checkout f65bcf481ab34cd07d3909aab1479f409fa79f2f
+        git -C dependencies/metal-cpp fetch --unshallow || git -C dependencies/metal-cpp fetch --all --tags
         git -C dependencies/metal-cpp checkout a63bd172ddcba73a3d87ca32032b66ad41ddb9a6
+        git -C dependencies/vcpkg fetch --unshallow || git -C dependencies/vcpkg fetch --all --tags
         git -C dependencies/vcpkg checkout af752f21c9d79ba3df9cb0250ce2233933f58486
 
     - name: Setup release mode parameters
