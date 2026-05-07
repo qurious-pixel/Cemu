@@ -64,6 +64,8 @@ add_executable(CemuBin
 	mainLLE.cpp
 )
 
+cemu_use_precompiled_header(CemuBin)
+
 if(MSVC AND MSVC_VERSION EQUAL 1940)
 	# workaround for an msvc issue on VS 17.10 where generated ILK files are too large
 	# see https://developercommunity.visualstudio.com/t/After-updating-to-VS-1710-the-size-of-/10665511
@@ -76,6 +78,14 @@ if(WIN32)
 	../dist/windows/cemu.manifest
 	)
 endif()
+
+if(APPLE AND CMAKE_GENERATOR STREQUAL "Xcode")
+    set_target_properties(CemuBin PROPERTIES
+        XCODE_ATTRIBUTE_ENABLE_DEBUG_DYLIB[variant=Debug] "YES"
+    )
+endif()
+
+string(TIMESTAMP CURRENT_YEAR "%Y" UTC)
 
 set_property(TARGET CemuBin PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 set_property(TARGET CemuBin PROPERTY WIN32_EXECUTABLE $<NOT:$<CONFIG:Debug>>)
@@ -92,10 +102,10 @@ if (MACOS_BUNDLE)
 	set(MACOSX_BUNDLE_BUNDLE_NAME "Cemu")
 	set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${EMULATOR_VERSION_MAJOR}.${EMULATOR_VERSION_MINOR}.${EMULATOR_VERSION_PATCH}")
 	set(MACOSX_BUNDLE_BUNDLE_VERSION "${EMULATOR_VERSION_MAJOR}.${EMULATOR_VERSION_MINOR}.${EMULATOR_VERSION_PATCH}")
-	set(MACOSX_BUNDLE_COPYRIGHT "Copyright © 2024 Cemu Project")
+	set(MACOSX_BUNDLE_COPYRIGHT "Copyright © ${CURRENT_YEAR} Cemu Project")
 
 	set(MACOSX_BUNDLE_CATEGORY "public.app-category.games")
- 	set(MACOSX_MINIMUM_SYSTEM_VERSION "12.0")
+ 	set(MACOSX_MINIMUM_SYSTEM_VERSION "13.4")
   	set(MACOSX_BUNDLE_TYPE_EXTENSION "wua")
 
 	set_target_properties(CemuBin PROPERTIES
@@ -106,13 +116,15 @@ if (MACOS_BUNDLE)
 	set(FOLDERS gameProfiles resources)
 	foreach(folder ${FOLDERS})
 		add_custom_command (TARGET CemuBin POST_BUILD
-			COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory "${CMAKE_SOURCE_DIR}/bin/${folder}" "${CMAKE_SOURCE_DIR}/bin/${OUTPUT_NAME}.app/Contents/SharedSupport/${folder}")
+			COMMAND ${CMAKE_COMMAND} ARGS -E copy_directory "${CMAKE_SOURCE_DIR}/bin/${folder}" "$<TARGET_BUNDLE_DIR:CemuBin>/Contents/SharedSupport/${folder}")
 	endforeach(folder)
 
-	if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-	    set(LIBUSB_PATH "${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/debug/lib/libusb-1.0.0.dylib")
-	else()
-	    set(LIBUSB_PATH "${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/lib/libusb-1.0.0.dylib")
+	if (ENABLE_LIBUSB)
+		if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+		    set(LIBUSB_PATH "${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/debug/lib/libusb-1.0.0.dylib")
+		else()
+		    set(LIBUSB_PATH "${CMAKE_BINARY_DIR}/vcpkg_installed/${VCPKG_TARGET_TRIPLET}/lib/libusb-1.0.0.dylib")
+		endif()
 	endif()
 
 	if (EXISTS "/usr/local/lib/libMoltenVK.dylib")
@@ -122,16 +134,47 @@ if (MACOS_BUNDLE)
 	else()
 		message(FATAL_ERROR "failed to find libMoltenVK.dylib")
 	endif ()
+	set(UPDATE_SH_PATH "${CMAKE_SOURCE_DIR}/src/resource/update.sh")
 
-	add_custom_command (TARGET CemuBin POST_BUILD
-		COMMAND ${CMAKE_COMMAND} ARGS -E copy "${MOLTENVK_PATH}" "${CMAKE_SOURCE_DIR}/bin/${OUTPUT_NAME}.app/Contents/Frameworks/libMoltenVK.dylib"
-		COMMAND ${CMAKE_COMMAND} ARGS -E copy "${LIBUSB_PATH}" "${CMAKE_SOURCE_DIR}/bin/${OUTPUT_NAME}.app/Contents/Frameworks/libusb-1.0.0.dylib"
-		COMMAND ${CMAKE_COMMAND} ARGS -E copy "${CMAKE_SOURCE_DIR}/src/resource/update.sh" "${CMAKE_SOURCE_DIR}/bin/${OUTPUT_NAME}.app/Contents/MacOS/update.sh"
-		COMMAND bash -c "install_name_tool -add_rpath @executable_path/../Frameworks ${CMAKE_SOURCE_DIR}/bin/${OUTPUT_NAME}.app/Contents/MacOS/${OUTPUT_NAME}"
-		COMMAND bash -c "install_name_tool -change ${LIBUSB_PATH} @executable_path/../Frameworks/libusb-1.0.0.dylib ${CMAKE_SOURCE_DIR}/bin/${OUTPUT_NAME}.app/Contents/MacOS/${OUTPUT_NAME}")
+	set(APP_BUNDLE_DIR "$<TARGET_BUNDLE_DIR:CemuBin>")
+	set(FRAMEWORKS_DIR "${APP_BUNDLE_DIR}/Contents/Frameworks")
+	set(RESOURCES_DIR  "${APP_BUNDLE_DIR}/Contents/Resources")
+
+	add_custom_command(TARGET CemuBin POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy 
+			"${MOLTENVK_PATH}"
+			"${FRAMEWORKS_DIR}/libMoltenVK.dylib"
+		COMMAND ${CMAKE_COMMAND} -E copy
+			"${UPDATE_SH_PATH}"
+			"${RESOURCES_DIR}/update.sh"
+		COMMAND chmod 755
+			"${RESOURCES_DIR}/update.sh"
+	)
+
+	if (ENABLE_LIBUSB)
+		add_custom_command(TARGET CemuBin POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy
+				"${LIBUSB_PATH}"
+				"${FRAMEWORKS_DIR}/libusb-1.0.0.dylib"
+		)
+	endif()
+
+	set_target_properties(CemuBin PROPERTIES
+		BUILD_WITH_INSTALL_RPATH TRUE
+		INSTALL_RPATH "@executable_path/../Frameworks"
+	)
+
+	if (ENABLE_LIBUSB)
+		add_custom_command(TARGET CemuBin POST_BUILD
+		COMMAND install_name_tool
+			-change @rpath/libusb-1.0.0.dylib
+				@executable_path/../Frameworks/libusb-1.0.0.dylib
+				"$<TARGET_FILE:CemuBin>"
+		)
+	endif()
 else()
     if(APPLE)
-        find_library(MOLTENVK_LIBRARY 
+        find_library(MOLTENVK_LIBRARY
             NAMES MoltenVK moltenvk libMoltenVK.dylib
             PATHS /usr/local/lib /opt/homebrew/lib
         )
@@ -141,7 +184,7 @@ else()
         else()
             message(WARNING "libMoltenVK.dylib not found")
         endif()
-        set_target_properties(CemuBin PROPERTIES 
+        set_target_properties(CemuBin PROPERTIES
             BUILD_WITH_INSTALL_RPATH TRUE
             INSTALL_RPATH "/usr/local/lib;/opt/homebrew/lib"
         )
