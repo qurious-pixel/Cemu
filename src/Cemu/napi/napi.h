@@ -44,7 +44,7 @@ namespace NAPI
 		// service selection, if not set fall back to global setting
 		std::optional<NetworkService> serviceOverwrite;
 
-		NetworkService GetService() const
+		NetworkService GetService() const;
 	};
 
 	bool NAPI_MakeAuthInfoFromCurrentAccount(AuthInfo& authInfo); // helper function. Returns false if online credentials/dumped files are not available
