@@ -38,7 +38,10 @@ enum class RendererAPI
 	MAX
 };
 
+#ifndef ImTextureID
 using ImTextureID = void*;
+#define ImTextureID ImTextureID
+#endif
 
 class Renderer
 {
