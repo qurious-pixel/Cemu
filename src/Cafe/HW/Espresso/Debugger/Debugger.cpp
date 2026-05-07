@@ -365,7 +365,7 @@ void debugger_toggleExecuteBreakpoint(uint32 address)
 	if (existingBP)
 	{ 
 		// delete existing breakpoint
-		debugger_deleteBreakpoint(existingBP);
+		debugger_deleteBreakpoint(existingBP->id);
 	}
 	else
 	{
