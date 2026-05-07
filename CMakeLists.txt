@@ -9,6 +9,8 @@ set(EMULATOR_VERSION_MAJOR "0" CACHE STRING "")
 set(EMULATOR_VERSION_MINOR "0" CACHE STRING "")
 set(EMULATOR_VERSION_PATCH "0" CACHE STRING "")
 
+set(THREADS_PREFER_PTHREAD_FLAG true) # needs to be set before vcpkg
+
 execute_process(
 		COMMAND git log --format=%h -1
 		WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
@@ -103,6 +105,10 @@ if (MSVC)
 	add_compile_options($<$<CONFIG:Release,RelWithDebInfo>:/Ot>) # favor speed
 endif()
 
+if(CMAKE_GENERATOR STREQUAL "Xcode")
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY XCODE_STARTUP_PROJECT CemuBin)
+endif()
+
 if (APPLE)
     enable_language(OBJC OBJCXX)
     set(CMAKE_OSX_DEPLOYMENT_TARGET "13.4")
@@ -138,6 +144,11 @@ endif()
 
 option(ENABLE_HIDAPI "Build with HIDAPI" ON)
 option(ENABLE_SDL "Enables the SDLController backend" ON)
+option(ENABLE_LIBUSB "Build with libusb support" ON)
+
+if (ENABLE_LIBUSB)
+	add_compile_definitions(HAS_LIBUSB)
+endif()
 
 # audio backends
 if (MSVC)
@@ -148,7 +159,6 @@ option(ENABLE_CUBEB "Enabled cubeb backend" ON)
 
 option(ENABLE_WXWIDGETS "Build with wxWidgets UI (Currently required)" ON)
 
-set(THREADS_PREFER_PTHREAD_FLAG true)
 find_package(Threads REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(CURL REQUIRED)
@@ -257,7 +267,7 @@ if(CEMU_ARCHITECTURE MATCHES "(aarch64)|(AARCH64)|(arm64)|(ARM64)")
 	add_subdirectory("dependencies/xbyak_aarch64" EXCLUDE_FROM_ALL)
 endif()
 
-find_package(ZArchive)
+find_package(ZArchive QUIET)
 if (NOT ZArchive_FOUND)
 	add_subdirectory("dependencies/ZArchive" EXCLUDE_FROM_ALL)
 endif()
