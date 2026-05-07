@@ -1,7 +1,8 @@
 #pragma once
-#include "config/CemuConfig.h" // for ConsoleLanguage
-#include "config/NetworkSettings.h" // for NetworkService
-#include "config/ActiveSettings.h" // for GetNetworkService()
+
+enum class NetworkService;
+enum class CafeConsoleRegion;
+enum class CafeConsoleLanguage;
 
 enum class NAPI_RESULT
 {
@@ -44,9 +45,6 @@ namespace NAPI
 		std::optional<NetworkService> serviceOverwrite;
 
 		NetworkService GetService() const
-		{
-			return serviceOverwrite.value_or(ActiveSettings::GetNetworkService());
-		}
 	};
 
 	bool NAPI_MakeAuthInfoFromCurrentAccount(AuthInfo& authInfo); // helper function. Returns false if online credentials/dumped files are not available
