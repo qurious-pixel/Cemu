@@ -78,7 +78,9 @@ std::string GenerateRandomString(size_t length);
 std::string GenerateRandomString(size_t length, std::string_view characters);
 
 std::string GetSystemErrorMessage();
+#ifdef _WIN32
 std::string GetSystemErrorMessage(DWORD error_code);
+#endif
 std::string GetSystemErrorMessage(const std::exception& ex);
 std::string GetSystemErrorMessage(const std::error_code& ec);
 
@@ -251,9 +253,11 @@ static bool IsValidFilename(std::string_view sv)
 }
 
 // MAJOR; MINOR
+#ifdef _WIN32
 std::pair<DWORD, DWORD> GetWindowsVersion();
 bool IsWindows81OrGreater();
 bool IsWindows10OrGreater();
+#endif
 
 fs::path GetParentProcess();
 
