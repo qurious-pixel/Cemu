@@ -599,7 +599,7 @@ void LatteShaderCache_ShowProgress(const std::function <bool(void)>& loadUpdateF
 				ImGui::PushFont(shader_count_font);
 				if (ImGui::Begin("Shader count", nullptr, kPopupFlags))
 				{
-					const float offset = shader_count_font->FallbackAdvanceX * 25.f;
+					const float offset = shader_count_font->FallbackAdvance.x * 25.f;
 					ImGui::Text("Vertex shaders");
 					ImGui::SameLine(offset);
 					ImGui::Text("%d", shaderCacheScreenStats.vertexShaderCount);
