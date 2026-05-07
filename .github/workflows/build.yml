@@ -129,6 +129,7 @@ jobs:
         path: artifacts
 
   build-windows:
+    if: false
     runs-on: windows-2022
     steps:
     - name: "Checkout repo"
@@ -206,6 +207,7 @@ jobs:
         path: ./src/resource/cemu-${{ inputs.next_version_major }}.${{ inputs.next_version_minor }}-windows-x64-installer.exe
 
   build-windows-clang:
+    if: false
     strategy:
       fail-fast: false
       matrix:
@@ -316,6 +318,7 @@ jobs:
         path: ./bin
 
   build-macos:
+    if: false
     runs-on: macos-14
     strategy:
       fail-fast: false
