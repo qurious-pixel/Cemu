@@ -115,6 +115,11 @@ static void* _ppc_va_arg(ppc_va_list* vargs, ppc_va_type argType)
 	}
 }
 
+#include <string.h>
+#if defined(_M_X64) || defined(_M_IX86) || defined(_M_ARM64)
+#include <intrin.h>
+#endif
+
 // Fast memory copy helpers for word-aligned data
 static inline void memcpy_dwords(void* dest, const void* src, size_t count)
 {
