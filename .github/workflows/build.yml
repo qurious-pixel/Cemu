@@ -135,9 +135,9 @@ jobs:
       matrix:
         include:
           - os: windows-2025
-            arch: x86_64
+            arch: X64
           - os: windows-11-arm
-            arch: aarch64
+            arch: ARM64
     name: build-windows-${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     steps:
