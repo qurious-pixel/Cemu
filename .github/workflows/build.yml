@@ -134,8 +134,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #- os: windows-2025
-          #  arch: x64
+          - os: windows-2025
+            arch: x64
           - os: windows-11-arm
             arch: arm64
     name: build-windows-${{ matrix.arch }}
