@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10) # Bumped slightly for better modern features
+cmake_minimum_required(VERSION 3.10)
 
 project(ih264d LANGUAGES C)
 
@@ -63,6 +63,7 @@ else()
 endif()
 
 message(STATUS "DEBUG: ih264d detected architecture is: ${IH264D_ARCHITECTURE}")
+
 if(IH264D_ARCHITECTURE MATCHES "x86_64|amd64|AMD64|i386|i686")
     set(LIBAVCDEC_X86_INCLUDES "common/x86" "decoder/x86")
     include_directories("common/" "decoder/" ${LIBAVCDEC_X86_INCLUDES})
@@ -87,30 +88,19 @@ if(IH264D_ARCHITECTURE MATCHES "x86_64|amd64|AMD64|i386|i686")
     )
 
 elseif(IH264D_ARCHITECTURE MATCHES "aarch64|arm64|ARM64")
-    # Define common ARM includes
     set(LIBAVCDEC_ARM_INCLUDES "common/armv8" "decoder/arm")
     include_directories("common/" "decoder/" ${LIBAVCDEC_ARM_INCLUDES})
 
     if(MSVC)
-        message(STATUS "MSVC ARM64 detected: Forcing portable C implementation for ih264d.")
-        
-        # We ONLY add the C selector files, NO .s files
+        message(STATUS "MSVC ARM64 detected: Forcing portable C implementation.")
         target_sources(ih264d PRIVATE
             "decoder/arm/ih264d_function_selector.c"
             "decoder/arm/ih264d_function_selector_av8.c"
         )
-        
-        # PORTABLE_C and ARCH_GENERIC tell the library to use the C loops
-        target_compile_definitions(ih264d PRIVATE 
-            PORTABLE_C 
-            ARCH_GENERIC 
-            DISABLE_NEON
-        )
+        target_compile_definitions(ih264d PRIVATE PORTABLE_C ARCH_GENERIC DISABLE_NEON)
     else()
-        # Clang/GCC path (allows Assembly)
         enable_language(ASM)
-        message(STATUS "ARM64 Clang/GCC detected: Enabling ih264d assembly optimization.")
-        
+        message(STATUS "ARM64 Clang/GCC detected: Enabling assembly optimization.")
         target_sources(ih264d PRIVATE
             "common/armv8/ih264_deblk_chroma_av8.s"
             "common/armv8/ih264_deblk_luma_av8.s"
@@ -140,7 +130,6 @@ elseif(IH264D_ARCHITECTURE MATCHES "aarch64|arm64|ARM64")
             "decoder/arm/ih264d_function_selector_av8.c"
             "decoder/arm/ih264d_function_selector.c"
         )
-        
         target_compile_definitions(ih264d PRIVATE ARMV8)
         set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -x assembler-with-cpp")
     endif()
@@ -148,3 +137,12 @@ elseif(IH264D_ARCHITECTURE MATCHES "aarch64|arm64|ARM64")
     if(APPLE)
         target_sources(ih264d PRIVATE "common/armv8/macos_arm_symbol_aliases.s")
     endif()
+
+else()
+    message(FATAL_ERROR "ih264d unknown architecture: ${IH264D_ARCHITECTURE}")
+endif()
+
+if(MSVC)
+    set_property(TARGET ih264d PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    target_compile_options(ih264d PRIVATE $<$<CONFIG:Release,RelWithDebInfo>:/Oi> $<$<CONFIG:Release,RelWithDebInfo>:/Ot> "/GS-")
+endif()
