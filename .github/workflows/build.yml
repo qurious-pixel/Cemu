@@ -1,6 +1,7 @@
 name: Build Cemu
 
 on:
+  push:
   workflow_call:
     inputs:
       next_version_major:
@@ -17,6 +18,7 @@ env:
   
 jobs:
   build-ubuntu:
+    if: false
     continue-on-error: true
     strategy:
       fail-fast: false
@@ -128,7 +130,16 @@ jobs:
         path: artifacts
 
   build-windows:
-    runs-on: windows-2022
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2025
+            arch: x86_64
+          - os: windows-11-arm
+            arch: aarch64
+    name: build-windows-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
     steps:
     - name: "Checkout repo"
       uses: actions/checkout@v6
@@ -187,6 +198,7 @@ jobs:
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
 
     - name: Build NSIS Installer
+      if: matrix.os == 'windows-2025'
       shell: cmd
       run: |
         cd src\resource
@@ -195,16 +207,18 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-artifact@v6
       with:
-        name: cemu-bin-windows-x64
+        name: cemu-bin-windows-${{ matrix.arch }}
         path: ./bin/Cemu.exe
 
     - name: Upload NSIS Installer
+      if: matrix.os == 'windows-2025'
       uses: actions/upload-artifact@v6
       with:
         name: cemu-installer-windows-x64
         path: ./src/resource/cemu-${{ inputs.next_version_major }}.${{ inputs.next_version_minor }}-windows-x64-installer.exe
 
   build-macos:
+    if: false
     runs-on: macos-14
     strategy:
       fail-fast: false
