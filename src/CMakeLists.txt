@@ -71,14 +71,14 @@ add_executable(CemuBin
 cemu_use_precompiled_header(CemuBin)
 
 if(MSVC)
-    set(CEMU_LINK_FLAGS "")
-    # Workaround for VS 17.10 ILK size issue
+    set(CEMU_LINKER_FLAGS "/NODEFAULTLIB:MSVCRT")
+    
+    # Check for the specific VS 17.10 version
     if(MSVC_VERSION EQUAL 1940)
-        string(APPEND CEMU_LINK_FLAGS " /INCREMENTAL:NO")
+        string(APPEND CEMU_LINKER_FLAGS " /INCREMENTAL:NO")
     endif()
-    # Prevent MSVCRT conflicts
-    string(APPEND CEMU_LINK_FLAGS " /NODEFAULTLIB:MSVCRT")
-    set_target_properties(CemuBin PROPERTIES LINK_FLAGS "${CEMU_LINK_FLAGS}")
+
+    set_target_properties(CemuBin PROPERTIES LINK_FLAGS "${CEMU_LINKER_FLAGS}")
 endif()
 
 if(WIN32)
