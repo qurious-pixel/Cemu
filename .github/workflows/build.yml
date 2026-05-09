@@ -134,7 +134,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2025
+          - os: windows-2022
             arch: x64
           #- os: windows-11-arm
           #  arch: arm64
@@ -204,15 +204,16 @@ jobs:
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
 
     - name: Install NSIS
-      if: matrix.os == 'windows-2025'
-      run: choco install nsis -y
+      if: false
+      run: scoop install nsis/nsis
+      #choco install nsis -y
       
     - name: Build NSIS Installer
       if: matrix.os == 'windows-2025'
       shell: cmd
       run: |
         cd src\resource
-        C:\ProgramData\chocolatey\lib\nsis\makensis /DPRODUCT_VERSION=${{ inputs.next_version_major }}.${{ inputs.next_version_minor }} installer.nsi
+        makensis /DPRODUCT_VERSION=${{ inputs.next_version_major }}.${{ inputs.next_version_minor }} installer.nsi
 
     - name: Upload artifact
       uses: actions/upload-artifact@v6
