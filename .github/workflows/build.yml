@@ -197,7 +197,7 @@ jobs:
     - name: "Build Cemu"
       run: |
         cd build
-        cmake --build . --config ${{ env.BUILD_MODE }}
+        cmake --build . --config ${{ env.BUILD_MODE }} --verbose
 
     - name: Prepare artifact
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
