@@ -1,4 +1,4 @@
-﻿cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.8)
 
 project ("ih264d")
 
@@ -148,8 +148,9 @@ if (IH264D_ARCHITECTURE MATCHES "x86_64|amd64|AMD64")
     )
 elseif(IH264D_ARCHITECTURE MATCHES "aarch64|arm64|ARM64")
     if (MSVC)
-            message(STATUS "ih264d: Using generic C implementation for MSVC ARM64")
-            include_directories("common/" "decoder/")
+        # For MSVC ARM64, we bypass assembly to avoid GCC-style __asm__ errors
+        message(STATUS "ih264d: Using generic C implementation for MSVC ARM64")
+        include_directories("common/" "decoder/")
     else()
         enable_language( C CXX ASM )
         set(LIBAVCDEC_ARM_INCLUDES "common/armv8" "decoder/arm")
@@ -187,12 +188,11 @@ elseif(IH264D_ARCHITECTURE MATCHES "aarch64|arm64|ARM64")
             "decoder/arm/ih264d_function_selector.c"
         )
         target_compile_options(ih264d PRIVATE -DARMV8 $<$<COMPILE_LANGUAGE:ASM,Clang>:-Wno-unused-command-line-argument>)
-        if(NOT MSVC)
-            set(CMAKE_ASM_FLAGS "${CFLAGS} -x assembler-with-cpp")
-        endif()
+        set(CMAKE_ASM_FLAGS "${CFLAGS} -x assembler-with-cpp")
         if(APPLE)
             target_sources(ih264d PRIVATE "common/armv8/macos_arm_symbol_aliases.s")
         endif()
+    endif()
 else()
     message(FATAL_ERROR "ih264d unknown architecture: ${IH264D_ARCHITECTURE}")
 endif()
@@ -204,5 +204,4 @@ if(MSVC)
     target_compile_options(ih264d PRIVATE $<$<CONFIG:Release,RelWithDebInfo>:/Oi>) # enable intrinsic functions
     target_compile_options(ih264d PRIVATE $<$<CONFIG:Release,RelWithDebInfo>:/Ot>) # favor speed
     target_compile_options(ih264d PRIVATE "/GS-") # disable runtime checks
-
 endif()
