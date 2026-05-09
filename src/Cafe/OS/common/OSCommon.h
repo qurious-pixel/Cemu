@@ -114,3 +114,27 @@ static void* _ppc_va_arg(ppc_va_list* vargs, ppc_va_type argType)
 		return r;
 	}
 }
+
+// Fast memory copy helpers for word-aligned data
+static inline void memcpy_dwords(void* dest, const void* src, size_t count)
+{
+#if defined(_M_X64) || defined(__x86_64__) || defined(_M_IX86)
+    // Use x86 string move (4 bytes at a time)
+    __movsd((unsigned long*)dest, (const unsigned long*)src, count);
+#else
+    // Fallback for ARM64 and other platforms
+    // Modern compilers optimize this into high-speed LDP/STP (Load/Store Pair) instructions
+    memcpy(dest, src, count * 4);
+#endif
+}
+
+static inline void memcpy_qwords(void* dest, const void* src, size_t count)
+{
+#if defined(_M_X64) || defined(__x86_64__)
+    // Use x86 string move (8 bytes at a time)
+    __movsq((unsigned __int64*)dest, (const unsigned __int64*)src, count);
+#else
+    // Fallback for ARM64 and other platforms
+    memcpy(dest, src, count * 8);
+#endif
+}
