@@ -117,21 +117,21 @@ static void* _ppc_va_arg(ppc_va_list* vargs, ppc_va_type argType)
 
 #include <string.h>
 
-#if defined(_M_X64) || defined(__x86_64__) || defined(_M_IX86)
-    #include <intrin.h>
-    #define CEMU_MEMCPY_DWORDS(dest, src, count) __movsd((unsigned long*)(dest), (const unsigned long*)(src), (unsigned long)(count))
-    #define CEMU_MEMCPY_QWORDS(dest, src, count) __movsq((unsigned __int64*)(dest), (const unsigned __int64*)(src), (size_t)(count))
+#if defined(_M_X64) || defined(_M_IX86) || defined(__x86_64__)
+#include <intrin.h>
+#define SAFE_MOVSD(d, s, c) __movsd((unsigned long*)(d), (const unsigned long*)(s), (unsigned long)(c))
+#define SAFE_MOVSQ(d, s, c) __movsq((unsigned __int64*)(d), (const unsigned __int64*)(s), (size_t)(c))
 #else
-    #define CEMU_MEMCPY_DWORDS(dest, src, count) memcpy((dest), (src), (size_t)(count) * 4)
-    #define CEMU_MEMCPY_QWORDS(dest, src, count) memcpy((dest), (src), (size_t)(count) * 8)
+#define SAFE_MOVSD(d, s, c) memcpy((d), (s), (size_t)(c) * 4)
+#define SAFE_MOVSQ(d, s, c) memcpy((d), (s), (size_t)(c) * 8)
 #endif
 
 static inline void memcpy_dwords(void* dest, const void* src, size_t count)
 {
-    CEMU_MEMCPY_DWORDS(dest, src, count);
+    SAFE_MOVSD(dest, src, count);
 }
 
 static inline void memcpy_qwords(void* dest, const void* src, size_t count)
 {
-    CEMU_MEMCPY_QWORDS(dest, src, count);
+    SAFE_MOVSQ(dest, src, count);
 }
