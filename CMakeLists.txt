@@ -262,6 +262,9 @@ if (ENABLE_CUBEB)
 endif()
 
 add_subdirectory("dependencies/ih264d" EXCLUDE_FROM_ALL)
+if(MSVC)
+    target_compile_options(ih264d PRIVATE /wd4005)
+endif()
 
 if (CMAKE_OSX_ARCHITECTURES)
 	set(CEMU_ARCHITECTURE ${CMAKE_OSX_ARCHITECTURES})
