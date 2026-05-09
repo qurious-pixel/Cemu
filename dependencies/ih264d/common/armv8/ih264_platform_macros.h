@@ -49,18 +49,23 @@ typedef uint32_t UWORD32;
 
 #ifdef _MSC_VER
     #include <intrin.h>
-    #include <arm64_intrinsics.h>
     
+    #if defined(_M_ARM64) && !defined(__arm64_intrinsics_h__)
+        #ifndef _ARM64_BARRIER_ISH
+            #define _ARM64_BARRIER_ISH 0xB 
+        #endif
+    #endif
+
     #define INLINE      __inline
     #define MEM_ALIGN8  __declspec(align(8))
     #define MEM_ALIGN16 __declspec(align(16))
     #define MEM_ALIGN32 __declspec(align(32))
     
     #define DATA_SYNC() __dmb(_ARM64_BARRIER_ISH)
+    
     #define NOP(nop_cnt) { for (int i = 0; i < (int)nop_cnt; i++) __nop(); }
     
     #define ITT_BIG_ENDIAN(x) _byteswap_ulong(x)
-
 #else
     #define INLINE      inline
     #define MEM_ALIGN8  __attribute__ ((aligned (8)))
