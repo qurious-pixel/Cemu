@@ -10,8 +10,6 @@ extern "C" uint64_t _umul128(uint64_t a, uint64_t b, uint64_t* high) {
 
 #define _mm_mfence() __dmb(_ARM64_BARRIER_ISH)
 #define __rdtsc() _ReadStatusReg(ARM64_CNTVCT_EL0)
-
-#include <immintrin.h> 
 #endif
 
 #include "Cafe/HW/Espresso/Const.h"
