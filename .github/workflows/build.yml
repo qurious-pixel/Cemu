@@ -134,10 +134,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #- os: windows-2025
-          #  arch: x64
-          - os: windows-11-arm
-            arch: arm64
+          - os: windows-2025
+            arch: x64
+          #- os: windows-11-arm
+          #  arch: arm64
     name: build-windows-${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -212,7 +212,7 @@ jobs:
       shell: cmd
       run: |
         cd src\resource
-        makensis /DPRODUCT_VERSION=${{ inputs.next_version_major }}.${{ inputs.next_version_minor }} installer.nsi
+        C:\ProgramData\chocolatey\lib\nsis\makensis /DPRODUCT_VERSION=${{ inputs.next_version_major }}.${{ inputs.next_version_minor }} installer.nsi
 
     - name: Upload artifact
       uses: actions/upload-artifact@v6
