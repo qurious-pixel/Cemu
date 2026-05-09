@@ -68,9 +68,7 @@
       ]
     },
     "libusb",
-    {
-      "name": "pkgconf"
-    }
+    "pkgconf"
   ],
   "overrides": [
     {
