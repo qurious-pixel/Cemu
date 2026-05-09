@@ -1,4 +1,4 @@
-#if defined(_M_ARM64) || defined(__aarch64__)
+#if defined(_M_ARM64)
 #include <intrin.h>
 
 extern "C" uint64_t _umul128(uint64_t a, uint64_t b, uint64_t* high) {
@@ -7,10 +7,13 @@ extern "C" uint64_t _umul128(uint64_t a, uint64_t b, uint64_t* high) {
 }
 
 extern "C" uint64_t _udiv128(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder) {
+    if (high == 0) {
+        *remainder = low % divisor;
+        return low / divisor;
+    }
     unsigned __int128 dividend = ((unsigned __int128)high << 64) | low;
-    uint64_t quotient = (uint64_t)(dividend / divisor);
     *remainder = (uint64_t)(dividend % divisor);
-    return quotient;
+    return (uint64_t)(dividend / divisor);
 }
 #endif
 
