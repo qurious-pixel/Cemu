@@ -134,10 +134,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2022
-            arch: x64
-          #- os: windows-11-arm
-          #  arch: arm64
+          #- os: windows-2022
+          #  arch: x64
+          - os: windows-11-arm
+            arch: arm64
     name: build-windows-${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     steps:
@@ -181,12 +181,6 @@ jobs:
         setapikey "${{ secrets.GITHUB_TOKEN }}" \
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
-    - name: Checkout dependency commits
-      if: false
-      run: |
-        git -C dependencies/ZArchive fetch --unshallow || git -C dependencies/ZArchive fetch --all --tags
-        git -C dependencies/ZArchive checkout 965b66c8d67b6b7e30fd63b3b75aa91a99ff303b
-
     - name: "cmake"
       run: |
         mkdir -p build
@@ -202,12 +196,7 @@ jobs:
 
     - name: Prepare artifact
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
-
-    - name: Install NSIS
-      if: false
-      run: scoop install nsis/nsis
-      #choco install nsis -y
-      
+    
     - name: Build NSIS Installer
       if: matrix.os == 'windows-2025'
       shell: cmd
