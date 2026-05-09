@@ -11,6 +11,7 @@ endif()
 
 if(MSVC)
 	add_compile_definitions(WIN32_LEAN_AND_MEAN CURL_STATICLIB)
+	set_target_properties(CemuBin PROPERTIES LINK_FLAGS "/NODEFAULTLIB:MSVCRT")
 elseif(UNIX)
 	if(APPLE)
 		if (ENABLE_VULKAN)
