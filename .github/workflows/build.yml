@@ -181,6 +181,11 @@ jobs:
         setapikey "${{ secrets.GITHUB_TOKEN }}" \
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
+    - name: Checkout dependency commits
+      run: |
+        git -C dependencies/ZArchive fetch --unshallow || git -C dependencies/ZArchive fetch --all --tags
+        git -C dependencies/ZArchive checkout 965b66c8d67b6b7e30fd63b3b75aa91a99ff303b
+
     - name: "cmake"
       run: |
         mkdir -p build
