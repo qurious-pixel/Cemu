@@ -123,7 +123,7 @@ else()
 set(IH264D_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
 endif()
 
-if (IH264D_ARCHITECTURE STREQUAL "x86_64" OR IH264D_ARCHITECTURE STREQUAL "amd64" OR IH264D_ARCHITECTURE STREQUAL "AMD64")
+if (IH264D_ARCHITECTURE MATCHES "x86_64|amd64|AMD64")
 set(LIBAVCDEC_X86_INCLUDES "common/x86" "decoder/x86")
 include_directories("common/" "decoder/" ${LIBAVCDEC_X86_INCLUDES})
 target_sources(ih264d PRIVATE
@@ -146,7 +146,7 @@ target_sources(ih264d PRIVATE
 "decoder/x86/ih264d_function_selector_sse42.c"
 "decoder/x86/ih264d_function_selector_ssse3.c"
 )
-elseif(IH264D_ARCHITECTURE STREQUAL "aarch64" OR IH264D_ARCHITECTURE STREQUAL "arm64")
+elseif(IH264D_ARCHITECTURE MATCHES "aarch64|arm64|ARM64")
 enable_language( C CXX ASM )
 set(LIBAVCDEC_ARM_INCLUDES "common/armv8" "decoder/arm")
 include_directories("common/" "decoder/" ${LIBAVCDEC_ARM_INCLUDES})
