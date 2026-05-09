@@ -246,23 +246,22 @@ namespace coreinit
 		osLib_returnFromFunction(hCPU, 0);
 	}
 
-void coreinitExport_LCStoreDMABlocks(PPCInterpreter_t* hCPU)
-{
-    uint32 numBlocks = hCPU->gpr[5];
-    if (numBlocks == 0)
-        numBlocks = 128;
-    
-    uint32 transferSize = numBlocks * 32;
-    uint8* destPtr = memory_getPointerFromVirtualOffset(hCPU->gpr[3]);
-    uint8* srcPtr = memory_getPointerFromVirtualOffset(hCPU->gpr[4]);
+	void coreinitExport_LCStoreDMABlocks(PPCInterpreter_t* hCPU)
+	{
+		//printf("LCStoreDMABlocks(0x%08x, 0x%08x, 0x%08x)\n", hCPU->gpr[3], hCPU->gpr[4], hCPU->gpr[5]);
+		uint32 numBlocks = hCPU->gpr[5];
+		if (numBlocks == 0)
+			numBlocks = 128;
+		//uint32 transferSize = numBlocks*32;
+		uint8* destPtr = memory_getPointerFromVirtualOffset(hCPU->gpr[3]);
+		uint8* srcPtr = memory_getPointerFromVirtualOffset(hCPU->gpr[4]);
+		// copy right away, we don't emulate the DMAQueue currently
+		memcpy_qwords(destPtr, srcPtr, numBlocks * (32 / sizeof(uint64)));
 
-    // Use standard memcpy for ARM64 and cross-platform compatibility
-    memcpy(destPtr, srcPtr, transferSize);
+		LatteBufferCache_notifyDCFlush(hCPU->gpr[3], numBlocks * 32);
 
-    LatteBufferCache_notifyDCFlush(hCPU->gpr[3], transferSize);
-
-    osLib_returnFromFunction(hCPU, 0);
-}
+		osLib_returnFromFunction(hCPU, 0);
+	}
 
 	void coreinitExport_LCWaitDMAQueue(PPCInterpreter_t* hCPU)
 	{
