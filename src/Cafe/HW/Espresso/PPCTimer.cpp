@@ -2,14 +2,14 @@
 #include <intrin.h>
 
 extern "C" uint64_t _umul128(uint64_t a, uint64_t b, uint64_t* high) {
-    *high = __umulh(a, b);
-    return a * b;
+    // UnsignedMultiply128 is the official MSVC intrinsic for ARM64
+    return UnsignedMultiply128(a, b, high);
 }
 
 extern "C" uint64_t _udiv128(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder) {
-    unsigned __int128 dividend = ((unsigned __int128)high << 64) | low;
-    *remainder = (uint64_t)(dividend % divisor);
-    return (uint64_t)(dividend / divisor);
+    // MSVC ARM64 intrinsic for 128-bit / 64-bit division
+    // We use the global namespace :: to ensure we call the compiler intrinsic
+    return ::_udiv128(high, low, divisor, remainder);
 }
 
 #define _mm_mfence() __dmb(_ARM64_BARRIER_ISH)
