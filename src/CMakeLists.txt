@@ -11,7 +11,6 @@ endif()
 
 if(MSVC)
 	add_compile_definitions(WIN32_LEAN_AND_MEAN CURL_STATICLIB)
-	set_target_properties(CemuBin PROPERTIES LINK_FLAGS "/NODEFAULTLIB:MSVCRT")
 elseif(UNIX)
 	if(APPLE)
 		if (ENABLE_VULKAN)
@@ -71,10 +70,15 @@ add_executable(CemuBin
 
 cemu_use_precompiled_header(CemuBin)
 
-if(MSVC AND MSVC_VERSION EQUAL 1940)
-	# workaround for an msvc issue on VS 17.10 where generated ILK files are too large
-	# see https://developercommunity.visualstudio.com/t/After-updating-to-VS-1710-the-size-of-/10665511
-	set_target_properties(CemuBin PROPERTIES LINK_FLAGS "/INCREMENTAL:NO")
+if(MSVC)
+    set(CEMU_LINK_FLAGS "")
+    # Workaround for VS 17.10 ILK size issue
+    if(MSVC_VERSION EQUAL 1940)
+        string(APPEND CEMU_LINK_FLAGS " /INCREMENTAL:NO")
+    endif()
+    # Prevent MSVCRT conflicts
+    string(APPEND CEMU_LINK_FLAGS " /NODEFAULTLIB:MSVCRT")
+    set_target_properties(CemuBin PROPERTIES LINK_FLAGS "${CEMU_LINK_FLAGS}")
 endif()
 
 if(WIN32)
