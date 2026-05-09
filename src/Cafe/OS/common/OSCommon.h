@@ -115,19 +115,35 @@ static void* _ppc_va_arg(ppc_va_list* vargs, ppc_va_type argType)
 	}
 }
 
-#if defined(_M_X64) || defined(_M_IX86) || defined(x86_64)
+#include <string.h>
+
+#if defined(_M_X64) || defined(_M_IX86) || defined(__x86_64__)
 #include <intrin.h>
 static inline void safe_memcpy_dwords(void* dest, const void* src, size_t count)
 {
-__movsd((unsigned long*)dest, (const unsigned long*)src, (unsigned long)count);
+    __movsd((unsigned long*)dest, (const unsigned long*)src, (unsigned long)count);
 }
 static inline void safe_memcpy_qwords(void* dest, const void* src, size_t count)
 {
-__movsq((unsigned __int64*)dest, (const unsigned __int64*)src, (size_t)count);
+    __movsq((unsigned __int64*)dest, (const unsigned __int64*)src, (size_t)count);
 }
 #define SAFE_MOVSD(d,s,c) safe_memcpy_dwords((d),(s),(c))
 #define SAFE_MOVSQ(d,s,c) safe_memcpy_qwords((d),(s),(c))
 #else
-#define SAFE_MOVSD(d, s, c) memcpy((d), (s), (size_t)(c) * 4)
-#define SAFE_MOVSQ(d, s, c) memcpy((d), (s), (size_t)(c) * 8)
+#ifndef __movsd
+    #define __movsd(d, s, c) memcpy((d), (s), (size_t)(c) * 4)
+#endif
+#ifndef __movsq
+    #define __movsq(d, s, c) memcpy((d), (s), (size_t)(c) * 8)
+#endif
+
+#define SAFE_MOVSD(d, s, c) __movsd((d), (s), (c))
+#define SAFE_MOVSQ(d, s, c) __movsq((d), (s), (c))
+
+static inline void safe_memcpy_dwords(void* dest, const void* src, size_t count) {
+    SAFE_MOVSD(dest, src, count);
+}
+static inline void safe_memcpy_qwords(void* dest, const void* src, size_t count) {
+    SAFE_MOVSQ(dest, src, count);
+}
 #endif
