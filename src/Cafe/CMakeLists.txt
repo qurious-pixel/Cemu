@@ -618,12 +618,17 @@ if(ENABLE_METAL)
     )
 endif()
 
-if(CEMU_ARCHITECTURE MATCHES "(aarch64)|(AARCH64)|(arm64)|(ARM64)")
-  target_sources(CemuCafe PRIVATE
-    HW/Espresso/Recompiler/BackendAArch64/BackendAArch64.cpp
-    HW/Espresso/Recompiler/BackendAArch64/BackendAArch64.h
-  )
-  target_link_libraries(CemuCafe PRIVATE xbyak_aarch64)
+if(CEMU_ARCHITECTURE MATCHES "(x86_64|amd64|AMD64)")
+	target_sources(CemuCafe PRIVATE 
+	HW/Espresso/Recompiler/BackendX64/BackendX64.cpp
+	HW/Espresso/Recompiler/BackendX64/BackendX64.h
+	)
+elseif(CEMU_ARCHITECTURE MATCHES "(aarch64|arm64|ARM64)")
+	target_sources(CemuCafe PRIVATE
+	HW/Espresso/Recompiler/BackendAArch64/BackendAArch64.cpp
+	HW/Espresso/Recompiler/BackendAArch64/BackendAArch64.h
+	)
+	target_link_libraries(CemuCafe PRIVATE xbyak_aarch64)
 endif()
 
 set_property(TARGET CemuCafe PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
