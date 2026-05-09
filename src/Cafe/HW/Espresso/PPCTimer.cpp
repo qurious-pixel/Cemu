@@ -1,11 +1,17 @@
 #if defined(_M_ARM64)
 #include <intrin.h>
-#define _mm_mfence() __dmb(_ARM64_BARRIER_ISH)
-#define __rdtsc() _ReadStatusReg(ARM64_CNTVCT_EL0)
+
+extern "C" uint64_t _udiv128(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder);
+
 extern "C" uint64_t _umul128(uint64_t a, uint64_t b, uint64_t* high) {
     *high = __umulh(a, b);
     return a * b;
 }
+
+#define _mm_mfence() __dmb(_ARM64_BARRIER_ISH)
+#define __rdtsc() _ReadStatusReg(ARM64_CNTVCT_EL0)
+
+#include <immintrin.h> 
 #endif
 
 #include "Cafe/HW/Espresso/Const.h"
