@@ -344,11 +344,18 @@ inline uint64 _udiv128(uint64 highDividend, uint64 lowDividend, uint64 divisor, 
 FORCE_INLINE int BSF(uint32 v) // returns index of first bit set, counting from LSB. If v is 0 then result is undefined
 {
 #if defined(_MSC_VER)
-	return _tzcnt_u32(v); // TZCNT requires BMI1. But if not supported it will execute as BSF
+    #if defined(_M_ARM64) || defined(_M_ARM)
+        unsigned long index;
+        if (_BitScanForward(&index, v)) 
+            return (int)index;
+        return 32; 
+    #else
+        return _tzcnt_u32(v); 
+    #endif
 #elif defined(__GNUC__) || defined(__clang__)
-	return __builtin_ctz(v);
+    return v == 0 ? 32 : __builtin_ctz(v);
 #else
-	return std::countr_zero(v);
+    return (int)std::countr_zero(v);
 #endif
 }
 
