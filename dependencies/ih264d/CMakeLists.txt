@@ -87,60 +87,64 @@ if(IH264D_ARCHITECTURE MATCHES "x86_64|amd64|AMD64|i386|i686")
     )
 
 elseif(IH264D_ARCHITECTURE MATCHES "aarch64|arm64|ARM64")
-    enable_language( C CXX ASM )
+    # Define common ARM includes
     set(LIBAVCDEC_ARM_INCLUDES "common/armv8" "decoder/arm")
     include_directories("common/" "decoder/" ${LIBAVCDEC_ARM_INCLUDES})
-    target_sources(ih264d PRIVATE
-        "common/armv8/ih264_deblk_chroma_av8.s"
-        "common/armv8/ih264_deblk_luma_av8.s"
-        "common/armv8/ih264_default_weighted_pred_av8.s"
-        "common/armv8/ih264_ihadamard_scaling_av8.s"
-        "common/armv8/ih264_inter_pred_chroma_av8.s"
-        "common/armv8/ih264_inter_pred_filters_luma_horz_av8.s"
-        "common/armv8/ih264_inter_pred_filters_luma_vert_av8.s"
-        "common/armv8/ih264_inter_pred_luma_copy_av8.s"
-        "common/armv8/ih264_inter_pred_luma_horz_hpel_vert_hpel_av8.s"
-        "common/armv8/ih264_inter_pred_luma_horz_hpel_vert_qpel_av8.s"
-        "common/armv8/ih264_inter_pred_luma_horz_qpel_av8.s"
-        "common/armv8/ih264_inter_pred_luma_horz_qpel_vert_hpel_av8.s"
-        "common/armv8/ih264_inter_pred_luma_horz_qpel_vert_qpel_av8.s"
-        "common/armv8/ih264_inter_pred_luma_vert_qpel_av8.s"
-        "common/armv8/ih264_intra_pred_chroma_av8.s"
-        "common/armv8/ih264_intra_pred_luma_16x16_av8.s"
-        "common/armv8/ih264_intra_pred_luma_4x4_av8.s"
-        "common/armv8/ih264_intra_pred_luma_8x8_av8.s"
-        "common/armv8/ih264_iquant_itrans_recon_av8.s"
-        "common/armv8/ih264_iquant_itrans_recon_dc_av8.s"
-        "common/armv8/ih264_mem_fns_neon_av8.s"
-        "common/armv8/ih264_padding_neon_av8.s"
-        "common/armv8/ih264_resi_trans_quant_av8.s"
-        "common/armv8/ih264_weighted_bi_pred_av8.s"
-        "common/armv8/ih264_weighted_pred_av8.s"
-        "decoder/arm/ih264d_function_selector_a9q.c"
-        "decoder/arm/ih264d_function_selector_av8.c"
-        "decoder/arm/ih264d_function_selector.c"
-    )
-    
-    if(NOT MSVC)
-        message(STATUS "ARM64 Clang/GCC detected: Enabling ih264d assembly optimization.")
-        target_compile_options(ih264d PRIVATE -DARMV8)
-        set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -x assembler-with-cpp")
-        
-        if(CMAKE_ASM_COMPILER_ID MATCHES "Clang")
-            target_compile_options(ih264d PRIVATE $<$<COMPILE_LANGUAGE:ASM>:-Wno-unused-command-line-argument>)
-        endif()
-    else()
+
+    if(MSVC)
         message(STATUS "MSVC ARM64 detected: Forcing portable C implementation for ih264d.")
-        target_compile_definitions(ih264d PRIVATE PORTABLE_C)
+        
+        # We ONLY add the C selector files, NO .s files
+        target_sources(ih264d PRIVATE
+            "decoder/arm/ih264d_function_selector.c"
+            "decoder/arm/ih264d_function_selector_av8.c"
+        )
+        
+        # PORTABLE_C and ARCH_GENERIC tell the library to use the C loops
+        target_compile_definitions(ih264d PRIVATE 
+            PORTABLE_C 
+            ARCH_GENERIC 
+            DISABLE_NEON
+        )
+    else()
+        # Clang/GCC path (allows Assembly)
+        enable_language(ASM)
+        message(STATUS "ARM64 Clang/GCC detected: Enabling ih264d assembly optimization.")
+        
+        target_sources(ih264d PRIVATE
+            "common/armv8/ih264_deblk_chroma_av8.s"
+            "common/armv8/ih264_deblk_luma_av8.s"
+            "common/armv8/ih264_default_weighted_pred_av8.s"
+            "common/armv8/ih264_ihadamard_scaling_av8.s"
+            "common/armv8/ih264_inter_pred_chroma_av8.s"
+            "common/armv8/ih264_inter_pred_filters_luma_horz_av8.s"
+            "common/armv8/ih264_inter_pred_filters_luma_vert_av8.s"
+            "common/armv8/ih264_inter_pred_luma_copy_av8.s"
+            "common/armv8/ih264_inter_pred_luma_horz_hpel_vert_hpel_av8.s"
+            "common/armv8/ih264_inter_pred_luma_horz_hpel_vert_qpel_av8.s"
+            "common/armv8/ih264_inter_pred_luma_horz_qpel_av8.s"
+            "common/armv8/ih264_inter_pred_luma_horz_qpel_vert_hpel_av8.s"
+            "common/armv8/ih264_inter_pred_luma_horz_qpel_vert_qpel_av8.s"
+            "common/armv8/ih264_inter_pred_luma_vert_qpel_av8.s"
+            "common/armv8/ih264_intra_pred_chroma_av8.s"
+            "common/armv8/ih264_intra_pred_luma_16x16_av8.s"
+            "common/armv8/ih264_intra_pred_luma_4x4_av8.s"
+            "common/armv8/ih264_intra_pred_luma_8x8_av8.s"
+            "common/armv8/ih264_iquant_itrans_recon_av8.s"
+            "common/armv8/ih264_iquant_itrans_recon_dc_av8.s"
+            "common/armv8/ih264_mem_fns_neon_av8.s"
+            "common/armv8/ih264_padding_neon_av8.s"
+            "common/armv8/ih264_resi_trans_quant_av8.s"
+            "common/armv8/ih264_weighted_bi_pred_av8.s"
+            "common/armv8/ih264_weighted_pred_av8.s"
+            "decoder/arm/ih264d_function_selector_av8.c"
+            "decoder/arm/ih264d_function_selector.c"
+        )
+        
+        target_compile_definitions(ih264d PRIVATE ARMV8)
+        set(CMAKE_ASM_FLAGS "${CMAKE_ASM_FLAGS} -x assembler-with-cpp")
     endif()
+
     if(APPLE)
         target_sources(ih264d PRIVATE "common/armv8/macos_arm_symbol_aliases.s")
     endif()
-else()
-    message(FATAL_ERROR "ih264d unknown architecture: ${IH264D_ARCHITECTURE}")
-endif()
-
-if(MSVC)
-    set_property(TARGET ih264d PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    target_compile_options(ih264d PRIVATE $<$<CONFIG:Release,RelWithDebInfo>:/Oi> $<$<CONFIG:Release,RelWithDebInfo>:/Ot> "/GS-")
-endif()
