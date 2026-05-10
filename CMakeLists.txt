@@ -187,7 +187,7 @@ if (UNIX AND NOT APPLE)
 	if (ENABLE_WAYLAND)
 		find_package(Wayland REQUIRED Client)
 		find_package(WaylandScanner REQUIRED)
-		find_package(WaylandProtocols 1.15 REQUIRED)
+		find_package(WaylandProtocols 1.15 REQUIRED HINTS "/usr/share/wayland-protocols")
 
 		ecm_add_wayland_client_protocol(WAYLAND_PROTOCOL_SRCS
 			PROTOCOL "${WaylandProtocols_DATADIR}/stable/viewporter/viewporter.xml"
