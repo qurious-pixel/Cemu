@@ -24,8 +24,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #- os: ubuntu-22.04
-          #  arch: x64
+          - os: ubuntu-22.04
+            arch: x64
           - os: ubuntu-22.04-arm
             arch: arm
             
@@ -131,7 +131,7 @@ jobs:
         path: artifacts
 
   build-windows:
-    if: false
+    if: true
     strategy:
       fail-fast: false
       matrix:
@@ -220,7 +220,7 @@ jobs:
         path: ./src/resource/cemu-${{ inputs.next_version_major }}.${{ inputs.next_version_minor }}-windows-x64-installer.exe
 
   build-macos:
-    if: false
+    if: true
     runs-on: macos-14
     strategy:
       fail-fast: false
