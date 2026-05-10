@@ -1,5 +1,6 @@
 #if defined(__aarch64__) || defined(_M_ARM64)
   #ifdef _WIN32
+    // Windows ARM64 (MSVC) still needs the manual link to intrinsics
     #include <intrin.h>
     extern "C" uint64_t _umul128(uint64_t a, uint64_t b, uint64_t* high) {
         return UnsignedMultiply128(a, b, high);
@@ -10,17 +11,16 @@
     #define _mm_mfence() __dmb(_ARM64_BARRIER_ISH)
     #define __rdtsc() _ReadStatusReg(ARM64_CNTVCT_EL0)
   #else
-    static inline uint64_t _udiv128(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder) {
-        unsigned __int128 dividend = ((unsigned __int128)high << 64) | low;
-        if (remainder) *remainder = (uint64_t)(dividend % divisor);
-        return (uint64_t)(dividend / divisor);
-    }
-    #define _mm_mfence() __asm__ __volatile__ ("dmb ish" : : : "memory") 
-    static inline uint64_t __rdtsc() {
-        uint64_t val;
-        __asm__ __volatile__("mrs %0, cntvct_el0" : "=r" (val));
-        return val;
-    }
+    // macOS and Linux ARM64 (Clang/GCC)
+    // We REMOVE _udiv128 and __rdtsc here because they are 
+    // already defined in Common/precompiled.h
+
+    #include <x86intrin.h> // Fallback for other intrinsics if needed
+    
+    // We still need to define the memory fence for ARM
+    #ifndef _mm_mfence
+      #define _mm_mfence() __asm__ __volatile__ ("dmb ish" : : : "memory")
+    #endif
   #endif
 #endif
 
