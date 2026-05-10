@@ -211,8 +211,11 @@ endif()
 if (UNIX AND NOT APPLE)
 	find_package(X11 REQUIRED)
 	if (ENABLE_WAYLAND)
+		set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:/usr/share/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/local/share/pkgconfig")
 		find_package(Wayland REQUIRED Client)
 		find_package(WaylandScanner REQUIRED)
+		list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_PATH}/cmake")
+		find_package(WaylandProtocols REQUIRED)
 		find_package(WaylandProtocols 1.15 REQUIRED HINTS "/usr/share/wayland-protocols")
 
 		ecm_add_wayland_client_protocol(WAYLAND_PROTOCOL_SRCS
