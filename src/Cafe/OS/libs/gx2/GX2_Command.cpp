@@ -43,7 +43,7 @@ void gx2WriteGather_submitU32AsLEArray(uint32* v, uint32 numValues)
 	if (GX2::s_perCoreCBState[coreIndex].currentWritePtr == nullptr)
 		return;
 
-    SAFE_MOVSD(dest, src, count * 4);
+    SAFE_MOVSD(GX2::s_perCoreCBState[coreIndex].currentWritePtr, v, numValues);
 
 	GX2::s_perCoreCBState[coreIndex].currentWritePtr += numValues;
 	cemu_assert_debug(GX2::s_perCoreCBState[coreIndex].currentWritePtr <= (GX2::s_perCoreCBState[coreIndex].bufferPtr + GX2::s_perCoreCBState[coreIndex].bufferSizeInU32s));
