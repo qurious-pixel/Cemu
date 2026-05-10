@@ -22,14 +22,8 @@ ManifestDPIAware true
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\${PRODUCT_NAME}.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 
-; Logic to select source folder based on Architecture
-!if "${ARCH}" == "arm64"
-  !define BINARY_SOURCE_DIR "..\..\bin\ARM64"
-  OutFile "cemu-${PRODUCT_VERSION}-windows-arm64-installer.exe"
-!else
-  !define BINARY_SOURCE_DIR "..\..\bin\x64"
-  OutFile "cemu-${PRODUCT_VERSION}-windows-x64-installer.exe"
-!endif
+!define BINARY_SOURCE_DIR "..\..\bin"
+OutFile "cemu-${PRODUCT_VERSION}-windows-"${ARCH}"-installer.exe"
 
 Name "${PRODUCT_NAME} (${ARCH})"
 SetCompressor /SOLID lzma
