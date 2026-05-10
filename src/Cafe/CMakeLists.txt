@@ -650,7 +650,7 @@ else()
 endif()
 
 target_link_libraries(CemuCafe PRIVATE
-	CemuCommon
+  CemuCommon
   CemuGui
   ZArchive::zarchive
   imguiImpl
@@ -663,6 +663,10 @@ target_link_libraries(CemuCafe PRIVATE
   PUBLIC
   OpenSSL::SSL
 )
+
+if(MSVC AND CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64")
+    target_link_libraries(CemuCafe PRIVATE ntdll.lib)
+endif()
 
 if (ENABLE_WAYLAND)
 	# PUBLIC because wayland-client.h is included in VulkanAPI.h
