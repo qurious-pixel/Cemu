@@ -1,9 +1,9 @@
-#include "Common/Intrinisics.h"
 #include "Cafe/HW/Espresso/Const.h"
 #include "config/ActiveSettings.h"
 #include "util/helpers/fspinlock.h"
 #include "util/highresolutiontimer/HighResolutionTimer.h"
 #include "Common/cpu_features.h"
+#include "Common/Intrinsics.h"
 
 #if defined(ARCH_X86_64)
 #include <immintrin.h>
