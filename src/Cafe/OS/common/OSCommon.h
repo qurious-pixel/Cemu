@@ -115,40 +115,34 @@ static void* _ppc_va_arg(ppc_va_list* vargs, ppc_va_type argType)
 	}
 }
 
-#include <string.h>
-
 #ifdef _WIN32
-	#include <intrin.h>
+    #include <intrin.h>
 #else
-	#if defined(__x86_64__) || defined(__i386__)
-    #include <x86intrin.h>
-  #endif
-#endif
-static inline void safe_memcpy_dwords(void* dest, const void* src, size_t count)
-{
-    __movsd((unsigned long*)dest, (const unsigned long*)src, (unsigned long)count);
-}
-static inline void safe_memcpy_qwords(void* dest, const void* src, size_t count)
-{
-    __movsq((unsigned __int64*)dest, (const unsigned __int64*)src, (size_t)count);
-}
-#define SAFE_MOVSD(d,s,c) safe_memcpy_dwords((d),(s),(c))
-#define SAFE_MOVSQ(d,s,c) safe_memcpy_qwords((d),(s),(c))
-#else
-#ifndef __movsd
-    #define __movsd(d, s, c) memcpy((d), (s), (size_t)(c) * 4)
-#endif
-#ifndef __movsq
-    #define __movsq(d, s, c) memcpy((d), (s), (size_t)(c) * 8)
+    #include <string.h>
+    #if defined(__x86_64__) || defined(__i386__)
+        #include <x86intrin.h>
+    #endif
 #endif
 
-#define SAFE_MOVSD(d, s, c) __movsd((d), (s), (c))
-#define SAFE_MOVSQ(d, s, c) __movsq((d), (s), (c))
-
-static inline void safe_memcpy_dwords(void* dest, const void* src, size_t count) {
-    SAFE_MOVSD(dest, src, count);
-}
-static inline void safe_memcpy_qwords(void* dest, const void* src, size_t count) {
-    SAFE_MOVSQ(dest, src, count);
-}
+// --- Safe Memory Copy Helpers ---
+#ifdef _WIN32
+    // Windows path: Use MSVC intrinsics
+    static inline void safe_memcpy_dwords(void* dest, const void* src, size_t count) {
+        __movsd((unsigned long*)dest, (const unsigned long*)src, (unsigned long)count);
+    }
+    static inline void safe_memcpy_qwords(void* dest, const void* src, size_t count) {
+        __movsq((unsigned __int64*)dest, (const unsigned __int64*)src, count);
+    }
+    #define SAFE_MOVSD(d, s, c) safe_memcpy_dwords((d), (s), (c))
+    #define SAFE_MOVSQ(d, s, c) safe_memcpy_qwords((d), (s), (c))
+#else
+    // Linux/macOS path: Use standard memcpy (compilers optimize this to movsd/movsq anyway)
+    static inline void safe_memcpy_dwords(void* dest, const void* src, size_t count) {
+        memcpy(dest, src, count * 4);
+    }
+    static inline void safe_memcpy_qwords(void* dest, const void* src, size_t count) {
+        memcpy(dest, src, count * 8);
+    }
+    #define SAFE_MOVSD(d, s, c) safe_memcpy_dwords((d), (s), (c))
+    #define SAFE_MOVSQ(d, s, c) safe_memcpy_qwords((d), (s), (c))
 #endif
