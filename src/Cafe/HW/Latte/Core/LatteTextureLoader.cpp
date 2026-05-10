@@ -709,9 +709,9 @@ void optimizedLinearReadbackWriteLoop(LatteTextureLoaderCtx* textureLoader, uint
 		if constexpr (sizeof(copyType) == 4)
 		{
 #if defined(_WIN32) && !defined(_M_ARM64)
-    	__movsd((unsigned long*)dst, (const unsigned long*)src, copySize / 4);
+    	__movsd((unsigned long*)blockData, (const unsigned long*)rowPixelData, copySize / 4);
 #else
-    	std::memcpy(dst, src, copySize);
+    	memcpy(blockData, rowPixelData, copySize);
 #endif
 		}
 		else
