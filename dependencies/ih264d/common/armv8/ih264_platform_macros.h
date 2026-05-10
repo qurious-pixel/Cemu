@@ -86,7 +86,9 @@ typedef uint32_t UWORD32;
     }
 #endif
 
+#ifndef CLIP3
 #define CLIP3(min_val, max_val, x) (((x) < (min_val)) ? (min_val) : (((x) > (max_val)) ? (max_val) : (x)))
+#endif
 
 #define CLIP_U8(x)  CLIP3(0, 255, (x))
 #define CLIP_S8(x)  CLIP3(-128, 127, (x))
