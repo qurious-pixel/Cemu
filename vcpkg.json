@@ -67,6 +67,10 @@
         "zip"
       ]
     },
+    {
+      "name": "wayland-protocols",
+      "platform": "linux"
+    },
     "libusb",
     "pkgconf"
   ],
