@@ -4,7 +4,7 @@
 #if defined(_MSC_VER)
     #include <intrin.h>
     #if defined(_M_ARM64)
-        #include <arm64intrin.h>
+        #include <arm64intr.h>
         extern "C" uint64_t UnsignedDivision128(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder);
         #define BARRIER_FENCE() __dmb(_ARM64_BARRIER_ISH)
         #define READ_TSC()      _ReadStatusReg(ARM64_CNTVCT_EL0)
