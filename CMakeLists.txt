@@ -183,6 +183,8 @@ if (NOT TARGET glslang::SPIRV AND TARGET SPIRV)
 endif()
 
 if (UNIX AND NOT APPLE)
+# Force pkg-config to search system paths even when using vcpkg
+set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:/usr/share/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/local/share/pkgconfig")
 message(STATUS "--- WaylandProtocols Debug ---")
 message(STATUS "PKG_wayland_protocols_FOUND:   ${PKG_wayland_protocols_FOUND}")
 message(STATUS "PKG_wayland_protocols_VERSION: ${PKG_wayland_protocols_VERSION}")
