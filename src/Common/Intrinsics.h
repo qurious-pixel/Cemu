@@ -51,7 +51,6 @@ static inline uint64_t Divide128by64(uint64_t high, uint64_t low, uint64_t divis
 #elif defined(_MSC_VER) && defined(_M_X64)
     return _udiv128(high, low, divisor, remainder);
 #elif defined(_MSC_VER) && defined(_M_ARM64)
-    extern "C" uint64_t UnsignedDivision128(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder);
     return UnsignedDivision128(high, low, divisor, remainder);
 #else
     #error "128-bit division not supported"
