@@ -124,19 +124,24 @@ static void* _ppc_va_arg(ppc_va_list* vargs, ppc_va_type argType)
     #endif
 #endif
 
-// --- Safe Memory Copy Helpers ---
 #ifdef _WIN32
-    // Windows path: Use MSVC intrinsics
     static inline void safe_memcpy_dwords(void* dest, const void* src, size_t count) {
-        __movsd((unsigned long*)dest, (const unsigned long*)src, (unsigned long)count);
+        #if defined(_M_ARM64) || defined(_M_ARM)
+            memcpy(dest, src, count * 4);
+        #else
+            __movsd((unsigned long*)dest, (const unsigned long*)src, (unsigned long)count);
+        #endif
     }
     static inline void safe_memcpy_qwords(void* dest, const void* src, size_t count) {
-        __movsq((unsigned __int64*)dest, (const unsigned __int64*)src, count);
+        #if defined(_M_ARM64) || defined(_M_ARM)
+            memcpy(dest, src, count * 8);
+        #else
+            __movsq((unsigned __int64*)dest, (const unsigned __int64*)src, count);
+        #endif
     }
     #define SAFE_MOVSD(d, s, c) safe_memcpy_dwords((d), (s), (c))
     #define SAFE_MOVSQ(d, s, c) safe_memcpy_qwords((d), (s), (c))
 #else
-    // Linux/macOS path: Use standard memcpy (compilers optimize this to movsd/movsq anyway)
     static inline void safe_memcpy_dwords(void* dest, const void* src, size_t count) {
         memcpy(dest, src, count * 4);
     }
