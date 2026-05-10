@@ -227,11 +227,11 @@ target_link_libraries(CemuBin PRIVATE
 	CemuUtil
 )
 
-if(MSVC AND CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64")
-    # Link against ntdll or vccorlib to provide the 128-bit division helper
-    target_link_libraries(CemuBin PRIVATE ntdll.lib)
-	target_link_libraries(CemuCafe PRIVATE ntdll.lib)
-endif()
+##if(MSVC AND CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64")
+##    # Link against ntdll or vccorlib to provide the 128-bit division helper
+##    target_link_libraries(CemuBin PRIVATE ntdll.lib)
+##	target_link_libraries(CemuCafe PRIVATE ntdll.lib)
+##endif()
 
 if(ENABLE_SDL)
 	target_link_libraries(CemuBin PRIVATE SDL3::SDL3)
