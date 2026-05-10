@@ -7,6 +7,7 @@
 
 uint64 _rdtscLastMeasure = 0;
 uint64 _rdtscFrequency = 0;
+uint64 _tickSummary = 0;
 
 struct uint128_t
 {
