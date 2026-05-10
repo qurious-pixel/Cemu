@@ -182,16 +182,25 @@ if (NOT TARGET glslang::SPIRV AND TARGET SPIRV)
 	add_library(glslang::SPIRV ALIAS SPIRV)
 endif()
 
-
+if (UNIX AND NOT APPLE)
+	if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64")
+	    set(ARCH_TRIPLET "aarch64-linux-gnu")
+	elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+	    set(ARCH_TRIPLET "x86_64-linux-gnu")
+	else()
+	    message(WARNING "Unknown architecture: ${CMAKE_SYSTEM_PROCESSOR}")
+	endif()
+	if(ARCH_TRIPLET)
+	    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:/usr/share/pkgconfig:/usr/lib/${ARCH_TRIPLET}/pkgconfig:/usr/local/share/pkgconfig")
+	endif()
+endif()
 
 if (UNIX AND NOT APPLE)
 	find_package(X11 REQUIRED)
 	if (ENABLE_WAYLAND)
-		set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:/usr/share/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/local/share/pkgconfig")
 		find_package(Wayland REQUIRED Client)
 		find_package(WaylandScanner REQUIRED)
 		list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_PATH}/cmake")
-		#find_package(WaylandProtocols REQUIRED)
 		find_package(WaylandProtocols 1.15 REQUIRED) # MODULEHINTS "/usr/share/wayland-protocols")
 
 		ecm_add_wayland_client_protocol(WAYLAND_PROTOCOL_SRCS
