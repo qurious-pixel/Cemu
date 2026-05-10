@@ -183,6 +183,30 @@ if (NOT TARGET glslang::SPIRV AND TARGET SPIRV)
 endif()
 
 if (UNIX AND NOT APPLE)
+message(STATUS "--- WaylandProtocols Debug ---")
+message(STATUS "PKG_wayland_protocols_FOUND:   ${PKG_wayland_protocols_FOUND}")
+message(STATUS "PKG_wayland_protocols_VERSION: ${PKG_wayland_protocols_VERSION}")
+message(STATUS "WaylandProtocols_DATADIR:      ${WaylandProtocols_DATADIR}")
+message(STATUS "WaylandProtocols_VERSION:      ${WaylandProtocols_VERSION}")
+message(STATUS "------------------------------")
+# Check which pkg-config binary CMake is actually using
+message(STATUS "Using PkgConfig: ${PKG_CONFIG_EXECUTABLE}")
+
+# Check the search paths pkg-config is using for .pc files
+execute_process(
+    COMMAND ${PKG_CONFIG_EXECUTABLE} --variable pc_path pkg-config
+    OUTPUT_VARIABLE PC_SEARCH_PATHS
+)
+message(STATUS "Pkg-config search paths: ${PC_SEARCH_PATHS}")
+execute_process(
+    COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=pkgdatadir wayland-protocols
+    OUTPUT_VARIABLE RAW_DATADIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+message(STATUS "Raw pkg-config query for datadir: ${RAW_DATADIR}")
+endif()
+
+if (UNIX AND NOT APPLE)
 	find_package(X11 REQUIRED)
 	if (ENABLE_WAYLAND)
 		find_package(Wayland REQUIRED Client)
