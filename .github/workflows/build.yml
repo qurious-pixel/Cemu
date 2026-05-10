@@ -148,6 +148,11 @@ jobs:
       with:
         submodules: "recursive"
 
+    - name: Find arm64intrin.h
+      run: |
+        Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio" -Filter "arm64intrin.h" -Recurse
+      shell: pwsh
+
     - name: Setup release mode parameters
       run: |
         echo "BUILD_MODE=release" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
