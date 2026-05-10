@@ -1,10 +1,9 @@
 #if defined(__aarch64__) || defined(_M_ARM64)
   #ifdef _WIN32
     #include <intrin.h>
-    extern "C" uint64_t _umul128(uint64_t a, uint64_t b, uint64_t* high) {
-        return UnsignedMultiply128(a, b, high);
+    extern "C" uint64_t _udiv128(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder) {
+        return UnsignedDivision128(high, low, divisor, remainder);
     }
-
     extern "C" uint64_t _udiv128(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder) {
         unsigned __int128 dividend = ((unsigned __int128)high << 64) | low;
         unsigned __int128 quotient = dividend / divisor;
