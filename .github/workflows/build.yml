@@ -41,7 +41,7 @@ jobs:
     - name: Setup release mode parameters
       run: |
         echo "BUILD_MODE=release" >> $GITHUB_ENV
-        echo "BUILD_FLAGS=-DWaylandProtocols_DATADIR=/usr/share/wayland-protocols -DWayland_DATADIR=/usr/share/wayland-protocols" >> $GITHUB_ENV
+        echo "BUILD_FLAGS=-DWaylandProtocols_FOUND=ON -DWayland_FOUND=ON -DCMAKE_PREFIX_PATH=/usr;/usr/share/wayland-protocols -DWaylandProtocols_DATADIR=/usr/share/wayland-protocols -DWayland_DATADIR=/usr/share/wayland-protocols" >> $GITHUB_ENV
         echo "Build mode is release"
 
     - name: Setup build flags for version
