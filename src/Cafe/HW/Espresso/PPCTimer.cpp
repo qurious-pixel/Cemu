@@ -2,66 +2,58 @@
 
 #if defined(_MSC_VER)
     #include <intrin.h>
-    #if defined(_M_ARM64)
-        #include <arm64_neon.h>
-    #endif
 #endif
 
+static inline uint64_t Multiply64to128(uint64_t a, uint64_t b, uint64_t* high) {
 #if defined(__SIZEOF_INT128__)
-    typedef __int128_t int128;
-    typedef __uint128_t uint128;
+    unsigned __int128 res = (unsigned __int128)a * b;
+    *high = (uint64_t)(res >> 64);
+    return (uint64_t)res;
+#elif defined(_MSC_VER) && defined(_M_X64)
+    return _umul128(a, b, high);
+#elif defined(_MSC_VER) && defined(_M_ARM64)
+    *high = __umulh(a, b);
+    return a * b;
+#else
+    #error "128-bit multiplication not supported"
 #endif
+}
+
+static inline uint64_t Divide128by64(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder) {
+#if defined(__SIZEOF_INT128__)
+    unsigned __int128 dividend = ((unsigned __int128)high << 64) | low;
+    *remainder = (uint64_t)(dividend % divisor);
+    return (uint64_t)(dividend / divisor);
+#elif defined(_MSC_VER) && defined(_M_X64)
+    return _udiv128(high, low, divisor, remainder);
+#elif defined(_MSC_VER) && defined(_M_ARM64)
+    return UnsignedDivision128(high, low, divisor, remainder);
+#else
+    #error "128-bit division not supported"
+#endif
+}
 
 #if defined(_MSC_VER)
     #if defined(_M_ARM64)
         #define BARRIER_FENCE() __dmb(_ARM64_BARRIER_ISH)
         #define READ_TSC()      _ReadStatusReg(ARM64_CNTVCT_EL0)
-    #else // x64
+    #else
         #define BARRIER_FENCE() _mm_mfence()
         #define READ_TSC()      __rdtsc()
     #endif
-#else // GCC/Clang
+#else 
+    #define BARRIER_FENCE() __asm__ __volatile__ ("dmb ish" : : : "memory")
     #if defined(__aarch64__)
-        #define BARRIER_FENCE() __asm__ __volatile__ ("dmb ish" : : : "memory")
-        inline uint64_t READ_TSC() {
+        static inline uint64_t READ_TSC() {
             uint64_t val;
             __asm__ __volatile__("mrs %0, cntvct_el0" : "=r" (val));
             return val;
         }
-    #else // x64
+    #else
         #include <x86intrin.h>
-        #define BARRIER_FENCE() _mm_mfence()
         #define READ_TSC()      __rdtsc()
     #endif
 #endif
-
-inline uint64_t Multiply64to128(uint64_t a, uint64_t b, uint64_t* high) {
-#if defined(__SIZEOF_INT128__)
-    uint128 res = (uint128)a * (uint128)b;
-    *high = (uint64_t)(res >> 64);
-    return (uint64_t)res;
-#elif defined(_MSC_VER) && (defined(_M_X64) || defined(_M_ARM64))
-    return _umul128(a, b, high);
-#else
-    #error "128-bit multiplication not supported on this compiler/arch"
-#endif
-}
-
-inline uint64_t Divide128by64(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder) {
-#if defined(__SIZEOF_INT128__)
-    uint128 dividend = ((uint128)high << 64) | low;
-    uint128 quotient = dividend / divisor;
-    *remainder = (uint64_t)(dividend % divisor);
-    return (uint64_t)quotient;
-#elif defined(_MSC_VER) && defined(_M_X64)
-    return _udiv128(high, low, divisor, remainder);
-#elif defined(_MSC_VER) && defined(_M_ARM64)
-    uint128_t_dummy { uint64_t low; uint64_t high; }; 
-    return UnsignedDivision128(high, low, divisor, remainder);
-#else
-    #error "128-bit division not supported on this compiler/arch"
-#endif
-}
 
 #include "Cafe/HW/Espresso/Const.h"
 #include "config/ActiveSettings.h"
