@@ -256,7 +256,11 @@ namespace coreinit
 		uint8* destPtr = memory_getPointerFromVirtualOffset(hCPU->gpr[3]);
 		uint8* srcPtr = memory_getPointerFromVirtualOffset(hCPU->gpr[4]);
 		// copy right away, we don't emulate the DMAQueue currently
-		memcpy_qwords(destPtr, srcPtr, numBlocks * (32 / sizeof(uint64)));
+#if defined(_M_ARM64) || defined(_M_ARM)
+    	memcpy(dest, src, sizeInQwords * 8);
+#else
+    	__movsq((unsigned __int64*)dest, (const unsigned __int64*)src, sizeInQwords);
+#endif
 
 		LatteBufferCache_notifyDCFlush(hCPU->gpr[3], numBlocks * 32);
 
