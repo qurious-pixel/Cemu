@@ -23,7 +23,7 @@ ManifestDPIAware true
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 
 !define BINARY_SOURCE_DIR "..\..\bin"
-OutFile "cemu-${PRODUCT_VERSION}-windows-"${ARCH}"-installer.exe"
+OutFile "cemu-${PRODUCT_VERSION}-windows-${ARCH}-installer.exe"
 
 Name "${PRODUCT_NAME} (${ARCH})"
 SetCompressor /SOLID lzma
