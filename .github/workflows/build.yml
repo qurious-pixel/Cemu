@@ -200,11 +200,11 @@ jobs:
       run: Rename-Item bin/Cemu_release.exe Cemu.exe
     
     - name: Build NSIS Installer
-      if: matrix.os == 'windows-2025'
+      #if: matrix.os == 'windows-2025'
       shell: cmd
       run: |
         cd src\resource
-        makensis /DPRODUCT_VERSION=${{ inputs.next_version_major }}.${{ inputs.next_version_minor }} installer.nsi
+        makensis /DPRODUCT_VERSION=${{ inputs.next_version_major }}.${{ inputs.next_version_minor }} /DARCH=${{ matrix.arch }} installer.nsi
 
     - name: Upload artifact
       uses: actions/upload-artifact@v6
@@ -213,11 +213,11 @@ jobs:
         path: ./bin/Cemu.exe
 
     - name: Upload NSIS Installer
-      if: matrix.os == 'windows-2025'
+      #if: matrix.os == 'windows-2025'
       uses: actions/upload-artifact@v6
       with:
-        name: cemu-installer-windows-x64
-        path: ./src/resource/cemu-${{ inputs.next_version_major }}.${{ inputs.next_version_minor }}-windows-x64-installer.exe
+        name: cemu-installer-windows-${{ matrix.arch }}
+        path: ./src/resource/cemu-${{ inputs.next_version_major }}.${{ inputs.next_version_minor }}-windows-${{ matrix.arch }}-installer.exe
 
   build-macos:
     if: false
