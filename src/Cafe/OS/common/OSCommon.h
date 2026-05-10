@@ -117,8 +117,13 @@ static void* _ppc_va_arg(ppc_va_list* vargs, ppc_va_type argType)
 
 #include <string.h>
 
-#if defined(_M_X64) || defined(_M_IX86) || defined(__x86_64__)
-#include <intrin.h>
+#ifdef _WIN32
+	#include <intrin.h>
+#else
+	#if defined(__x86_64__) || defined(__i386__)
+    #include <x86intrin.h>
+  #endif
+#endif
 static inline void safe_memcpy_dwords(void* dest, const void* src, size_t count)
 {
     __movsd((unsigned long*)dest, (const unsigned long*)src, (unsigned long)count);
