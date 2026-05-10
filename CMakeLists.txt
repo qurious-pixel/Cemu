@@ -182,40 +182,16 @@ if (NOT TARGET glslang::SPIRV AND TARGET SPIRV)
 	add_library(glslang::SPIRV ALIAS SPIRV)
 endif()
 
-if (UNIX AND NOT APPLE)
-# Force pkg-config to search system paths even when using vcpkg
-set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:/usr/share/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/local/share/pkgconfig")
-message(STATUS "--- WaylandProtocols Debug ---")
-message(STATUS "PKG_wayland_protocols_FOUND:   ${PKG_wayland_protocols_FOUND}")
-message(STATUS "PKG_wayland_protocols_VERSION: ${PKG_wayland_protocols_VERSION}")
-message(STATUS "WaylandProtocols_DATADIR:      ${WaylandProtocols_DATADIR}")
-message(STATUS "WaylandProtocols_VERSION:      ${WaylandProtocols_VERSION}")
-message(STATUS "------------------------------")
-# Check which pkg-config binary CMake is actually using
-message(STATUS "Using PkgConfig: ${PKG_CONFIG_EXECUTABLE}")
 
-# Check the search paths pkg-config is using for .pc files
-execute_process(
-    COMMAND ${PKG_CONFIG_EXECUTABLE} --variable pc_path pkg-config
-    OUTPUT_VARIABLE PC_SEARCH_PATHS
-)
-message(STATUS "Pkg-config search paths: ${PC_SEARCH_PATHS}")
-execute_process(
-    COMMAND ${PKG_CONFIG_EXECUTABLE} --variable=pkgdatadir wayland-protocols
-    OUTPUT_VARIABLE RAW_DATADIR
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-message(STATUS "Raw pkg-config query for datadir: ${RAW_DATADIR}")
-endif()
 
 if (UNIX AND NOT APPLE)
 	find_package(X11 REQUIRED)
 	if (ENABLE_WAYLAND)
-		set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:/usr/share/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/local/share/pkgconfig")
+		#set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH}:/usr/share/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/local/share/pkgconfig")
 		find_package(Wayland REQUIRED Client)
 		find_package(WaylandScanner REQUIRED)
-		list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_PATH}/cmake")
-		find_package(WaylandProtocols REQUIRED)
+		#list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_PATH}/cmake")
+		#find_package(WaylandProtocols REQUIRED)
 		find_package(WaylandProtocols 1.15 MODULE REQUIRED) #HINTS "/usr/share/wayland-protocols")
 
 		ecm_add_wayland_client_protocol(WAYLAND_PROTOCOL_SRCS
