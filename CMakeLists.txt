@@ -216,7 +216,7 @@ if (UNIX AND NOT APPLE)
 		find_package(WaylandScanner REQUIRED)
 		list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_PATH}/cmake")
 		find_package(WaylandProtocols REQUIRED)
-		find_package(WaylandProtocols 1.15 REQUIRED HINTS "/usr/share/wayland-protocols")
+		find_package(WaylandProtocols 1.15 MODULE REQUIRED) #HINTS "/usr/share/wayland-protocols")
 
 		ecm_add_wayland_client_protocol(WAYLAND_PROTOCOL_SRCS
 			PROTOCOL "${WaylandProtocols_DATADIR}/stable/viewporter/viewporter.xml"
