@@ -708,12 +708,7 @@ void optimizedLinearReadbackWriteLoop(LatteTextureLoaderCtx* textureLoader, uint
 		copyType* blockData = (copyType*)LatteTextureLoader_getInputLinearOptimized_(textureLoader, 0, y, 1, 1, sizeof(copyType) * 8, 0, 1, 0, textureLoader->pitch, textureLoader->height);
 		if constexpr (sizeof(copyType) == 4)
 		{
-		size_t copySize = (size_t)textureLoader->width * sizeof(copyType);
-#if defined(_WIN32) && !defined(_M_ARM64)
-    	__movsd((unsigned long*)blockData, (const unsigned long*)rowPixelData, copySize / 4);
-#else
-    	memcpy(blockData, rowPixelData, copySize);
-#endif
+			SAFE_MOVSD(blockData, rowPixelData, textureLoader->width);
 		}
 		else
 		{
