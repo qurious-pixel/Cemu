@@ -150,7 +150,7 @@ jobs:
 
     - name: Find arm64intrin.h
       run: |
-        Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio" -Filter "arm64intrin.h" -Recurse
+        Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio" -Filter "arm64intr.h" -Recurse
       shell: pwsh
 
     - name: Setup release mode parameters
