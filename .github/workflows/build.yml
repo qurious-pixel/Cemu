@@ -18,7 +18,7 @@ env:
   
 jobs:
   build-ubuntu:
-    if: true
+    if: false
     continue-on-error: true
     strategy:
       fail-fast: false
@@ -148,11 +148,6 @@ jobs:
       with:
         submodules: "recursive"
 
-    - name: Find arm64intrin.h
-      run: |
-        Get-ChildItem -Path "C:\Program Files\Microsoft Visual Studio" -Filter "arm64intr.h" -Recurse
-      shell: pwsh
-
     - name: Setup release mode parameters
       run: |
         echo "BUILD_MODE=release" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf8 -Append
@@ -225,7 +220,7 @@ jobs:
         path: ./src/resource/cemu-${{ inputs.next_version_major }}.${{ inputs.next_version_minor }}-windows-${{ matrix.arch }}-installer.exe
 
   build-macos:
-    if: true
+    if: false
     runs-on: macos-14
     strategy:
       fail-fast: false
