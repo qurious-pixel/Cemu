@@ -1,19 +1,27 @@
-#if defined(_M_ARM64)
-#include <intrin.h>
-
-extern "C" uint64_t _umul128(uint64_t a, uint64_t b, uint64_t* high) {
-    // UnsignedMultiply128 is the official MSVC intrinsic for ARM64
-    return UnsignedMultiply128(a, b, high);
-}
-
-extern "C" uint64_t _udiv128(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder) {
-    // MSVC ARM64 intrinsic for 128-bit / 64-bit division
-    // We use the global namespace :: to ensure we call the compiler intrinsic
-    return ::_udiv128(high, low, divisor, remainder);
-}
-
-#define _mm_mfence() __dmb(_ARM64_BARRIER_ISH)
-#define __rdtsc() _ReadStatusReg(ARM64_CNTVCT_EL0)
+#if defined(__aarch64__) || defined(_M_ARM64)
+  #ifdef _WIN32
+    #include <intrin.h>
+    extern "C" uint64_t _umul128(uint64_t a, uint64_t b, uint64_t* high) {
+        return UnsignedMultiply128(a, b, high);
+    }
+    extern "C" uint64_t _udiv128(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder) {
+        return ::_udiv128(high, low, divisor, remainder);
+    }
+    #define _mm_mfence() __dmb(_ARM64_BARRIER_ISH)
+    #define __rdtsc() _ReadStatusReg(ARM64_CNTVCT_EL0)
+  #else
+    static inline uint64_t _udiv128(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder) {
+        unsigned __int128 dividend = ((unsigned __int128)high << 64) | low;
+        if (remainder) *remainder = (uint64_t)(dividend % divisor);
+        return (uint64_t)(dividend / divisor);
+    }
+    #define _mm_mfence() __asm__ __volatile__ ("dmb ish" : : : "memory") 
+    static inline uint64_t __rdtsc() {
+        uint64_t val;
+        __asm__ __volatile__("mrs %0, cntvct_el0" : "=r" (val));
+        return val;
+    }
+  #endif
 #endif
 
 #include "Cafe/HW/Espresso/Const.h"
