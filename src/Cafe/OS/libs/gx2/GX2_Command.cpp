@@ -42,7 +42,11 @@ void gx2WriteGather_submitU32AsLEArray(uint32* v, uint32 numValues)
 	uint32 coreIndex = PPCInterpreter_getCoreIndex(PPCInterpreter_getCurrentInstance());
 	if (GX2::s_perCoreCBState[coreIndex].currentWritePtr == nullptr)
 		return;
-	memcpy_dwords(GX2::s_perCoreCBState[coreIndex].currentWritePtr, v, numValues);
+#if defined(_M_ARM64) || defined(_M_ARM)
+    memcpy(dest, src, count * 4);
+#else
+    __movsd((unsigned long*)dest, (const unsigned long*)src, count);
+#endif
 	GX2::s_perCoreCBState[coreIndex].currentWritePtr += numValues;
 	cemu_assert_debug(GX2::s_perCoreCBState[coreIndex].currentWritePtr <= (GX2::s_perCoreCBState[coreIndex].bufferPtr + GX2::s_perCoreCBState[coreIndex].bufferSizeInU32s));
 }
