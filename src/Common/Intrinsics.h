@@ -5,7 +5,6 @@
     #include <intrin.h>
     #if defined(_M_ARM64)
         #include <arm64intr.h>
-        extern "C" uint64_t UnsignedDivision128(uint64_t high, uint64_t low, uint64_t divisor, uint64_t* remainder);
         #define BARRIER_FENCE() __dmb(_ARM64_BARRIER_ISH)
         #define READ_TSC()      _ReadStatusReg(ARM64_CNTVCT_EL0)
     #else
@@ -39,7 +38,16 @@ static inline uint64_t Multiply64to128(uint64_t a, uint64_t b, uint64_t* high) {
     *high = __umulh(a, b);
     return a * b;
 #else
-    #error "128-bit multiplication not supported on this platform"
+    // Generic fallback for other compilers/archs
+    uint64_t a_lo = (uint32_t)a, a_hi = a >> 32;
+    uint64_t b_lo = (uint32_t)b, b_hi = b >> 32;
+    uint64_t p0 = a_lo * b_lo;
+    uint64_t p1 = a_lo * b_hi;
+    uint64_t p2 = a_hi * b_lo;
+    uint64_t p3 = a_hi * b_hi;
+    uint64_t cy = (uint32_t)(p0 >> 32) + (uint32_t)p1 + (uint32_t)p2;
+    *high = p3 + (p1 >> 32) + (p2 >> 32) + (cy >> 32);
+    return (p0 & 0xFFFFFFFF) | (cy << 32);
 #endif
 }
 
@@ -50,9 +58,31 @@ static inline uint64_t Divide128by64(uint64_t high, uint64_t low, uint64_t divis
     return (uint64_t)(dividend / divisor);
 #elif defined(_MSC_VER) && defined(_M_X64)
     return _udiv128(high, low, divisor, remainder);
-#elif defined(_MSC_VER) && defined(_M_ARM64)
-    return UnsignedDivision128(high, low, divisor, remainder);
 #else
-    #error "128-bit division not supported"
+    // Software fallback for MSVC ARM64 and others
+    // This implements long division for 128-bit / 64-bit
+    if (high < divisor) {
+        // Common case for many emulators: quotient fits in 64 bits
+        uint64_t q, r;
+        // Schoolbook division: split 128-bit into 4x32-bit if necessary, 
+        // but here we use a binary long division for simplicity and correctness.
+        uint64_t rem = high;
+        uint64_t quot = 0;
+        for (int i = 63; i >= 0; i--) {
+            rem = (rem << 1) | ((low >> i) & 1);
+            if (rem >= divisor) {
+                rem -= divisor;
+                quot |= (1ULL << i);
+            }
+        }
+        *remainder = rem;
+        return quot;
+    } else {
+        // Quotient overflow: high >= divisor means result > 64 bits.
+        // If your code expects a 64-bit return, this is technically an error state.
+        // Return max value as a sentinel or handle as needed.
+        *remainder = 0; 
+        return 0xFFFFFFFFFFFFFFFFULL;
+    }
 #endif
 }
