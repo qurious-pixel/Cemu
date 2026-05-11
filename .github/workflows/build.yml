@@ -18,7 +18,7 @@ env:
   
 jobs:
   build-ubuntu:
-    if: false
+    if: true
     continue-on-error: true
     strategy:
       fail-fast: false
@@ -220,7 +220,7 @@ jobs:
         path: ./src/resource/cemu-${{ inputs.next_version_major }}.${{ inputs.next_version_minor }}-windows-${{ matrix.arch }}-installer.exe
 
   build-macos:
-    if: false
+    if: true
     runs-on: macos-14
     strategy:
       fail-fast: false
