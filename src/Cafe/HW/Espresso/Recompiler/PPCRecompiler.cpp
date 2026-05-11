@@ -41,17 +41,23 @@ struct ppcRecompilerFuncRange
 
 struct
 {
-	std::atomic_bool initialized{false};
-	FSpinlock recompilerSpinlock;
-	std::queue<MPTR> targetQueue;
-	std::vector<ppcInvalidationRange> invalidationRanges;
-	std::atomic_int_fast32_t recompilerEnableCount{0};
-	// recompiler thread
-	std::thread workerThread;
-	std::atomic_bool workerThreadStopSignal{false};
-	// function storage
-	RangeStore<PPCRecFunction_t*, uint32, 7703, 0x2000> functionStorage;
-}s_ppcRecompilerState;
+    std::atomic_bool initialized{false};
+    
+    // Replacement for FSpinlock
+    std::mutex recompilerMutex;
+    std::condition_variable cv;
+    
+    std::queue<MPTR> targetQueue;
+    std::vector<ppcInvalidationRange> invalidationRanges;
+    std::atomic_int_fast32_t recompilerEnableCount{0};
+    
+    // Recompiler thread
+    std::thread workerThread;
+    std::atomic_bool workerThreadStopSignal{false};
+    
+    // Function storage
+    RangeStore<PPCRecFunction_t*, uint32, 7703, 0x2000> functionStorage;
+} s_ppcRecompilerState;
 
 void ATTR_MS_ABI (*PPCRecompiler_enterRecompilerCode)(uint64 codeMem, uint64 ppcInterpreterInstance);
 void ATTR_MS_ABI (*PPCRecompiler_leaveRecompilerCode_visited)();
@@ -68,43 +74,21 @@ void PPCRecompiler_recompileAtAddress(uint32 address);
 // this function does never block and can fail if the recompiler lock cannot be acquired immediately
 void PPCRecompiler_visitAddressNoBlock(uint32 enterAddress)
 {
-#if PPCREC_FORCE_SYNCHRONOUS_COMPILATION
-	if (ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[enterAddress / 4] != PPCRecompiler_leaveRecompilerCode_unvisited)
-		return;
-	s_ppcRecompilerState.recompilerSpinlock.lock();
-	if (ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[enterAddress / 4] != PPCRecompiler_leaveRecompilerCode_unvisited)
-	{
-		s_ppcRecompilerState.recompilerSpinlock.unlock();
-		return;
-	}
-	ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[enterAddress / 4] = PPCRecompiler_leaveRecompilerCode_visited;
-	s_ppcRecompilerState.recompilerSpinlock.unlock();
-	s_singleRecompilationMutex.lock();
-	if (ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[enterAddress / 4] == PPCRecompiler_leaveRecompilerCode_visited)
-	{
-		PPCRecompiler_recompileAtAddress(enterAddress);
-	}
-	s_singleRecompilationMutex.unlock();
-	return;
-#endif
-	// quick read-only check without lock
-	if (ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[enterAddress / 4] != PPCRecompiler_leaveRecompilerCode_unvisited)
-		return;
-	// try to acquire lock
-	if (!s_ppcRecompilerState.recompilerSpinlock.try_lock())
-		return;
-	auto funcPtr = ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[enterAddress / 4];
-	if (funcPtr != PPCRecompiler_leaveRecompilerCode_unvisited)
-	{
-		// was visited since previous check
-		s_ppcRecompilerState.recompilerSpinlock.unlock();
-		return;
-	}
-	// add to recompilation queue and flag as visited
-	s_ppcRecompilerState.targetQueue.emplace(enterAddress);
-	ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[enterAddress / 4] = PPCRecompiler_leaveRecompilerCode_visited;
+    if (ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[enterAddress / 4] != PPCRecompiler_leaveRecompilerCode_unvisited)
+        return;
 
-	s_ppcRecompilerState.recompilerSpinlock.unlock();
+    {
+        std::unique_lock<std::mutex> lock(s_ppcRecompilerState.recompilerMutex);
+        
+        if (ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[enterAddress / 4] != PPCRecompiler_leaveRecompilerCode_unvisited)
+            return;
+
+        s_ppcRecompilerState.targetQueue.emplace(enterAddress);
+        ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[enterAddress / 4] = PPCRecompiler_leaveRecompilerCode_visited;
+    }
+    
+    // Wake up the worker thread
+    s_ppcRecompilerState.cv.notify_one();
 }
 
 void PPCRecompiler_recompileIfUnvisited(uint32 enterAddress)
@@ -452,45 +436,34 @@ void PPCRecompiler_recompileAtAddress(uint32 address)
 
 void PPCRecompiler_thread()
 {
-	SetThreadName("PPCRecompiler");
-#if PPCREC_FORCE_SYNCHRONOUS_COMPILATION
-	return;
-#endif
+    SetThreadName("PPCRecompiler");
 
-	while (true)
-	{
-        if(s_ppcRecompilerState.workerThreadStopSignal)
-            return;
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		// asynchronous recompilation:
-		// 1) take address from queue
-		// 2) check if address is still marked as visited
-		// 3) if yes -> calculate size, gather all entry points, recompile and update jump table
-		while (true)
-		{
-			s_ppcRecompilerState.recompilerSpinlock.lock();
-			if (s_ppcRecompilerState.targetQueue.empty())
-			{
-				s_ppcRecompilerState.recompilerSpinlock.unlock();
-				break;
-			}
-			auto enterAddress = s_ppcRecompilerState.targetQueue.front();
-			s_ppcRecompilerState.targetQueue.pop();
+    while (true)
+    {
+        MPTR enterAddress = 0;
 
-			auto funcPtr = ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[enterAddress / 4];
-			if (funcPtr != PPCRecompiler_leaveRecompilerCode_visited)
-			{
-				// only recompile functions if marked as visited
-				s_ppcRecompilerState.recompilerSpinlock.unlock();
-				continue;
-			}
-			s_ppcRecompilerState.recompilerSpinlock.unlock();
+        {
+            std::unique_lock<std::mutex> lock(s_ppcRecompilerState.recompilerMutex);
+            
+            // Wait until the queue has items OR we are shutting down
+            s_ppcRecompilerState.cv.wait(lock, [] {
+                return !s_ppcRecompilerState.targetQueue.empty() || s_ppcRecompilerState.workerThreadStopSignal;
+            });
 
-			PPCRecompiler_recompileAtAddress(enterAddress);
-			if(s_ppcRecompilerState.workerThreadStopSignal)
-				return;
-		}
-	}
+            if (s_ppcRecompilerState.workerThreadStopSignal && s_ppcRecompilerState.targetQueue.empty())
+                return;
+
+            enterAddress = s_ppcRecompilerState.targetQueue.front();
+            s_ppcRecompilerState.targetQueue.pop();
+
+            auto funcPtr = ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[enterAddress / 4];
+            if (funcPtr != PPCRecompiler_leaveRecompilerCode_visited)
+                continue;
+        }
+
+        // Recompilation happens OUTSIDE the lock to allow UI thread access to findRanges
+        PPCRecompiler_recompileAtAddress(enterAddress);
+    }
 }
 
 #define PPC_REC_ALLOC_BLOCK_SIZE	(4*1024*1024) // 4MB
@@ -705,7 +678,12 @@ void PPCRecompiler_init()
 void PPCRecompiler_Shutdown()
 {
     // shut down recompiler thread
-    s_ppcRecompilerState.workerThreadStopSignal = true;
+    {
+        std::unique_lock<std::mutex> lock(s_ppcRecompilerState.recompilerMutex);
+        s_ppcRecompilerState.workerThreadStopSignal = true;
+    }
+    s_ppcRecompilerState.cv.notify_all();
+
     if(s_ppcRecompilerState.workerThread.joinable())
         s_ppcRecompilerState.workerThread.join();
     // clean up queues
