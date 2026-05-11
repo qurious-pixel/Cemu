@@ -78,7 +78,7 @@ void PPCRecompiler_visitAddressNoBlock(uint32 enterAddress)
         return;
 
     {
-        std::unique_lock<std::mutex> lock(s_ppcRecompilerState.recompilerMutex);
+        std::lock_guard<std::mutex> lock(s_ppcRecompilerState.recompilerMutex);
         
         if (ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[enterAddress / 4] != PPCRecompiler_leaveRecompilerCode_unvisited)
             return;
@@ -345,13 +345,13 @@ bool PPCRecompiler_ApplyIMLPasses(ppcImlGenContext_t& ppcImlGenContext)
 bool PPCRecompiler_makeRecompiledFunctionActive(uint32 initialEntryPoint, PPCFunctionBoundaryTracker::PPCRange_t& range, PPCRecFunction_t* ppcRecFunc, std::vector<std::pair<MPTR, uint32>>& entryPoints)
 {
 	// update jump table
-	s_ppcRecompilerState.recompilerSpinlock.lock();
+	s_ppcRecompilerState.recompilerMutex.lock();
 
 	// check if the initial entrypoint is still flagged for recompilation
 	// its possible that the range has been invalidated during the time it took to translate the function
 	if (ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable[initialEntryPoint / 4] != PPCRecompiler_leaveRecompilerCode_visited)
 	{
-		s_ppcRecompilerState.recompilerSpinlock.unlock();
+		s_ppcRecompilerState.recompilerMutex.unlock();
 		return false;
 	}
 
@@ -373,7 +373,7 @@ bool PPCRecompiler_makeRecompiledFunctionActive(uint32 initialEntryPoint, PPCFun
 	s_ppcRecompilerState.invalidationRanges.clear();
 	if (isInvalidated)
 	{
-		s_ppcRecompilerState.recompilerSpinlock.unlock();
+		s_ppcRecompilerState.recompilerMutex.unlock();
 		return false;
 	}
 
@@ -401,7 +401,7 @@ bool PPCRecompiler_makeRecompiledFunctionActive(uint32 initialEntryPoint, PPCFun
 	{
 		r.storedRange = s_ppcRecompilerState.functionStorage.storeRange(ppcRecFunc, r.ppcAddress, r.ppcAddress + r.ppcSize);
 	}
-	s_ppcRecompilerState.recompilerSpinlock.unlock();
+	s_ppcRecompilerState.recompilerMutex.unlock();
 	return true;
 }
 
@@ -422,10 +422,10 @@ void PPCRecompiler_recompileAtAddress(uint32 address)
 	// todo - use info from previously compiled ranges to determine full size of this function (and merge all the entryAddresses)
 
 	// collect all currently known entry points for this range
-	s_ppcRecompilerState.recompilerSpinlock.lock();
+	s_ppcRecompilerState.recompilerMutex.lock();
 	std::set<uint32> entryAddresses;
 	entryAddresses.emplace(address);
-	s_ppcRecompilerState.recompilerSpinlock.unlock();
+	s_ppcRecompilerState.recompilerMutex.unlock();
 
 	std::vector<std::pair<MPTR, uint32>> functionEntryPoints;
 	PPCRecFunction_t* func = PPCRecompiler_recompileFunction(range, entryAddresses, functionEntryPoints, funcBoundaries);
@@ -513,7 +513,7 @@ void PPCRecompiler_allocateRange(uint32 startAddress, uint32 size)
 
 bool PPCRecompiler_findFuncRanges(uint32 addr, ppcRecompilerFuncRange* rangesOut, size_t* countInOut)
 {
-	s_ppcRecompilerState.recompilerSpinlock.lock();
+	s_ppcRecompilerState.recompilerMutex.lock();
 	size_t countIn = *countInOut;
 	size_t countOut = 0;
 
@@ -529,7 +529,7 @@ bool PPCRecompiler_findFuncRanges(uint32 addr, ppcRecompilerFuncRange* rangesOut
 		countOut++;
 	}
 	);
-	s_ppcRecompilerState.recompilerSpinlock.unlock();
+	s_ppcRecompilerState.recompilerMutex.unlock();
 	*countInOut = countOut;
 	if (countOut > countIn)
 		return false;
@@ -545,7 +545,7 @@ extern "C" DLLEXPORT uintptr_t* PPCRecompiler_getJumpTableBase()
 
 void PPCRecompiler_deleteFunction(PPCRecFunction_t* func)
 {
-	cemu_assert_debug(s_ppcRecompilerState.recompilerSpinlock.is_locked());
+	cemu_assert_debug(s_ppcRecompilerState.recompilerMutex.is_locked());
 	// unlink entrypoints from JumpTable
 	for (auto& entrypoint : func->jumpTableEntries)
 	{
@@ -570,7 +570,7 @@ void PPCRecompiler_invalidateRange(uint32 startAddr, uint32 endAddr)
 		return;
 	cemu_assert_debug(endAddr >= startAddr);
 
-	s_ppcRecompilerState.recompilerSpinlock.lock();
+	s_ppcRecompilerState.recompilerMutex.lock();
 
 	uint32 rStart;
 	uint32 rEnd;
@@ -581,7 +581,7 @@ void PPCRecompiler_invalidateRange(uint32 startAddr, uint32 endAddr)
 	// add entry to invalidation queue, this is used to invalidate functions for which recompilation has already started
 	s_ppcRecompilerState.invalidationRanges.emplace_back(startAddr, endAddr-startAddr);
 
-	s_ppcRecompilerState.recompilerSpinlock.unlock();
+	s_ppcRecompilerState.recompilerMutex.unlock();
 }
 
 #if defined(ARCH_X86_64)
