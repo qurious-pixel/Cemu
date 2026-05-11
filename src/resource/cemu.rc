@@ -107,6 +107,8 @@ IDR_FONTAWESOME         RCDATA                  "resource\\fontawesome-webfont.t
 
 #endif    // Neutral resources
 
+#include "wx/msw/wx.rc"
+
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
