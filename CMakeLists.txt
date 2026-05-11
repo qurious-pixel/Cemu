@@ -200,7 +200,7 @@ if (UNIX AND NOT APPLE)
 	if (ENABLE_WAYLAND)
 		find_package(Wayland REQUIRED Client)
 		find_package(WaylandScanner REQUIRED)
-		list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_PATH}/cmake")
+		#list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_PATH}/cmake")
 		find_package(WaylandProtocols 1.15 REQUIRED) # MODULEHINTS "/usr/share/wayland-protocols")
 
 		ecm_add_wayland_client_protocol(WAYLAND_PROTOCOL_SRCS
