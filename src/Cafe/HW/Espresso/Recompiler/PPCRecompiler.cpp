@@ -46,7 +46,9 @@ struct
     // Replacement for FSpinlock
     std::mutex recompilerMutex;
     std::condition_variable cv;
-    
+
+	std::atomic<std::thread::id> mutexOwner{ std::thread::id() };
+
     std::queue<MPTR> targetQueue;
     std::vector<ppcInvalidationRange> invalidationRanges;
     std::atomic_int_fast32_t recompilerEnableCount{0};
@@ -543,9 +545,23 @@ extern "C" DLLEXPORT uintptr_t* PPCRecompiler_getJumpTableBase()
 	return (uintptr_t*)ppcRecompilerInstanceData->ppcRecompilerDirectJumpTable;
 }
 
+void LockRecompiler() {
+    s_ppcRecompilerState.recompilerMutex.lock();
+    s_ppcRecompilerState.mutexOwner.store(std::this_thread::get_id());
+}
+
+void UnlockRecompiler() {
+    s_ppcRecompilerState.mutexOwner.store(std::thread::id());
+    s_ppcRecompilerState.recompilerMutex.unlock();
+}
+
+bool IsRecompilerLockedByMe() {
+    return s_ppcRecompilerState.mutexOwner.load() == std::this_thread::get_id();
+}
+
 void PPCRecompiler_deleteFunction(PPCRecFunction_t* func)
 {
-	cemu_assert_debug(s_ppcRecompilerState.recompilerMutex.is_locked());
+	cemu_assert_debug(IsRecompilerLockedByMe());
 	// unlink entrypoints from JumpTable
 	for (auto& entrypoint : func->jumpTableEntries)
 	{
