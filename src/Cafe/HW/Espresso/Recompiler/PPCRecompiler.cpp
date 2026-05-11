@@ -693,9 +693,16 @@ void PPCRecompiler_init()
 
 void PPCRecompiler_Shutdown()
 {
+    
+	if (!s_ppcRecompilerState.initialized)
+        return;
+
+    s_ppcRecompilerState.initialized = false;
+    s_ppcRecompilerState.recompilerEnableCount = 0;
+
     // shut down recompiler thread
     {
-        std::unique_lock<std::mutex> lock(s_ppcRecompilerState.recompilerMutex);
+        std::lock_guard<std::mutex> lock(s_ppcRecompilerState.recompilerMutex);
         s_ppcRecompilerState.workerThreadStopSignal = true;
     }
     s_ppcRecompilerState.cv.notify_all();
