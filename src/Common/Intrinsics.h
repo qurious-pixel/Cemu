@@ -4,7 +4,8 @@
 #if defined(_MSC_VER)
     #include <intrin.h>
     #if defined(_M_ARM64)
-        #include <arm64intr.h>
+        //#include <arm64intr.h>
+        #include <arm64intrin.h>
         #define BARRIER_FENCE() __dmb(_ARM64_BARRIER_ISH)
         #define READ_TSC()      _ReadStatusReg(ARM64_CNTVCT_EL0)
     #else
