@@ -190,23 +190,22 @@ jobs:
           --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --productId Microsoft.VisualStudio.Product.Enterprise" `
           -y
           
-    - name: Verify arm64intrin.h exists
+    - name: Verify arm64intrin.h exists in Enterprise
       if: ${{ matrix.arch == 'arm64' }}
       run: |
-        $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -property installationPath -version '[17.0,18.0)'
+        $vsPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+        Write-Host "Searching for arm64intrin.h inside Enterprise SKU..."
         
-        Write-Host "Searching for arm64intrin.h in $vsPath..."
-        # Give filesystem a brief second to catch up, then search deeply
-        Start-Sleep -Seconds 3
+        # Look specifically inside the MSVC native toolset includes
         $headerFile = Get-ChildItem -Path $vsPath -Filter "arm64intrin.h" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
         
         if ($headerFile) {
-            Write-Host "Success! Found header at: $($headerFile.FullName)"
+            Write-Host "SUCCESS! Found header file at: $($headerFile.FullName)"
         } else {
-            # Let's see what *was* installed if it fails
-            Write-Host "Listing parent include directory contents to debug..."
+            Write-Error "CRITICAL FAILURE: arm64intrin.h still missing from Enterprise SKU paths."
+            
+            Write-Host "Listing what headers DO exist in the MSVC directory for debugging:"
             Get-ChildItem -Path "$vsPath\VC\Tools\MSVC\" -Recurse -Filter "intrin.h" -ErrorAction SilentlyContinue | Select-Object FullName
-            Write-Error "CRITICAL: arm64intrin.h could not be found."
             exit 1
         }
       shell: powershell
