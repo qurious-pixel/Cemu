@@ -183,47 +183,33 @@ jobs:
         setapikey "${{ secrets.GITHUB_TOKEN }}" \
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
-    - name: Install VS 2022 ARM64 Tools via Chocolatey
+    - name: Force Ingest Missing ARM64 Intrinsic Headers
       if: ${{ matrix.arch == 'arm64' }}
       run: |
-        choco install visualstudio2022-workload-vctools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.ARM64" -y
-
-    - name: Link ARM64 Headers to Enterprise SKU
-      if: ${{ matrix.arch == 'arm64' }}
-      run: |
-        $enterprisePath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC"
-        $buildToolsPath = "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC"
-
-        # 1. Find the MSVC version directory inside BuildTools (e.g., 14.40.xxxxx)
-        $btVersionDir = Get-ChildItem -Path $buildToolsPath | Where-Object { $_.PSIsContainer } | Select-Object -First 1
+        # 1. Locate the active MSVC toolset directory inside Enterprise SKU
+        $enterpriseMsvcPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC"
+        $versionDir = Get-ChildItem -Path $enterpriseMsvcPath | Where-Object { $_.PSIsContainer } | Select-Object -First 1
         
-        # 2. Find the active MSVC version directory inside Enterprise
-        $entVersionDir = Get-ChildItem -Path $enterprisePath | Where-Object { $_.PSIsContainer } | Select-Object -First 1
-
-        if ($btVersionDir -and $entVersionDir) {
-            $srcInclude = Join-Path $btVersionDir.FullName "include"
-            $destInclude = Join-Path $entVersionDir.FullName "include"
-
-            Write-Host "Copying missing ARM64 headers from $srcInclude to $destInclude..."
-            
-            # Copy all files matching *arm64* into Enterprise include directory
-            Copy-Item -Path "$srcInclude\*arm64*" -Destination $destInclude -Force -Recurse
-        } else {
-            Write-Error "Could not map MSVC version directories toolchains."
+        if (-not $versionDir) {
+            Write-Error "Could not find a valid MSVC directory in Enterprise SKU."
             exit 1
         }
-      shell: powershell
-
-    - name: Verify arm64intrin.h exists in Enterprise
-      if: ${{ matrix.arch == 'arm64' }}
-      run: |
-        $vsPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
-        $headerFile = Get-ChildItem -Path $vsPath -Filter "arm64intrin.h" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
         
-        if ($headerFile) {
-            Write-Host "SUCCESS! Found header file at: $($headerFile.FullName)"
+        $targetIncludePath = Join-Path $versionDir.FullName "include"
+        Write-Host "Target compiler include path located at: $targetIncludePath"
+
+        # 2. Download arm64intrin.h directly from Microsoft's official repository
+        $arm64HeaderUrl = "https://raw.githubusercontent.com/microsoft/STL/main/stl/inc/arm64intrin.h"
+        $targetFile = Join-Path $targetIncludePath "arm64intrin.h"
+        
+        Write-Host "Downloading missing header from Microsoft source..."
+        Invoke-WebRequest -Uri $arm64HeaderUrl -OutFile $targetFile
+        
+        # 3. Quick verification to guarantee the file is locked onto the disk
+        if (Test-Path $targetFile) {
+            Write-Host "SUCCESS! Explicitly placed header file at: $targetFile"
         } else {
-            Write-Error "CRITICAL FAILURE: arm64intrin.h is still missing."
+            Write-Error "CRITICAL: Failed to write downloaded header to target path."
             exit 1
         }
       shell: powershell
