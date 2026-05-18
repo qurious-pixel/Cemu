@@ -184,19 +184,32 @@ jobs:
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
     - name: Install VS 2022 ARM64 Build Tools
-      if: ${{ matrix.arch == 'arm64'}}
+      if: ${{ matrix.arch == 'arm64' }}
       run: |
-        $installer = Start-Process -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" -ArgumentList "modify --installPath ""C:\Program Files\Microsoft Visual Studio\2022\Enterprise"" --add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --passive --norestart" -Wait -PassThru
-        if ($installer.ExitCode -ne 0) {
-            Write-Error "VS Installer failed with exit code $($installer.ExitCode)"
-            exit $installer.ExitCode
+        # 1. Dynamically locate the Visual Studio installation path using vswhere
+        $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -property installationPath -version '[17.0,18.0)'
+        Write-Host "Found Visual Studio installation at: $vsPath"
+
+        # 2. Launch the installer
+        $process = Start-Process -FilePath "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe" -ArgumentList "modify --installPath ""$vsPath"" --add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --passive --norestart" -PassThru
+        
+        # 3. CRITICAL: Force PowerShell to wait for the actual background installation to finish
+        Write-Host "Waiting for VS Installer to complete. This will take a few minutes..."
+        $process.WaitForExit()
+
+        if ($process.ExitCode -ne 0) {
+            Write-Error "VS Installer failed with exit code $($process.ExitCode)"
+            exit $process.ExitCode
         }
       shell: powershell
 
     - name: Verify arm64intrin.h exists
-      if: ${{ matrix.arch == 'arm64'}}
+      if: ${{ matrix.arch == 'arm64' }}
       run: |
-        $vsPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+        # Use vswhere again to ensure we search the exact same directory
+        $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -property installationPath -version '[17.0,18.0)'
+        
+        Write-Host "Searching for arm64intrin.h in $vsPath..."
         $headerFile = Get-ChildItem -Path $vsPath -Filter "arm64intrin.h" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
         
         if ($headerFile) {
@@ -206,7 +219,6 @@ jobs:
             exit 1
         }
       shell: powershell
-
       
     - name: "cmake"
       run: |
