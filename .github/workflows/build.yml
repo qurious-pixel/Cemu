@@ -186,36 +186,43 @@ jobs:
     - name: Install VS 2022 ARM64 Build Tools
       if: ${{ matrix.arch == 'arm64' }}
       run: |
-        # 1. Dynamically locate the Visual Studio installation path using vswhere
-        $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -property installationPath -version '[17.0,18.0)'
-        Write-Host "Found Visual Studio installation at: $vsPath"
-
-        # 2. Launch the installer
-        $process = Start-Process -FilePath "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vs_installer.exe" -ArgumentList "modify --installPath ""$vsPath"" --add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --passive --norestart" -PassThru
+        # 1. Download the official clean VS 2022 Bootstrapper
+        Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vs_buildtools.exe" -OutFile "vs_buildtools.exe"
         
-        # 3. CRITICAL: Force PowerShell to wait for the actual background installation to finish
-        Write-Host "Waiting for VS Installer to complete. This will take a few minutes..."
+        # 2. Find where the runner image installed Visual Studio 
+        $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -property installationPath -version '[17.0,18.0)'
+        Write-Host "Modifying Visual Studio installation at: $vsPath"
+
+        # 3. Launch the bootstrapper directly targeting the detected installation path
+        $process = Start-Process -FilePath ".\vs_buildtools.exe" -ArgumentList "modify --installPath ""$vsPath"" --add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --quiet --norestart" -PassThru
+        
+        Write-Host "Waiting for ARM64 tools installation to complete..."
         $process.WaitForExit()
 
-        if ($process.ExitCode -ne 0) {
-            Write-Error "VS Installer failed with exit code $($process.ExitCode)"
+        if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 3010) {
+            Write-Error "Installer failed with exit code $($process.ExitCode)"
             exit $process.ExitCode
         }
+        Write-Host "Installation process finished."
       shell: powershell
 
     - name: Verify arm64intrin.h exists
       if: ${{ matrix.arch == 'arm64' }}
       run: |
-        # Use vswhere again to ensure we search the exact same directory
         $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -property installationPath -version '[17.0,18.0)'
         
         Write-Host "Searching for arm64intrin.h in $vsPath..."
+        # Give filesystem a brief second to catch up, then search deeply
+        Start-Sleep -Seconds 3
         $headerFile = Get-ChildItem -Path $vsPath -Filter "arm64intrin.h" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
         
         if ($headerFile) {
             Write-Host "Success! Found header at: $($headerFile.FullName)"
         } else {
-            Write-Error "CRITICAL: arm64intrin.h could not be found in Visual Studio paths."
+            # Let's see what *was* installed if it fails
+            Write-Host "Listing parent include directory contents to debug..."
+            Get-ChildItem -Path "$vsPath\VC\Tools\MSVC\" -Recurse -Filter "intrin.h" -ErrorAction SilentlyContinue | Select-Object FullName
+            Write-Error "CRITICAL: arm64intrin.h could not be found."
             exit 1
         }
       shell: powershell
