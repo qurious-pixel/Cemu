@@ -183,6 +183,31 @@ jobs:
         setapikey "${{ secrets.GITHUB_TOKEN }}" \
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
+    - name: Install VS 2022 ARM64 Build Tools
+      if: ${{ matrix.arch == 'arm64'}}
+      run: |
+        $installer = Start-Process -FilePath "C:\Program Files (x86)\Microsoft Visual Studio\Installer\vs_installer.exe" -ArgumentList "modify --installPath ""C:\Program Files\Microsoft Visual Studio\2022\Enterprise"" --add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --passive --norestart" -Wait -PassThru
+        if ($installer.ExitCode -ne 0) {
+            Write-Error "VS Installer failed with exit code $($installer.ExitCode)"
+            exit $installer.ExitCode
+        }
+      shell: powershell
+
+    - name: Verify arm64intrin.h exists
+      if: ${{ matrix.arch == 'arm64'}}
+      run: |
+        $vsPath = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise"
+        $headerFile = Get-ChildItem -Path $vsPath -Filter "arm64intrin.h" -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+        
+        if ($headerFile) {
+            Write-Host "Success! Found header at: $($headerFile.FullName)"
+        } else {
+            Write-Error "CRITICAL: arm64intrin.h could not be found in Visual Studio paths."
+            exit 1
+        }
+      shell: powershell
+
+      
     - name: "cmake"
       run: |
         mkdir -p build
