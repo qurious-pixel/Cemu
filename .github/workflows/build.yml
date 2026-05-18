@@ -183,28 +183,10 @@ jobs:
         setapikey "${{ secrets.GITHUB_TOKEN }}" \
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
-    - name: Install VS 2022 ARM64 Build Tools
+    - name: Install VS 2022 ARM64 Build Tools via Chocolatey
       if: ${{ matrix.arch == 'arm64' }}
       run: |
-        # 1. Download the official clean VS 2022 Bootstrapper
-        Invoke-WebRequest -Uri "https://aka.ms/vs/17/release/vs_buildtools.exe" -OutFile "vs_buildtools.exe"
-        
-        # 2. Find where the runner image installed Visual Studio 
-        $vsPath = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -property installationPath -version '[17.0,18.0)'
-        Write-Host "Modifying Visual Studio installation at: $vsPath"
-
-        # 3. Launch the bootstrapper directly targeting the detected installation path
-        $process = Start-Process -FilePath ".\vs_buildtools.exe" -ArgumentList "modify --installPath ""$vsPath"" --add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --quiet --norestart" -PassThru
-        
-        Write-Host "Waiting for ARM64 tools installation to complete..."
-        $process.WaitForExit()
-
-        if ($process.ExitCode -ne 0 -and $process.ExitCode -ne 3010) {
-            Write-Error "Installer failed with exit code $($process.ExitCode)"
-            exit $process.ExitCode
-        }
-        Write-Host "Installation process finished."
-      shell: powershell
+        choco install visualstudio2022-workload-vctools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.ARM64" -y
 
     - name: Verify arm64intrin.h exists
       if: ${{ matrix.arch == 'arm64' }}
