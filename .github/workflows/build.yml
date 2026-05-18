@@ -183,11 +183,13 @@ jobs:
         setapikey "${{ secrets.GITHUB_TOKEN }}" \
         -source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
 
-    - name: Install VS 2022 ARM64 Build Tools via Chocolatey
+    - name: Install VS 2022 ARM64 Build Tools to Enterprise SKU
       if: ${{ matrix.arch == 'arm64' }}
       run: |
-        choco install visualstudio2022-workload-vctools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.ARM64" -y
-
+        choco install visualstudio2022-workload-vctools `
+          --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.ARM64 --productId Microsoft.VisualStudio.Product.Enterprise" `
+          -y
+          
     - name: Verify arm64intrin.h exists
       if: ${{ matrix.arch == 'arm64' }}
       run: |
