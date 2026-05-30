@@ -8,7 +8,7 @@ jobs:
   build-cemu:
     runs-on: ubuntu-latest
     container:
-      image: cachyos/cachyos
+      image: archlinux:latest # cachyos/cachyos
     steps:
     - name: Setup dependencies
       run: >
