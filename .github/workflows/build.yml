@@ -31,7 +31,7 @@ jobs:
         
     - name: "cmake"
       run: |
-        cmake -B build -S cemu -GNinja -DENABLE_VCPKG=OFF -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" -DCMAKE_C_FLAGS_INIT="-flto=thin -g" -DCMAKE_CXX_FLAGS_INIT="-flto=thin -g"
+        cmake -B build -S . -GNinja -DENABLE_VCPKG=OFF -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_EXE_LINKER_FLAGS_INIT="-fuse-ld=lld" -DCMAKE_SHARED_LINKER_FLAGS_INIT="-fuse-ld=lld" -DCMAKE_C_FLAGS_INIT="-flto=thin -g" -DCMAKE_CXX_FLAGS_INIT="-flto=thin -g"
         #cmake -S . -B build ${{ env.BUILD_FLAGS }} -DCMAKE_BUILD_TYPE=release -DVCPKG_BUILD_TYPE=release -DPORTABLE=OFF -DCMAKE_C_COMPILER=/usr/bin/gcc -DCMAKE_CXX_COMPILER=/usr/bin/g++ -G Ninja -DCMAKE_MAKE_PROGRAM=/usr/bin/ninja
         
     - name: "Build Cemu"
