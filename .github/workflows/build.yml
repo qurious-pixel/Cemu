@@ -49,7 +49,7 @@ jobs:
         cmake --build build
         
     - name: Prepare artifact
-      run: mv bin/Cemu_release bin/Cemu
+      run: mv bin/Cemu_relwithdebinfo bin/Cemu
               
     - name: Upload artifact
       uses: actions/upload-artifact@v7
