@@ -57,3 +57,20 @@ jobs:
         name: cemu-bin-linux-x64
         path: ./bin/Cemu
 
+    - name: Build AppImage
+      run: |
+        SHARUN="https://raw.githubusercontent.com/pkgforge-dev/Anylinux-AppImages/refs/heads/main/useful-tools/quick-sharun.sh"
+        export ICON=dist/linux/info.cemu.Cemu.png
+        export DESKTOP=dist/linux/info.cemu.Cemu.desktop
+        export OUTPATH=./
+        export OUTNAME=Cemu.AppImage
+        wget "$SHARUN" -O ./quick-sharun
+        chmod +x ./quick-sharun
+        ./quick-sharun ./bin/Cemu
+        ./quick-sharun --make-appimage
+
+    - name: Upload Appimage artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: cemu-appimage-linux-x64
+        path: Cemu.AppImage
