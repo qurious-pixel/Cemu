@@ -40,7 +40,7 @@
         </activity>
         <activity
             android:name=".emulation.EmulationActivity"
-            android:configChanges="orientation|screenSize|keyboard|keyboardHidden">
+            android:configChanges="orientation|screenSize|keyboard|keyboardHidden"
             android:exported="true"
             android:launchMode="singleTop"
             android:parentActivityName=".MainActivity"
