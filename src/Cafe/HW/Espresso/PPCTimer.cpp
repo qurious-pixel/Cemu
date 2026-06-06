@@ -3,7 +3,22 @@
 #include "util/helpers/fspinlock.h"
 #include "util/highresolutiontimer/HighResolutionTimer.h"
 #include "Common/cpu_features.h"
-#include "Common/Intrinsics.h"
+
+#include <chrono>
+#include <thread>
+
+#if defined(ARCH_X86_64) || defined(_M_X64)
+    #include <immintrin.h>
+    #pragma intrinsic(__rdtsc)
+    #define PLATFORM_MFENCE() _mm_mfence()
+    #define PLATFORM_RDTSC()  __rdtsc()
+#elif defined(_M_ARM64) || defined(__aarch64__)
+    #include <arm64_intrinsics.h>
+    #define PLATFORM_MFENCE() __dmb(_ARM64_BARRIER_SY)
+    #define PLATFORM_RDTSC()  _ReadStatusReg(ARM64_CNTVCT_EL0)
+
+    // Put the _udiv128 fallback function here if needed
+#endif
 
 uint64 _rdtscLastMeasure = 0;
 uint64 _rdtscFrequency = 0;
