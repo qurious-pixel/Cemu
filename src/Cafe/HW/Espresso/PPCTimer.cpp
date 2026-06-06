@@ -3,22 +3,10 @@
 #include "util/helpers/fspinlock.h"
 #include "util/highresolutiontimer/HighResolutionTimer.h"
 #include "Common/cpu_features.h"
+#include "Common/Intrinsics.h"
 
 #include <chrono>
 #include <thread>
-
-#if defined(ARCH_X86_64) || defined(_M_X64)
-    #include <immintrin.h>
-    #pragma intrinsic(__rdtsc)
-    #define PLATFORM_MFENCE() _mm_mfence()
-    #define PLATFORM_RDTSC()  __rdtsc()
-#elif defined(_M_ARM64) || defined(__aarch64__)
-    #include <arm64_intrinsics.h>
-    #define PLATFORM_MFENCE() __dmb(_ARM64_BARRIER_SY)
-    #define PLATFORM_RDTSC()  _ReadStatusReg(ARM64_CNTVCT_EL0)
-
-    // Put the _udiv128 fallback function here if needed
-#endif
 
 uint64 _rdtscLastMeasure = 0;
 uint64 _rdtscFrequency = 0;
@@ -52,13 +40,15 @@ uint64 PPCTimer_estimateRDTSCFrequency()
 
 	BARRIER_FENCE();
 	uint64 tscStart = READ_TSC();
-	unsigned int startTime = GetTickCount();
+	auto startTime = std::chrono::steady_clock::now();
 	HRTick startTick = HighResolutionTimer::now().getTick();
 	
 	while (true)
 	{
-		if ((GetTickCount() - startTime) >= 3000)
-			break;
+		auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                   std::chrono::steady_clock::now() - startTime).count();
+		if (elapsed >= 3000)
+		    break;
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 	
@@ -105,15 +95,13 @@ uint64 PPCTimer_microsecondsToTsc(uint64 us)
 
 uint64 PPCTimer_tscToMicroseconds(uint64 us)
 {
-	uint128_t r{};
-    // Changed: Using Multiply64to128 wrapper
-	r.low = Multiply64to128(us, 1000000ULL, &r.high);
+    uint128_t r{};
+    r.low = portable_umul128(us, 1000000ULL, &r.high);
 
-	uint64 remainder;
-    // Changed: Using Divide128by64 wrapper
-	const uint64 microseconds = Divide128by64(r.high, r.low, _rdtscFrequency, &remainder);
+    uint64 remainder;
+    const uint64 microseconds = portable_udiv128(r.high, r.low, _rdtscFrequency, &remainder);
 
-	return microseconds;
+    return microseconds;
 }
 
 bool PPCTimer_isReady()
@@ -138,22 +126,20 @@ uint64 PPCTimer_getFromRDTSC()
 	rdtscDif = rdtscDif & ~(uint64)((sint64)rdtscDif >> 63);
 
 	uint128_t diff{};
-	diff.low = Multiply64to128(rdtscDif, Espresso::CORE_CLOCK, &diff.high);
+    diff.low = portable_umul128(rdtscDif, Espresso::CORE_CLOCK, &diff.high);
 
-	if(rdtscCurrentMeasure > _rdtscLastMeasure)
-		_rdtscLastMeasure = rdtscCurrentMeasure; 
+    if(rdtscCurrentMeasure > _rdtscLastMeasure)
+        _rdtscLastMeasure = rdtscCurrentMeasure;
 
-	uint8 c = 0;
-	#if defined(_MSC_VER)
-	c = _addcarry_u64(c, _rdtscAcc.low, diff.low, &_rdtscAcc.low);
-	_addcarry_u64(c, _rdtscAcc.high, diff.high, &_rdtscAcc.high);
-	#else
-	c = _addcarry_u64(c, _rdtscAcc.low, diff.low, (unsigned long long*)&_rdtscAcc.low);
-	_addcarry_u64(c, _rdtscAcc.high, diff.high, (unsigned long long*)&_rdtscAcc.high);
-	#endif
+    // Portable 128-bit Addition with Carry
+    uint64 old_low = _rdtscAcc.low;
+    _rdtscAcc.low += diff.low;
+    // If the result wrapped around, carry is 1, otherwise 0
+    uint64 carry = (_rdtscAcc.low < old_low) ? 1 : 0;
+    _rdtscAcc.high += diff.high + carry;
 
-	uint64 remainder;
-	uint64 elapsedTick = Divide128by64(_rdtscAcc.high, _rdtscAcc.low, _rdtscFrequency, &remainder);
+    uint64 remainder;
+    uint64 elapsedTick = portable_udiv128(_rdtscAcc.high, _rdtscAcc.low, _rdtscFrequency, &remainder);
 
 	_rdtscAcc.low = remainder;
 	_rdtscAcc.high = 0;
