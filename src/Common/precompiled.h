@@ -402,12 +402,8 @@ inline uint64 __rdtsc()
 
 inline void _mm_mfence()
 {
-#if defined(_MSC_VER)
-    __dmb(_ARM64_BARRIER_ISH); // Inner Shareable Data Memory Barrier
-#else
-    asm volatile("" ::: "memory");
+	asm volatile("" ::: "memory");
     std::atomic_thread_fence(std::memory_order_seq_cst);
-#endif
 }
 
 inline unsigned char _addcarry_u64(unsigned char carry, unsigned long long a, unsigned long long b, unsigned long long *result)
