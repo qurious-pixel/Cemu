@@ -1,6 +1,7 @@
 name: Build Cemu
 
 on:
+  push:
   workflow_call:
     inputs:
       next_version_major:
@@ -17,6 +18,7 @@ env:
   
 jobs:
   build-ubuntu:
+    if: false
     continue-on-error: true
     strategy:
       fail-fast: false
@@ -128,12 +130,13 @@ jobs:
         path: artifacts
 
   build-windows:
+    if: true
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: windows-2022
-            arch: x64
+          #- os: windows-2022
+          #  arch: x64
           - os: windows-11-arm
             arch: arm64
     name: build-windows-${{ matrix.arch }}
@@ -214,6 +217,7 @@ jobs:
         path: ./src/resource/cemu-${{ inputs.next_version_major }}.${{ inputs.next_version_minor }}-windows-${{ matrix.arch }}-installer.exe
 
   build-macos:
+    if: false
     runs-on: macos-14
     strategy:
       fail-fast: false
