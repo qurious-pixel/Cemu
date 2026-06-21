@@ -402,7 +402,6 @@ inline uint64 __rdtsc()
 
 inline void _mm_mfence()
 {
-	asm volatile("" ::: "memory");
     std::atomic_thread_fence(std::memory_order_seq_cst);
 }
 
