@@ -179,6 +179,12 @@ inline sint16 _swapEndianS16(sint16 v)
 {
 	return (sint16)(((uint16)v >> 8) | ((uint16)v << 8));
 }
+#if defined(_M_ARM64)
+inline uint64 _umul128(uint64 multiplier, uint64 multiplicand, uint64 *highProduct) {
+    *highProduct = __umulh(multiplier, multiplicand);
+    return multiplier * multiplicand;
+}
+#endif
 #else
 inline uint64 _swapEndianU64(uint64 v)
 {
@@ -289,6 +295,18 @@ inline uint64 _udiv128(uint64 highDividend, uint64 lowDividend, uint64 divisor, 
     unsigned __int128 dividend = (((unsigned __int128)highDividend) << 64) | ((unsigned __int128)lowDividend);
     *remainder = (uint64)((dividend % divisor) & 0xFFFFFFFFFFFFFFFF);
     return       (uint64)((dividend / divisor) & 0xFFFFFFFFFFFFFFFF);
+}
+#elif defined(_M_ARM64)
+inline uint64 _udiv128(uint64 highDividend, uint64 lowDividend, uint64 divisor, uint64 *remainder)
+{
+    uint64 high = highDividend;
+    uint64 low = lowDividend;
+    if (high >= divisor) {
+        high %= divisor;
+    } 
+    unsigned __int128 dividend = (((unsigned __int128)highDividend) << 64) | lowDividend;
+    *remainder = (uint64)(dividend % divisor);
+    return (uint64)(dividend / divisor);
 }
 #endif
 
